@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Baptized;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
@@ -59,6 +60,7 @@ public class Necromancer extends Mob {
 		lootChance = 0.2f; //see createloot
 		
 		properties.add(Property.UNDEAD);
+		properties.add(Property.MAGICAL); // AddedPD
 		
 		HUNTING = new Hunting();
 	}
@@ -228,10 +230,10 @@ public class Necromancer extends Mob {
 				summoningEmitter.burst( Speck.factory( Speck.RATTLE ), 5 );
 				sprite.idle();
 				
-				if (buff(Corruption.class) != null){
+				if (buff(Corruption.class) != null || buff(Baptized.class) != null){
 					Buff.affect(mySkeleton, Corruption.class);
 				}
-				
+
 				spend(TICK);
 				return true;
 			}

@@ -24,8 +24,10 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
@@ -146,6 +148,12 @@ public class Wandmaker extends NPC {
 				case HUNTRESS:
 					msg1 += Messages.get(this, "intro_huntress");
 					break;
+				case CLERIC:
+					msg1 += Messages.get(this, "intro_cleric");
+					break;
+				case DWARF:
+					msg1 += Messages.get(this, "intro_dwarf");
+					break;
 			}
 
 			msg1 += Messages.get(this, "intro_1");
@@ -162,7 +170,12 @@ public class Wandmaker extends NPC {
 					break;
 			}
 
-			msg2 += Messages.get(this, "intro_2");
+			if (Dungeon.hero.heroClass == HeroClass.CLERIC) {
+				msg2 += Messages.get(this, "intro_2_cleric");
+			} else {
+				msg2 += Messages.get(this, "intro_2");
+			}
+
 			final String msg1Final = msg1;
 			final String msg2Final = msg2;
 			
@@ -199,6 +212,7 @@ public class Wandmaker extends NPC {
 		
 		public static Wand wand1;
 		public static Wand wand2;
+		public static PotionOfExperience potion;
 		
 		public static void reset() {
 			spawned = false;
@@ -229,9 +243,10 @@ public class Wandmaker extends NPC {
 				node.put( TYPE, type );
 				
 				node.put( GIVEN, given );
-				
-				node.put( WAND1, wand1 );
-				node.put( WAND2, wand2 );
+
+
+				node.put(WAND1, wand1);
+				node.put(WAND2, wand2);
 
 				if (type == 2){
 					node.put( RITUALPOS, CeremonialCandle.ritualPos );
@@ -251,9 +266,8 @@ public class Wandmaker extends NPC {
 				type = node.getInt(TYPE);
 				
 				given = node.getBoolean( GIVEN );
-				
-				wand1 = (Wand)node.get( WAND1 );
-				wand2 = (Wand)node.get( WAND2 );
+				wand1 = (Wand) node.get(WAND1);
+				wand2 = (Wand) node.get(WAND2);
 
 				if (type == 2){
 					CeremonialCandle.ritualPos = node.getInt( RITUALPOS );
@@ -289,7 +303,6 @@ public class Wandmaker extends NPC {
 				} while (wand2.getClass().equals(wand1.getClass()));
 				wand2.cursed = false;
 				wand2.upgrade();
-				
 			}
 		}
 		

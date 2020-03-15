@@ -77,6 +77,12 @@ public class Viscosity extends Glyph {
 		}
 		
 		protected int damage = 0;
+
+		// AddedPD : for sealknight
+		public void reduceDamage(int dmg) {
+			damage -= dmg;
+			if (damage < 0) damage = 0;
+		}
 		
 		private static final String DAMAGE	= "damage";
 		

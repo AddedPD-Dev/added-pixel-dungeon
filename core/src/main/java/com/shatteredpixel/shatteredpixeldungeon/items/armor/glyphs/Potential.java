@@ -21,13 +21,20 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EnergyParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor.Glyph;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite.Glowing;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
+import com.watabou.noosa.Image;
+import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
 
 public class Potential extends Glyph {
@@ -47,6 +54,16 @@ public class Potential extends Glyph {
 			if (wands > 0) {
 				defender.sprite.centerEmitter().burst(EnergyParticle.FACTORY, 10);
 			}
+
+			// AddedPD : for sealknight - imbue your attack with magical strike when glyph is activated
+			if (defender == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT
+					&& armor.checkSeal() != null) {
+				SealCharge charge = Buff.affect( defender, SealCharge.class );
+				charge.prolong( damage );
+				if (wands <= 0) {
+					defender.sprite.centerEmitter().burst(EnergyParticle.FACTORY, 10);
+				}
+			}
 		}
 		
 		return damage;
@@ -55,5 +72,92 @@ public class Potential extends Glyph {
 	@Override
 	public Glowing glowing() {
 		return WHITE;
+	}
+
+	// AddedPD : for sealknight
+	public static class SealCharge extends Buff {
+
+		{
+			type = buffType.POSITIVE;
+		}
+
+		protected int damage = 0;
+		protected int partialDamage = 3;
+
+		private static final String DAMAGE	= "damage";
+		private static final String PARTIAL_DAMAGE	= "partialDamage";
+
+		@Override
+		public void storeInBundle( Bundle bundle ) {
+			super.storeInBundle( bundle );
+			bundle.put( DAMAGE, damage );
+			bundle.put( PARTIAL_DAMAGE, partialDamage );
+		}
+
+		@Override
+		public void restoreFromBundle( Bundle bundle ) {
+			super.restoreFromBundle( bundle );
+			damage = bundle.getInt( DAMAGE );
+			partialDamage = bundle.getInt( PARTIAL_DAMAGE );
+		}
+
+		public int getDamage(){
+			// without this, sometimes we met funny situation - "kill blacksmith", etc.
+			if (damage >= 100) { damage = 100; }
+			return damage;
+		}
+
+		public void costDamage(int dmg) {
+			damage -= dmg;
+			if (damage < 0) damage = 0;
+		}
+
+		@Override
+		public boolean attachTo( Char target ) {
+			if (super.attachTo( target )) {
+				postpone( TICK );
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		@Override
+		public boolean act() {
+			spend( TICK );
+			partialDamage--;
+			if (0 >= partialDamage){
+				partialDamage = 3;
+				damage -= TICK;
+			}
+			if (damage <= 0) {
+				detach();
+			}
+			return true;
+		}
+
+		public void prolong( int damage ) {
+			this.damage += damage;
+		}
+
+		@Override
+		public int icon() {
+			return BuffIndicator.WEAPON;
+		}
+
+		@Override
+		public void tintIcon(Image icon) {
+			icon.hardlight(0xFFFF4C);
+		}
+
+		@Override
+		public String toString() {
+			return Messages.get(this, "name");
+		}
+
+		@Override
+		public String desc() {
+			return Messages.get(SealCharge.class, "desc",  damage);
+		}
 	}
 }

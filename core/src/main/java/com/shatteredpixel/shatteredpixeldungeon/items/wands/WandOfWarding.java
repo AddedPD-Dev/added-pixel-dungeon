@@ -127,6 +127,8 @@ public class WandOfWarding extends Wand {
 		if (Random.Int( level + 5 ) >= 4) {
 			for (Char ch : Actor.chars()){
 				if (ch instanceof Ward){
+					// AddedPD : notice your heal effect is activated
+					GLog.p(Messages.get(this, "healed"));
 					((Ward) ch).wandHeal(staff.level());
 					ch.sprite.emitter().burst(MagicMissile.WardParticle.UP, ((Ward) ch).tier);
 				}

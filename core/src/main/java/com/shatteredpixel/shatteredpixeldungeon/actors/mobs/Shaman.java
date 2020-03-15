@@ -51,6 +51,7 @@ public class Shaman extends Mob implements Callback {
 		lootChance = 0.33f;
 		
 		properties.add(Property.ELECTRIC);
+		properties.add(Property.MAGICAL); // AddedPD
 	}
 	
 	@Override
@@ -102,7 +103,7 @@ public class Shaman extends Mob implements Callback {
 				enemy.sprite.flash();
 				
 				if (enemy == Dungeon.hero) {
-					
+
 					Camera.main.shake( 2, 0.3f );
 					
 					if (!enemy.isAlive()) {

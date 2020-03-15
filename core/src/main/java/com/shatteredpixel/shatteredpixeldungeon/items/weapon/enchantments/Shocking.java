@@ -25,8 +25,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
@@ -57,6 +61,13 @@ public class Shocking extends Weapon.Enchantment {
 			affected.remove(defender); //defender isn't hurt by lightning
 			for (Char ch : affected) {
 				ch.damage(Math.round(damage*0.4f), this);
+
+				// AddedPD : The Dwarf Survivor's perk(but still receive damage)
+				if ( ch == Dungeon.hero && Dungeon.hero.heroClass == HeroClass.DWARF) {
+					// overcharge his cybernetic body!
+					Buff.prolong(ch, Haste.class, 4f);
+					ScrollOfRecharging.charge(Dungeon.hero);
+				}
 			}
 
 			attacker.sprite.parent.addToFront( new Lightning( arcs, null ) );

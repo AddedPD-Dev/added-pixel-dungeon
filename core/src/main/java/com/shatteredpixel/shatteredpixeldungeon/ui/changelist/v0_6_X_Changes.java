@@ -392,7 +392,7 @@ public class v0_6_X_Changes {
 				"The game's resistance system has been totally overhauled, to allow for more flexibility and consistency.\n\n" +
 				"Previously, if a character was resistant to something, its effect would be reduced by a random amount between 0% and 100%.\n\n" +
 				"Now, resistances are much less random, applying a specific reduction to harmful effects. Currently all resistances are 50%.\n\n" +
-				"Resistances are also now much more consistent between different creatures. e.g. all non-organic enemies are now immune to bleed.\n\n" +
+				"Resistances are also now much more consistent between different creatures. e.g. all non-organic enemies are now immune to fully_charged.\n\n" +
 				"A few things have been adjusted due to this:\n\n" +
 				"_-_ The Rotting Fist is now immune to paralysis.\n" +
 				"_-_ Psionic blast now deals 100% of current HP, instead of 100% of max HP.\n" +

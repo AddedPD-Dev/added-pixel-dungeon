@@ -29,6 +29,8 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.DwarfArm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -65,7 +67,9 @@ public class DisarmingTrap extends Trap{
 			Hero hero = Dungeon.hero;
 			KindOfWeapon weapon = hero.belongings.weapon;
 
-			if (weapon != null && !weapon.cursed) {
+			if (weapon != null && !weapon.cursed
+					&& !weapon.enlightened
+					&& !(weapon instanceof DwarfArm)) {
 
 				int cell = Dungeon.level.randomRespawnCell();
 				if (cell != -1) {

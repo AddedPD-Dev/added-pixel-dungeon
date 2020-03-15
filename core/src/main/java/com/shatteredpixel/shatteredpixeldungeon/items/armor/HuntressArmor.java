@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.armor;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Shuriken;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -46,7 +47,7 @@ public class HuntressArmor extends ClassArmor {
 	@Override
 	public void doSpecial() {
 		
-		Item proto = new Shuriken();
+		Item proto = new SpectralBlade();
 		
 		for (Mob mob : Dungeon.level.mobs) {
 			if (Dungeon.level.distance(curUser.pos, mob.pos) <= 12
@@ -68,6 +69,7 @@ public class HuntressArmor extends ClassArmor {
 					reset( curUser.pos, mob.pos, proto, callback );
 				
 				targets.put( callback, mob );
+				Splash.at( mob.pos, 0xCC99FFFF, 1 );
 			}
 		}
 		
@@ -80,6 +82,12 @@ public class HuntressArmor extends ClassArmor {
 		
 		curUser.sprite.zap( curUser.pos );
 		curUser.busy();
+	}
+
+	public static class SpectralBlade extends Item {
+		{
+			image = ItemSpriteSheet.SPECTRAL_BLADE;
+		}
 	}
 
 }

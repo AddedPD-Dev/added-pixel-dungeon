@@ -54,6 +54,7 @@ public class Warlock extends Mob implements Callback {
 		lootChance = 0.83f;
 
 		properties.add(Property.UNDEAD);
+		properties.add(Property.MAGICAL); // AddedPD
 	}
 	
 	@Override

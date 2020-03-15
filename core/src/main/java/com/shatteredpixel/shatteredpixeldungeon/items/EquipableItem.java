@@ -26,7 +26,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
@@ -46,6 +48,11 @@ public abstract class EquipableItem extends Item {
 	public ArrayList<String> actions(Hero hero ) {
 		ArrayList<String> actions = super.actions( hero );
 		actions.add( isEquipped( hero ) ? AC_UNEQUIP : AC_EQUIP );
+		// AddedPD : dwarf survivor cannot wield other weapon
+		if (hero.heroClass == HeroClass.DWARF && this instanceof MeleeWeapon) {
+			actions.remove(AC_UNEQUIP);
+			actions.remove(AC_EQUIP);
+		}
 		return actions;
 	}
 

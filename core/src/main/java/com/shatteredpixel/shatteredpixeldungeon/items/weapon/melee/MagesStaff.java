@@ -23,14 +23,22 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TransmuterBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
@@ -121,14 +129,47 @@ public class MagesStaff extends MeleeWeapon {
 
 		} else if (action.equals(AC_ZAP)){
 
-			if (wand == null) {
-				GameScene.show(new WndItem(null, this, true));
-				return;
-			}
+			// AddedPD : transmuter's staff-change
+			if (curUser.subClass == HeroSubClass.TRANSMUTER && wand!= null && isEquipped(curUser)
+					&& wand.curCharges == 0 && !hasCurseEnchant() && curseInfusionBonus == false
+					&& curUser.buff(TransmuterBuff.class) == null) {
 
-			if (cursed || hasCurseEnchant()) wand.cursed = true;
-			else                             wand.cursed = false;
-			wand.execute(hero, AC_ZAP);
+				float dur = 8f + (float)(2*level());
+
+				Wand n;
+				do {
+					n = (Wand) Generator.random(Generator.Category.WAND);
+				} while (Challenges.isItemBlocked(n) || n.getClass() == wandClass());
+				n.level(0);
+				n.identify();
+				imbueWand(n, null);
+
+				int slot = Dungeon.quickslot.getSlot( this );
+				doUnequip(Dungeon.hero, false);
+				doEquip(hero);
+				if (slot != -1) {
+					Dungeon.quickslot.setSlot( slot, this );
+					wand.curCharges = 1;
+					updateQuickslot();
+				}
+
+				curUser.sprite.emitter().burst( Speck.factory( Speck.CHANGE ), 4);
+				curUser.sprite.emitter().burst(StaffParticleFactory, 30);
+				Buff.affect(curUser, Recharging.class, 4f);
+				Buff.affect(curUser, TransmuterBuff.class, dur);
+				GLog.p( Messages.get(MagesStaff.class, "transmute", this.name()));
+
+			} else {
+
+				if (wand == null) {
+					GameScene.show(new WndItem(null, this, true));
+					return;
+				}
+
+				if (cursed || hasCurseEnchant() || curUser.buff(TransmuterBuff.class) != null) wand.cursed = true;
+				else wand.cursed = false;
+				wand.execute(hero, AC_ZAP);
+			}
 		}
 	}
 

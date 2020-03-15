@@ -51,7 +51,7 @@ import com.watabou.utils.DeviceCompat;
 
 public class WndStartGame extends Window {
 	
-	private static final int WIDTH    = 120;
+	private static final int WIDTH    = 124;
 	private static final int HEIGHT   = 140;
 
 	public WndStartGame(final int slot){
@@ -65,7 +65,7 @@ public class WndStartGame extends Window {
 		PixelScene.align(title);
 		add(title);
 		
-		float heroBtnSpacing = (WIDTH - 4*HeroBtn.WIDTH)/5f;
+		float heroBtnSpacing = (WIDTH - 6*HeroBtn.WIDTH)/6f;
 		
 		float curX = heroBtnSpacing;
 		for (HeroClass cl : HeroClass.values()){
@@ -174,6 +174,10 @@ public class WndStartGame extends Window {
 				hero = new Image(Assets.ROGUE, 0, 90, 12, 15);
 			} else if (cl == HeroClass.HUNTRESS){
 				hero = new Image(Assets.HUNTRESS, 0, 90, 12, 15);
+			} else if (cl == HeroClass.CLERIC){
+				hero = new Image(Assets.CLERIC, 0, 90, 12, 15);
+			}  else if (cl == HeroClass.DWARF){
+				hero = new Image(Assets.DWARFHERO, 0, 90, 12, 15);
 			}
 			add(hero);
 			
@@ -194,7 +198,9 @@ public class WndStartGame extends Window {
 			super.update();
 			if (cl != GamesInProgress.selectedClass){
 				if (!cl.isUnlocked()){
-					hero.brightness(0.3f);
+					if (cl == HeroClass.DWARF){
+						hero.brightness(0f);
+					} else hero.brightness(0.3f);
 				} else {
 					hero.brightness(0.6f);
 				}
@@ -340,7 +346,16 @@ public class WndStartGame extends Window {
 							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.GLOVES, null));
 							heroMisc.icon(new Image(Assets.TILES_SEWERS, 112, 96, 16, 16 ));
 							break;
-					}
+						case CLERIC:
+							heroItem.icon(Icons.get(Icons.CLERIC));
+							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.CUDGEL, null));
+							heroMisc.icon(new ItemSprite(ItemSpriteSheet.ANKH, null));
+							break;
+						case DWARF:
+							heroItem.icon(new ItemSprite(ItemSpriteSheet.DWARFARM, null));
+							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.STONE_SHOCK, null));
+							heroMisc.icon(new ItemSprite(ItemSpriteSheet.TOKEN));
+							break;					}
 					
 					layout();
 					

@@ -78,6 +78,8 @@ public class ItemSpriteSheet {
 	public static final int PETAL           = UNCOLLECTIBLE+2;
 	public static final int SANDBAG         = UNCOLLECTIBLE+3;
 	public static final int SPIRIT_ARROW    = UNCOLLECTIBLE+4;
+	// AddedPD : for proper image of spectral blades
+	public static final int SPECTRAL_BLADE  = UNCOLLECTIBLE+5;
 	
 	public static final int GUIDE_PAGE      = UNCOLLECTIBLE+6;
 	public static final int ALCH_PAGE       = UNCOLLECTIBLE+7;
@@ -90,7 +92,7 @@ public class ItemSpriteSheet {
 		assignItemRect(PETAL,       8,  8);
 		assignItemRect(SANDBAG,     10, 10);
 		assignItemRect(SPIRIT_ARROW,11, 11);
-		
+		assignItemRect(SPECTRAL_BLADE,14, 14);
 		assignItemRect(GUIDE_PAGE,  10, 11);
 		assignItemRect(ALCH_PAGE,   10, 11);
 		
@@ -188,14 +190,17 @@ public class ItemSpriteSheet {
 
 	private static final int WEP_TIER1      =                               xy(1, 7);   //8 slots
 	public static final int WORN_SHORTSWORD = WEP_TIER1+0;
-	public static final int CUDGEL          = WEP_TIER1+1;
+	public static final int DWARFARM		= WEP_TIER1+1;
 	public static final int GLOVES          = WEP_TIER1+2;
-	public static final int RAPIER          = WEP_TIER1+3;
+	public static final int CUDGEL			= WEP_TIER1+3;
+//	public static final int RAPIER          = WEP_TIER1+3;
 	public static final int DAGGER          = WEP_TIER1+4;
 	public static final int MAGES_STAFF     = WEP_TIER1+5;
 	static{
 		assignItemRect(WORN_SHORTSWORD, 13, 13);
+		assignItemRect(DWARFARM,	    13, 15);
 		assignItemRect(GLOVES,          12, 16);
+		assignItemRect(CUDGEL,			13, 13);
 		assignItemRect(DAGGER,          12, 13);
 		assignItemRect(MAGES_STAFF,     15, 16);
 	}
@@ -339,6 +344,8 @@ public class ItemSpriteSheet {
 	public static final int ARMOR_MAGE      = ARMOR+6;
 	public static final int ARMOR_ROGUE     = ARMOR+7;
 	public static final int ARMOR_HUNTRESS  = ARMOR+8;
+	public static final int ARMOR_CLERIC	= ARMOR+9;
+	public static final int ARMOR_DWARF		= ARMOR+10;
 	static{
 		assignItemRect(ARMOR_CLOTH,     15, 12);
 		assignItemRect(ARMOR_LEATHER,   14, 13);
@@ -349,6 +356,8 @@ public class ItemSpriteSheet {
 		assignItemRect(ARMOR_MAGE,      15, 15);
 		assignItemRect(ARMOR_ROGUE,     14, 12);
 		assignItemRect(ARMOR_HUNTRESS,  13, 15);
+		assignItemRect(ARMOR_CLERIC,	13, 12);
+		assignItemRect(ARMOR_DWARF,	 	15, 15);
 	}
 
 	                                                                                    //16 free slots

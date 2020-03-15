@@ -25,9 +25,13 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -74,7 +78,14 @@ public class WandOfLightning extends DamageWand {
 			processSoulMark(ch, chargesPerCast());
 			ch.damage(Math.round(damageRoll() * multipler), this);
 
-			if (ch == Dungeon.hero) Camera.main.shake( 2, 0.3f );
+			if (ch == Dungeon.hero) {
+				Camera.main.shake( 2, 0.3f );
+				// AddedPD : overcharge our mechanized dwarf!
+				if (Dungeon.hero.heroClass == HeroClass.DWARF) {
+					Buff.prolong( ch, Haste.class, 4f);
+					ScrollOfRecharging.charge(Dungeon.hero);
+				}
+			}
 			ch.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );
 			ch.sprite.flash();
 		}

@@ -114,6 +114,16 @@ public class Berserk extends Buff {
 		return Math.round(dmg * bonus);
 	}
 
+	// AddedPD : buff for berserker, because his ability isn't useful while you dive into very critical danger
+	public int reduceFactor(int dmg){
+		float bonus = 2f - Math.min(1.2f, 1f + (power / 5f));
+		// DR for all damage(normal, magical...), maximum at 100% rage = DR+20%
+
+		Fury fury = Dungeon.hero.buff(Fury.class);
+		// Fury time! Just same as 100% rage
+		if (fury != null) { bonus = 0.8f; } return Math.round(dmg * bonus);
+	}
+
 	public boolean berserking(){
 		if (target.HP == 0 && state == State.NORMAL && power >= 1f){
 
@@ -187,9 +197,10 @@ public class Berserk extends Buff {
 	@Override
 	public String desc() {
 		float dispDamage = (damageFactor(10000) / 100f) - 100f;
+		float DRdesc = ((reduceFactor(10000) / 100f) - 100f)*(-1f);
 		switch (state){
 			case NORMAL: default:
-				return Messages.get(this, "angered_desc", Math.floor(power * 100f), dispDamage);
+				return Messages.get(this, "angered_desc", Math.floor(power * 100f), dispDamage, DRdesc);
 			case BERSERK:
 				return Messages.get(this, "berserk_desc");
 			case RECOVERING:

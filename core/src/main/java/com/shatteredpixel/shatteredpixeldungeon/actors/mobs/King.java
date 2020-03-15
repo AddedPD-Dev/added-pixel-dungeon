@@ -70,6 +70,7 @@ public class King extends Mob {
 
 		properties.add(Property.BOSS);
 		properties.add(Property.UNDEAD);
+		properties.add(Property.MAGICAL); // AddedPD
 	}
 	
 	private boolean nextPedestal = true;

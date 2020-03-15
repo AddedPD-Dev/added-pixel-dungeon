@@ -59,7 +59,9 @@ public enum Icons {
 	MAGE,
 	ROGUE,
 	HUNTRESS,
-	
+	CLERIC,
+	DWARF,
+
 	//main menu icons
 	ENTER,
 	GOLD,
@@ -67,6 +69,16 @@ public enum Icons {
 	BADGES,
 	CHANGES,
 	SHPX,
+	ADDED_PD,
+
+	// AddedPD : icons for cleric, +cleric_miracle.png
+	SMITE,
+	SMITE_AOE,
+	ZEALOT,
+	HOLY_WATER,
+	CREMATE,
+	BAPTIZE,
+	ENLIGHTEN,
 	
 	//misc icons
 	LIBGDX,
@@ -163,7 +175,13 @@ public enum Icons {
 		case HUNTRESS:
 			icon.frame( icon.texture.uvRect( 64, 48, 80, 64 ) );
 			break;
-		
+		case CLERIC:
+			icon.frame( icon.texture.uvRect( 80, 48, 93, 64 ) );
+			break;
+		case DWARF:
+			icon.frame( icon.texture.uvRect( 96, 48, 109, 63 ) );
+			break;
+
 		case ENTER:
 			icon.frame( icon.texture.uvRect( 0, 64, 17, 81 ) );
 			break;
@@ -182,7 +200,10 @@ public enum Icons {
 		case GOLD:
 			icon.frame( icon.texture.uvRect( 85, 64, 102, 80 ) );
 			break;
-		
+		case ADDED_PD:
+			icon.frame( icon.texture.uvRect( 105, 64, 121, 80 ) );
+			break;
+
 		case LIBGDX:
 			icon.frame( icon.texture.uvRect( 0, 81, 16, 94 ) );
 			break;
@@ -195,7 +216,35 @@ public enum Icons {
 		}
 		return icon;
 	}
-	
+
+	public static Image get_miracle( Icons type ) {
+		Image icon = new Image( Assets.MIRACLE );
+		switch (type) {
+			case SMITE:
+				icon.frame( icon.texture.uvRect( 0, 0, 16, 16 ) );
+				break;
+			case SMITE_AOE:
+				icon.frame( icon.texture.uvRect( 17, 0, 33, 16 ) );
+				break;
+			case ZEALOT:
+				icon.frame( icon.texture.uvRect( 34, 0, 50, 16 ) );
+				break;
+			case HOLY_WATER:
+				icon.frame( icon.texture.uvRect( 51, 0, 67, 16 ) );
+				break;
+			case CREMATE:
+				icon.frame( icon.texture.uvRect( 68, 0, 84, 16 ) );
+				break;
+			case BAPTIZE:
+				icon.frame( icon.texture.uvRect( 85, 0, 101, 16 ) );
+				break;
+			case ENLIGHTEN:
+				icon.frame( icon.texture.uvRect( 102, 0, 117, 16 ) );
+				break;
+		}
+		return icon;
+	}
+
 	public static Image get( HeroClass cl ) {
 		switch (cl) {
 		case WARRIOR:
@@ -206,6 +255,10 @@ public enum Icons {
 			return get( ROGUE );
 		case HUNTRESS:
 			return get( HUNTRESS );
+		case CLERIC:
+			return get( CLERIC );
+		case DWARF:
+			return get( DWARF );
 		default:
 			return null;
 		}

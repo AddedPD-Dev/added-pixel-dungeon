@@ -28,13 +28,17 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.SuccubusSprite;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
@@ -61,6 +65,7 @@ public class Succubus extends Mob {
 		lootChance = 0.05f;
 
 		properties.add(Property.DEMONIC);
+		properties.add(Property.MAGICAL); // AddedPD
 	}
 	
 	@Override
@@ -71,7 +76,6 @@ public class Succubus extends Mob {
 	@Override
 	public int attackProc( Char enemy, int damage ) {
 		damage = super.attackProc( enemy, damage );
-		
 		if (enemy.buff(Charm.class) != null ){
 			int shield = (HP - HT) + (5 + damage);
 			if (shield > 0){
@@ -83,10 +87,15 @@ public class Succubus extends Mob {
 			sprite.emitter().burst( Speck.factory( Speck.HEALING ), 2 );
 			Sample.INSTANCE.play( Assets.SND_CHARMS );
 		} else if (Random.Int( 3 ) == 0) {
-			//attack will reduce by 5 turns, so effectively 3-4 turns
-			Buff.affect( enemy, Charm.class, Random.IntRange( 3, 4 ) + 5 ).object = id();
-			enemy.sprite.centerEmitter().start( Speck.factory( Speck.HEART ), 0.2f, 5 );
-			Sample.INSTANCE.play( Assets.SND_CHARMS );
+			if (enemy == Dungeon.hero && Dungeon.hero.heroClass == HeroClass.CLERIC) {
+				GLog.i( Messages.capitalize(Messages.get(this, "cleric")) );
+				// AddedPD : Cleric special - Charm immunity from succubi
+			} else {
+				//attack will reduce by 5 turns, so effectively 3-4 turns
+				Buff.affect(enemy, Charm.class, Random.IntRange(3, 4) + 5).object = id();
+				enemy.sprite.centerEmitter().start(Speck.factory(Speck.HEART), 0.2f, 5);
+				Sample.INSTANCE.play(Assets.SND_CHARMS);
+			}
 		}
 		
 		return damage;
@@ -132,7 +141,7 @@ public class Succubus extends Mob {
 				return;
 			}
 		}
-		
+
 		ScrollOfTeleportation.appear( this, cell );
 		
 		delay = BLINK_DELAY;

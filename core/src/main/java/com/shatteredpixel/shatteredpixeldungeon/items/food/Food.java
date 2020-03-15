@@ -24,10 +24,12 @@ package com.shatteredpixel.shatteredpixeldungeon.items.food;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -108,6 +110,12 @@ public class Food extends Item {
 				break;
 			case ROGUE:
 			case HUNTRESS:
+			// AddedPD
+			case DWARF:
+				break;
+			case CLERIC:
+				Buff.affect( hero, Bless.class, Bless.DURATION );
+				CellEmitter.get(hero.pos).start(Speck.factory(Speck.LIGHT), 0.2f, 6);
 				break;
 		}
 	}

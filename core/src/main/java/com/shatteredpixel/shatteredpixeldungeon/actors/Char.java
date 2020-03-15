@@ -28,8 +28,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArcaneArmor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Baptized;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
@@ -37,7 +40,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corrosion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfArmorBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfFocus;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EarthImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FireImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
@@ -45,6 +51,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FrostImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSleep;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.OnBlessedWater;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Ooze;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Poison;
@@ -57,16 +64,23 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Potential;
+import com.shatteredpixel.shatteredpixeldungeon.items.bombs.HolyBomb;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfElements;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRetribution;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.exotic.ScrollOfPsionicBlast;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFireblast;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfFrost;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLightning;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfPrismaticLight;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazing;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
@@ -77,12 +91,17 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Door;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrimTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.noosa.tweeners.AlphaTweener;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.Callback;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
@@ -133,11 +152,62 @@ public abstract class Char extends Actor {
 	}
 
 	public boolean canInteract( Hero h ){
+		if (isBaptized()) {
+			// AddedPD : redeemer can recall or dismiss baptized ally
+			return true;
+		}
 		return Dungeon.level.adjacent( pos, h.pos );
 	}
 	
 	//swaps places by default
 	public boolean interact(){
+		// AddedPD : redeemer can recall or dismiss baptized ally
+		if (isBaptized() && !Dungeon.level.adjacent( pos, Dungeon.hero.pos )) {
+			Char ally = Char.this;
+			Game.runOnRenderThread(new Callback() {
+				@Override
+				public void call() {
+					GameScene.show(new WndOptions(
+							Messages.get(Devotion.class, "interact_title"),
+							Messages.get(Devotion.class, "interact_prompt", name),
+							Messages.get(Devotion.class, "interact_recall"),
+							Messages.get(Devotion.class, "interact_dismiss"),
+							Messages.get(Devotion.class, "interact_cancel")){
+						@Override
+						protected void onSelect(int index) {
+							if (index == 0){
+								int bestPos = -1;
+								for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
+									int p = Dungeon.hero.pos + PathFinder.NEIGHBOURS8[i];
+									if (Actor.findChar( p ) == null && Dungeon.level.passable[p]) {
+										if (bestPos == -1){ bestPos = p; } } }
+
+								if (bestPos != -1) {
+									GLog.i( Messages.get(Devotion.class, "interact_recall_on", ally.name) );
+
+									ScrollOfTeleportation.appear( ally, bestPos );
+
+									Sample.INSTANCE.play( Assets.SND_TELEPORT );
+									ally.sprite.emitter().start( Speck.factory(Speck.LIGHT), 0.2f, 3 );
+									Dungeon.hero.spendAndNext(Actor.TICK);
+
+									if (ally.invisible == 0) {
+										ally.sprite.alpha( 0 );
+										ally.sprite.parent.add( new AlphaTweener( ally.sprite, 1, 0.4f ) );
+									}
+
+								} else { GLog.i( Messages.get(Devotion.class, "interact_recall_fail", ally.name) ); }
+							}
+
+							if (index == 1) {
+								GLog.p( Messages.get(Devotion.class, "interact_dismiss_on", ally.name) );
+								CellEmitter.get(ally.pos).start( ShaftParticle.FACTORY, 0.3f, 4 );
+								ally.destroy();
+								ally.sprite.kill();
+								Dungeon.hero.spendAndNext(Actor.TICK);
+							} }	}); }	});
+			return true;
+		}
 		
 		if (!Dungeon.level.passable[pos] && !Dungeon.hero.flying){
 			return true;
@@ -223,6 +293,7 @@ public abstract class Char extends Actor {
 		if (hit( this, enemy, false )) {
 			
 			int dr = enemy.drRoll();
+			float chargedHit = 0;
 			
 			if (this instanceof Hero){
 				Hero h = (Hero)this;
@@ -231,8 +302,18 @@ public abstract class Char extends Actor {
 						&& !Dungeon.level.adjacent(h.pos, enemy.pos)){
 					dr = 0;
 				}
+
+				// AddedPD : for sealknight; Potential charge bypass enemy dr, such like 'magic attack'
+				if (h.subClass == HeroSubClass.SEALKNIGHT && h.buff(Potential.SealCharge.class) != null) {
+					Potential.SealCharge sealCharge = buff(Potential.SealCharge.class);
+					int bypass = sealCharge.getDamage();
+					dr = Math.max(0, dr - bypass);
+					sealCharge.costDamage(Math.max(dr, bypass-dr));
+					chargedHit = Math.max(dr, bypass-dr);
+					CellEmitter.center(enemy.pos).burst( Speck.factory( Speck.FORGE ), 4 );
+				}
 			}
-			
+
 			int dmg;
 			Preparation prep = buff(Preparation.class);
 			if (prep != null){
@@ -246,6 +327,9 @@ public abstract class Char extends Actor {
 			effectiveDamage = attackProc( enemy, effectiveDamage );
 			
 			if (visibleFight) {
+				if (chargedHit > 0) {
+					Sample.INSTANCE.play( Assets.SND_EVOKE, 1, 1, Random.Float( 0.8f, 1.25f ) );
+				} else
 				Sample.INSTANCE.play( Assets.SND_HIT, 1, 1, Random.Float( 0.8f, 1.25f ) );
 			}
 
@@ -348,6 +432,8 @@ public abstract class Char extends Actor {
 		if ( buff( Stamina.class ) != null) speed *= 1.5f;
 		if ( buff( Adrenaline.class ) != null) speed *= 2f;
 		if ( buff( Haste.class ) != null) speed *= 3f;
+		// AddedPD : scholar's holy water
+		if ( buff( OnBlessedWater.class ) != null ) speed *= 0.75f;
 		return speed;
 	}
 	
@@ -460,6 +546,10 @@ public abstract class Char extends Actor {
 		if (buff( Speed.class ) != null) {
 			timeScale *= 2.0f;
 		}
+		// AddedPD : Dwarf's epic armor's ability = perform all action as twice as faster
+		if (buff (DwarfArmorBuff.class) != null) {
+			timeScale *= 2.0f;
+		}
 		
 		super.spend( time / timeScale );
 	}
@@ -493,6 +583,16 @@ public abstract class Char extends Actor {
 		int chID = ch.id();
 		for (Buff b : buffs) {
 			if (b instanceof Charm && ((Charm)b).object == chID) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// AddedPD : for redeemer
+	public synchronized boolean isBaptized() {
+		for (Buff b : buffs) {
+			if (b instanceof Baptized) {
 				return true;
 			}
 		}
@@ -657,6 +757,15 @@ public abstract class Char extends Actor {
 				new HashSet<Class>( Arrays.asList(Ooze.class))),
 		ELECTRIC ( new HashSet<Class>( Arrays.asList(WandOfLightning.class, Shocking.class, Potential.class, Electricity.class, ShockingDart.class)),
 				new HashSet<Class>()),
+		// AddedPD:
+		// ICE mobs are water/ice/frost related
+		ICE ( new HashSet<Class>( Arrays.asList(WandOfFrost.class)),
+				new HashSet<Class>( Arrays.asList(Chill.class, Frost.class))),
+		// LIGHT mobs are holy/light related, so never be shaken
+		LIGHT ( new HashSet<Class>( Arrays.asList(WandOfPrismaticLight.class, HolyBomb.class)),
+				new HashSet<Class>( Arrays.asList(Corruption.class, Charm.class, Terror.class, Vertigo.class, Blindness.class))),
+		// MAGICAL mobs are spellcaster
+		MAGICAL,
 		IMMOVABLE;
 		
 		private HashSet<Class> resistances;

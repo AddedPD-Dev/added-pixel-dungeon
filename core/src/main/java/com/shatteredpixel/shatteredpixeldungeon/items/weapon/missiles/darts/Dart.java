@@ -23,8 +23,14 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Crossbow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
@@ -34,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
+import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
@@ -112,6 +119,30 @@ public class Dart extends MissileWeapon {
 		if (bow != null && bow.enchantment != null && attacker.buff(MagicImmune.class) == null){
 			level(bow.level());
 			damage = bow.enchantment.proc(this, attacker, defender, damage);
+
+			// AddedPD : for cleric's enlightened weapon
+			if (bow.enlightened) {
+					Bless bless = attacker.buff(Bless.class);
+					int duration = 3+Dungeon.hero.lvl/2;
+					if (Random.Int(3 ) >= 2) {
+						// 33% chance to blessing
+						if (bless == null) {
+							Buff.prolong(attacker, Bless.class, duration);
+							CellEmitter.get( attacker.pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
+						}
+
+						for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
+							Bless allybless = mob.buff(Bless.class);
+							if (mob.alignment == Char.Alignment.ALLY && attacker.fieldOfView[mob.pos]
+									&& !mob.isCharmedBy(Dungeon.hero) && allybless == null) {
+								Buff.prolong(mob, Bless.class, duration);
+								CellEmitter.get( mob.pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
+							}
+						}
+					}
+
+			}
+
 			level(0);
 		}
 		return super.proc(attacker, defender, damage);

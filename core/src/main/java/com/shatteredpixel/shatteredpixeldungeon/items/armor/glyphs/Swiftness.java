@@ -21,7 +21,13 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Stamina;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 
@@ -32,6 +38,19 @@ public class Swiftness extends Armor.Glyph {
 	@Override
 	public int proc(Armor armor, Char attacker, Char defender, int damage) {
 		//no proc effect, see armor.speedfactor for effect.
+
+		// AddedPD : for sealknight - gain small amount of stamina when attacked by nearby enemy, Time to disengage!
+		if (defender == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT && armor.checkSeal() != null) {
+
+			for (Char ch : Actor.chars()) {
+				if (Dungeon.level.adjacent(ch.pos, defender.pos)){
+					if (defender.buff(Stamina.class) == null) {
+						Buff.prolong(defender, Stamina.class, 2f);
+						Splash.at(defender.pos, 0xFFFF00, 10);
+					}
+				}
+			}
+		}
 		return damage;
 	}
 

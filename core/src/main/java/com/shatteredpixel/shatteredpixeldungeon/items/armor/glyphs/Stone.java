@@ -21,7 +21,11 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 
@@ -48,7 +52,14 @@ public class Stone extends Armor.Glyph {
 		hitChance = (1f + 3f*hitChance)/4f;
 		
 		damage = (int)Math.ceil(damage * hitChance);
-		
+
+		// AddedPD : sealknight can stack barkskin when attacked
+		// AddedPD : for sealknight - 'counter zap'
+		if (defender == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT
+				&& armor.checkSeal() != null) {
+			Buff.affect(Dungeon.hero, Barkskin.class).set(damage/10, 4);
+		}
+
 		return damage;
 	}
 	

@@ -107,6 +107,8 @@ public class MeleeWeapon extends Weapon {
 			info += "\n\n" + Messages.get(Weapon.class, "cursed");
 		} else if (!isIdentified() && cursedKnown){
 			info += "\n\n" + Messages.get(Weapon.class, "not_cursed");
+		} else if (enlightened) { // AddedPD : cleric's enlightenment power
+			info += "\n\n" + Messages.get(Weapon.class, "enlightened_info");
 		}
 		
 		return info;

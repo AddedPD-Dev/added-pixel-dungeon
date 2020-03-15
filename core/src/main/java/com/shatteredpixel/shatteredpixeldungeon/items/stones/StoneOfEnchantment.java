@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.stones;
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Enchanting;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -40,15 +41,13 @@ public class StoneOfEnchantment extends InventoryStone {
 	
 	@Override
 	protected void onItemSelected(Item item) {
-		
+
 		if (item instanceof Weapon) {
-			
-			((Weapon)item).enchant();
-			
+			if (((Weapon)item).enlightened) { GLog.w (Messages.get(Hero.class, "enlightened")); return; }
+			else ((Weapon)item).enchant();
 		} else {
-			
-			((Armor)item).inscribe();
-			
+			if (((Armor)item).enlightened) { GLog.w (Messages.get(Hero.class, "enlightened")); return; }
+			else ((Armor)item).inscribe();
 		}
 		
 		curUser.sprite.emitter().start( Speck.factory( Speck.LIGHT ), 0.1f, 5 );

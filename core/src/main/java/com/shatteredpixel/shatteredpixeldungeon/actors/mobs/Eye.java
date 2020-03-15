@@ -60,6 +60,7 @@ public class Eye extends Mob {
 		lootChance = 0.5f;
 
 		properties.add(Property.DEMONIC);
+		properties.add(Property.MAGICAL); // AddedPD
 	}
 
 	@Override

@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
@@ -29,38 +30,51 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Baptized;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfNecro;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.OnBlessedWater;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Sleep;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Necrogolem;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Surprise;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Wound;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Potential;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.TimekeepersHourglass;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfWealth;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfAggression;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
+import com.watabou.utils.Point;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
@@ -248,18 +262,18 @@ public abstract class Mob extends Char {
 						}
 					}
 				}
-				
+
 			//if the mob is an ally...
 			} else if ( alignment == Alignment.ALLY ) {
 				//look for hostile mobs to attack
 				for (Mob mob : Dungeon.level.mobs)
 					if (mob.alignment == Alignment.ENEMY && fieldOfView[mob.pos])
 						//intelligent allies do not target mobs which are passive, wandering, or asleep
-						if (!intelligentAlly ||
+						if (!intelligentAlly || !isBaptized() ||
 								(mob.state != mob.SLEEPING && mob.state != mob.PASSIVE && mob.state != mob.WANDERING)) {
 							enemies.add(mob);
 						}
-				
+
 			//if the mob is an enemy...
 			} else if (alignment == Alignment.ENEMY) {
 				//look for ally mobs to attack
@@ -305,7 +319,7 @@ public abstract class Mob extends Char {
 	@Override
 	public void add( Buff buff ) {
 		super.add( buff );
-		if (buff instanceof Amok || buff instanceof Corruption) {
+		if (buff instanceof Amok || buff instanceof Corruption || buff instanceof Baptized) {
 			state = HUNTING;
 		} else if (buff instanceof Terror) {
 			state = FLEEING;
@@ -329,7 +343,17 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean getCloser( int target ) {
-		
+
+		// AddedPD : the Redeemer's baptized ally - act just like ally golden bee
+		if (isBaptized()) {
+			if (enemy == null) {
+				target = Dungeon.hero.pos;
+			} else if (enemy != null) {
+				target = enemy.pos;
+			} else if (state == WANDERING || Dungeon.level.distance(target, Dungeon.hero.pos) > 3)
+				this.target = target = Dungeon.hero.pos;
+		}
+
 		if (rooted || target == pos) {
 			return false;
 		}
@@ -486,9 +510,17 @@ public abstract class Mob extends Char {
 		if (buff(Weakness.class) != null){
 			damage *= 0.67f;
 		}
+		// AddedPD : scholar's holy water
+		if ( buff( OnBlessedWater.class ) != null ) {
+			damage *= 0.75f;
+		}
+		if (buff(Baptized.class) != null) {
+			int levelBonus = Devotion.Baptized_Level(this);
+			damage += Random.NormalIntRange(0, levelBonus);
+		}
 		return damage;
 	}
-	
+
 	@Override
 	public int defenseSkill( Char enemy ) {
 		boolean seen = (enemySeen && enemy.invisible == 0);
@@ -496,9 +528,19 @@ public abstract class Mob extends Char {
 		if ( seen
 				&& paralysed == 0
 				&& !(alignment == Alignment.ALLY && enemy == Dungeon.hero)) {
-			return this.defenseSkill;
+			// AddedPD : Potential - bypass enemy evasion, such like 'magic attack'
+			Potential.SealCharge sealCharge = enemy.buff(Potential.SealCharge.class);
+			if (sealCharge != null) {
+				int bypass = Math.max(0, this.defenseSkill - sealCharge.getDamage());
+				sealCharge.costDamage(this.defenseSkill - sealCharge.getDamage());
+				return bypass;
+			}
+			else return this.defenseSkill;
 		} else {
-			return 0;
+			if (buff(Baptized.class) != null && enemy != Dungeon.hero) {
+				int levelBonus = 2*Devotion.Baptized_Level(this);
+				return this.defenseSkill += levelBonus;
+			} else return 0;
 		}
 	}
 	
@@ -510,7 +552,7 @@ public abstract class Mob extends Char {
 		if (enemy instanceof Hero && ((Hero) enemy).belongings.weapon instanceof MissileWeapon){
 			hitWithRanged = true;
 		}
-		
+
 		if ((!enemySeen || enemy.invisible > 0)
 				&& enemy == Dungeon.hero && Dungeon.hero.canSurpriseAttack()) {
 			Statistics.sneakAttacks++;
@@ -578,9 +620,47 @@ public abstract class Mob extends Char {
 	public void destroy() {
 		
 		super.destroy();
-		
+
+		// AddedPD : for burglar's detection-by-kill
+		if (Dungeon.hero.subClass == HeroSubClass.BURGLAR && alignment == Alignment.ENEMY) {
+			int DIST = 3;
+			Point c = Dungeon.level.cellToPoint(this.pos);
+			int[] rounding = ShadowCaster.rounding[DIST];
+			int left, right;
+			int curr;
+			boolean noticed = false;
+			for (int y = Math.max(0, c.y - DIST); y <= Math.min(Dungeon.level.height()-1, c.y + DIST); y++) {
+				if (rounding[Math.abs(c.y - y)] < Math.abs(c.y - y)) {
+					left = c.x - rounding[Math.abs(c.y - y)];
+				} else {
+					left = DIST;
+					while (rounding[left] < rounding[Math.abs(c.y - y)]){
+						left--;
+					}
+					left = c.x - left;
+				}
+				right = Math.min(Dungeon.level.width()-1, c.x + c.x - left);
+				left = Math.max(0, left);
+				for (curr = left + y * Dungeon.level.width(); curr <= right + y * Dungeon.level.width(); curr++){
+					Dungeon.hero.sprite.parent.addToBack( new CheckedCell( curr ) );
+					Dungeon.level.mapped[curr] = true;
+					if (Dungeon.level.secret[curr]) {
+						Dungeon.level.discover(curr);
+						if (Dungeon.level.heroFOV[curr]) {
+							GameScene.discoverTile(curr, Dungeon.level.map[curr]);
+							ScrollOfMagicMapping.discover(curr);
+							noticed = true;
+						}
+					}
+				}
+			}
+			if (noticed) {
+				Sample.INSTANCE.play( Assets.SND_SECRET );
+			}
+		}
+
 		Dungeon.level.mobs.remove( this );
-		
+
 		if (Dungeon.hero.isAlive()) {
 			
 			if (alignment == Alignment.ENEMY) {
@@ -591,6 +671,31 @@ public abstract class Mob extends Char {
 				int exp = Dungeon.hero.lvl <= maxLvl ? EXP : 0;
 				if (exp > 0) {
 					Dungeon.hero.sprite.showStatus(CharSprite.POSITIVE, Messages.get(this, "exp", exp));
+
+					// AddedPD : necrosmith - summmon and heal when exp gain from enemy
+					if (Dungeon.hero.subClass == HeroSubClass.NECROSMITH) {
+						boolean found = false;
+						for (Mob m : Dungeon.level.mobs.toArray(new Mob[0])){
+							if (m instanceof Necrogolem){
+								found = true;
+								m.HP = Math.min(m.HT, m.HP+exp);
+								m.sprite.emitter().burst(Speck.factory(Speck.HEALING), 1);
+							}
+						}
+
+						if (!found) {
+							if (Dungeon.hero.buff(DwarfNecro.class) == null) {
+								Buff.affect(Dungeon.hero, DwarfNecro.class).set(DwarfNecro.maxHP(Dungeon.hero));
+								if (!Dungeon.hero.buff(DwarfNecro.class).checkFuel()){
+									Dungeon.hero.buff(DwarfNecro.class).gainFuel();
+								}
+							} else {
+								if (!Dungeon.hero.buff(DwarfNecro.class).checkFuel()){
+									Dungeon.hero.buff(DwarfNecro.class).gainFuel();
+								}
+							}
+						}
+					}
 				}
 				Dungeon.hero.earnExp(exp, getClass());
 			}
@@ -613,6 +718,14 @@ public abstract class Mob extends Char {
 
 		if (alignment == Alignment.ENEMY){
 			rollToDropLoot();
+
+			Devotion devotion = Dungeon.hero.buff(Devotion.class);
+			if (devotion != null && properties.contains(Property.BOSS)) devotion.onOther(Dungeon.depth);
+		}
+
+		if (buff(Baptized.class) != null) {
+			Devotion devotion = Dungeon.hero.buff(Devotion.class);
+			devotion.Baptized_canUse();
 		}
 		
 		if (Dungeon.hero.isAlive() && !Dungeon.level.heroFOV[pos]) {
@@ -812,10 +925,10 @@ public abstract class Mob extends Char {
 					target = Dungeon.level.randomDestination();
 					return true;
 				}
-				
+
 				int oldPos = pos;
 				if (target != -1 && getCloser( target )) {
-					
+
 					spend( 1 / speed() );
 					return moveSprite( oldPos,  pos );
 
@@ -888,9 +1001,14 @@ public abstract class Mob extends Char {
 			//preserve the ghost no matter where they are
 			if (mob instanceof DriedRose.GhostHero) {
 				((DriedRose.GhostHero) mob).clearDefensingPos();
+				level.mobs.remove(mob);
+				heldAllies.add(mob);
+
+			// AddedPD : also baptized allies
+			} else if (mob.isBaptized()) {
 				level.mobs.remove( mob );
 				heldAllies.add(mob);
-				
+
 			//preserve intelligent allies if they are near the hero
 			} else if (mob.alignment == Alignment.ALLY
 					&& mob.intelligentAlly

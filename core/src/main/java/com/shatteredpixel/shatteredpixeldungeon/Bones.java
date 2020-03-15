@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -177,6 +178,9 @@ public class Bones {
 					//thrown weapons are always IDed, otherwise set unknown
 					item.levelKnown = item instanceof MissileWeapon;
 				}
+
+				// AddedPD : only cleric can use enlightened item
+				if (item.enlightened) { return new Gold(item.price()); }
 				
 				item.reset();
 				

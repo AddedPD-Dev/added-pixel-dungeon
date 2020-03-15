@@ -28,36 +28,70 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 
 public class MageArmor extends ClassArmor {
+
+	private Wand wand;
+	private MagesStaff staff;
 	
 	{
 		image = ItemSpriteSheet.ARMOR_MAGE;
 	}
-	
+
 	@Override
 	public void doSpecial() {
-		
+
 		for (Mob mob : Dungeon.level.mobs.toArray(new Mob[0])) {
 			if (Dungeon.level.heroFOV[mob.pos]
-				&& mob.alignment != Char.Alignment.ALLY) {
+					&& mob.alignment != Char.Alignment.ALLY) {
+
+				int hit = 0;
+
+				// if there is no enemy in your sight, cancel ability(like huntress's ability)
+				if (mob == null) {
+					GLog.w(Messages.get(this, "no_enemies"));
+					return;
+				}
+
+				hit++;
+
+				// battlemage - similar effects on staff attack effects(use code from stone of shock)
+				if (curUser.subClass == HeroSubClass.BATTLEMAGE){
+					curUser.belongings.charge(hit);
+					ScrollOfRecharging.charge(curUser);
+				}
+
+				// warlock - mark souls of all affected enemy, but with shorter duration
+				if (curUser.subClass == HeroSubClass.WARLOCK) {
+					SoulMark soulMark = mob.buff(SoulMark.class);
+					// prevents reduce mark duration which are already marked mobs
+					if (soulMark == null) { SoulMark.prolong(mob, SoulMark.class, 5); }
+				}
+
 				Buff.affect( mob, Burning.class ).reignite( mob );
 				Buff.prolong( mob, Roots.class, 3 );
 			}
 		}
 
 		curUser.HP -= (curUser.HP / 3);
-		
+
 		curUser.spend( Actor.TICK );
 		curUser.sprite.operate( curUser.pos );
 		curUser.busy();
-		
+
 		curUser.sprite.centerEmitter().start( ElmoParticle.FACTORY, 0.15f, 4 );
 		Sample.INSTANCE.play( Assets.SND_READ );
 	}
-
 }

@@ -34,15 +34,23 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Alchemy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdrenalineSurge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Baptized;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfArmorBuff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfFocus;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Foresight;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Fury;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
@@ -54,19 +62,28 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SnipersMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CheckedCell;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
+import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.PurpleParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
+import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Affection;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Camouflage;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Flow;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Thorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CapeOfThorns;
@@ -135,6 +152,8 @@ import com.watabou.utils.Random;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.hero;
+
 public class Hero extends Char {
 
 	{
@@ -199,9 +218,10 @@ public class Hero extends Char {
 		int curHT = HT;
 		
 		HT = 20 + 5*(lvl-1) + HTBoost;
+
 		float multiplier = RingOfMight.HTMultiplier(this);
 		HT = Math.round(multiplier * HT);
-		
+
 		if (buff(ElixirOfMight.HTBoost.class) != null){
 			HT += buff(ElixirOfMight.HTBoost.class).boost();
 		}
@@ -337,7 +357,11 @@ public class Hero extends Char {
 				accuracy *= 1.5f;
 			}
 		}
-		
+
+		if (wep.enlightened && target instanceof Wraith) {
+			accuracy *= 10f;
+		}
+
 		if (wep != null) {
 			return (int)(attackSkill * accuracy * wep.accuracyFactor( this ));
 		} else {
@@ -358,6 +382,16 @@ public class Hero extends Char {
 
 		if (belongings.armor != null) {
 			evasion = belongings.armor.evasionFactor(this, evasion);
+		}
+
+		DwarfFocus focus = hero.buff(DwarfFocus.class);
+		if (focus != null && focus.focused() && paralysed == 0) {
+			sprite.zap(enemy.pos);
+			CellEmitter.center(pos).burst( Speck.factory( Speck.FORGE ), 4 );
+			Sample.INSTANCE.play( Assets.SND_EVOKE );
+			Buff.affect(enemy, Paralysis.class, 1f);
+
+			evasion = 100_000_000;
 		}
 
 		return Math.round(evasion);
@@ -397,7 +431,12 @@ public class Hero extends Char {
 
 		if (wep != null) {
 			dmg = wep.damageRoll( this );
-			if (!(wep instanceof MissileWeapon)) dmg += RingOfForce.armedDamageBonus(this);
+			if (!(wep instanceof MissileWeapon)) {
+				if (Dungeon.hero.heroClass == HeroClass.DWARF && RingOfForce.damageRoll(this)/2 > 0) {
+					// AddedPD : Dwarf Survivor cannot be unarmed, so gain bonus dmg(as half as when unarmed)
+					dmg += RingOfForce.damageRoll(this)/2;
+				} else dmg += RingOfForce.armedDamageBonus(this);
+			}
 		} else {
 			dmg = RingOfForce.damageRoll(this);
 		}
@@ -433,9 +472,7 @@ public class Hero extends Char {
 	public boolean canSurpriseAttack(){
 		if (belongings.weapon == null || !(belongings.weapon instanceof Weapon))    return true;
 		if (STR() < ((Weapon)belongings.weapon).STRReq())                           return false;
-		if (belongings.weapon instanceof Flail)                                     return false;
-
-		return true;
+		return !(belongings.weapon instanceof Flail);
 	}
 
 	public boolean canAttack(Char enemy){
@@ -458,15 +495,24 @@ public class Hero extends Char {
 	}
 	
 	public float attackDelay() {
+		float baseDLY = 1f;
+		if (hero.belongings.armor != null &&
+				hero.belongings.armor.hasGlyph(Flow.class, this)
+				&& hero.belongings.armor.checkSeal() != null
+				&& hero.subClass == HeroSubClass.SEALKNIGHT
+				&& Dungeon.level.water[pos]){
+			// Flow : attack speed will increase on the water
+			baseDLY *= 0.8f; // same as scimitar
+		}
+
 		if (belongings.weapon != null) {
-			
-			return belongings.weapon.speedFactor( this );
+			return baseDLY * belongings.weapon.speedFactor( this );
 			
 		} else {
 			//Normally putting furor speed on unarmed attacks would be unnecessary
 			//But there's going to be that one guy who gets a furor+force ring combo
 			//This is for that one guy, you shall get your fists of fury!
-			return RingOfFuror.attackDelayMultiplier(this);
+			return baseDLY * RingOfFuror.attackDelayMultiplier(this);
 		}
 	}
 
@@ -522,6 +568,7 @@ public class Hero extends Char {
 			spendAndNext( TICK );
 			return false;
 		}
+
 		
 		boolean actResult;
 		if (curAction == null) {
@@ -536,6 +583,16 @@ public class Hero extends Char {
 			actResult = false;
 			
 		} else {
+
+			// AddedPD : Dwarf's epic armor's ability = perform all action as twice as faster
+			if (buff (DwarfArmorBuff.class) != null) {
+				CellEmitter.get( pos ).burst( Speck.factory( Speck.STEAM ), 2);
+				Sample.INSTANCE.play(Assets.SND_PUFF);
+			}
+
+			if (subClass == HeroSubClass.MONK && hero.visibleEnemies() >= 1){
+				Buff.affect(this, DwarfFocus.class).gainStack();
+			}
 			
 			resting = false;
 			
@@ -697,7 +754,7 @@ public class Hero extends Char {
 			Alchemy alch = (Alchemy) Dungeon.level.blobs.get(Alchemy.class);
 			//TODO logic for a well having dried up?
 			if (alch != null) {
-				alch.alchPos = dst;
+				Alchemy.alchPos = dst;
 				AlchemyScene.setProvider( alch );
 			}
 			ShatteredPixelDungeon.switchScene(AlchemyScene.class);
@@ -891,6 +948,7 @@ public class Hero extends Char {
 					ready();
 				} else {
 					Badges.silentValidateHappyEnd();
+					Badges.validateClericUnlock();
 					Dungeon.win( Amulet.class );
 					Dungeon.deleteGame( GamesInProgress.curSlot, true );
 					Game.switchScene( SurfaceScene.class );
@@ -962,7 +1020,7 @@ public class Hero extends Char {
 		KindOfWeapon wep = belongings.weapon;
 
 		if (wep != null) damage = wep.proc( this, enemy, damage );
-		
+
 		switch (subClass) {
 		case SNIPER:
 			if (wep instanceof MissileWeapon && !(wep instanceof SpiritBow.SpiritArrow)) {
@@ -983,16 +1041,78 @@ public class Hero extends Char {
 				});
 			}
 			break;
+
+		case SEALKNIGHT:
+			BrokenSeal.WarriorShield shield = buff(BrokenSeal.WarriorShield.class);
+			int gainSH = 0;
+			if (belongings.armor.checkSeal() != null) {
+
+				Armor.Glyph glyph = belongings.armor.glyph;
+
+				if (glyph instanceof Affection && enemy.buff(Charm.class) != null) {
+					// Affection : restore 10% of dealt damage when hits charmed enemy
+					if (damage > 0) {
+						gainSH = 1 + (damage / 10);
+						shield.supercharge(gainSH);
+						sprite.emitter().burst( Speck.factory( Speck.SH_GEN ), gainSH );
+					}
+
+				} if (glyph instanceof Camouflage) {
+					// Camouflage : restore 20% of dealt damage when sneak attack
+					if (enemy instanceof Mob && ((Mob) enemy).surprisedBy(hero)) {
+						if (damage > 0) {
+							gainSH = 1 + (damage / 5);
+							shield.supercharge(gainSH);
+							sprite.emitter().burst( Speck.factory( Speck.SH_GEN ), gainSH );
+						}
+					}
+
+				} if (glyph instanceof Thorns && enemy.buff(Bleeding.class) != null) {
+					// Affection : restore 10% of dealt damage when hits bleeding enemy
+					if (damage > 0) {
+						gainSH = 1 + (damage / 10);
+						shield.supercharge(gainSH);
+						sprite.emitter().burst( Speck.factory( Speck.SH_GEN ), gainSH );
+					}
+
+				} if (glyph instanceof Viscosity && buff(Viscosity.DeferedDamage.class) != null) {
+					// Viscosity : reduce deferred damage as 10% of dealt damage
+					Viscosity.DeferedDamage deferred = buff(Viscosity.DeferedDamage.class);
+					if (damage > 0) {
+						deferred.reduceDamage(1 + (damage / 10));
+						CellEmitter.center(enemy.pos).burst(PurpleParticle.BURST, damage+1);
+					}
+				}
+			}
+			break;
+
+		// AddedPD : for spiritwalker's "spectral blast" - huntress 3rd subclass
+		case SPIRITWALKER:
+			if (wep instanceof SpiritBow.SpiritArrow) {
+				for (int i : PathFinder.NEIGHBOURS8) {
+					Char ch = Actor.findChar(enemy.pos + i);
+
+					if (ch != null) {
+						// only harm enemy(no self damage, no friendly fire)
+						if (ch.alignment != Char.Alignment.ALLY || ch != Dungeon.hero) {
+							// activate bow's enchantment
+							ch.damage(damage, wep);
+						}
+					}
+				}
+
+				SpiritBow.SpectralBlast.blast(enemy.pos);
+			}
+			break;
 		default:
 		}
-
 		
 		return damage;
 	}
 	
 	@Override
 	public int defenseProc( Char enemy, int damage ) {
-		
+
 		if (damage > 0 && subClass == HeroSubClass.BERSERKER){
 			Berserk berserk = Buff.affect(this, Berserk.class);
 			berserk.damage(damage);
@@ -1011,7 +1131,7 @@ public class Hero extends Char {
 		if (rockArmor != null) {
 			damage = rockArmor.absorb(damage);
 		}
-		
+
 		return damage;
 	}
 	
@@ -1039,9 +1159,23 @@ public class Hero extends Char {
 
 		//TODO improve this when I have proper damage source logic
 		if (belongings.armor != null && belongings.armor.hasGlyph(AntiMagic.class, this)
-				&& AntiMagic.RESISTS.contains(src.getClass())){
-			dmg -= AntiMagic.drRoll(belongings.armor.level());
+				&& AntiMagic.RESISTS.contains(src.getClass())) {
+
+			int reduction = AntiMagic.drRoll(belongings.armor.level());
+			dmg -= reduction;
+
+			// AddedPD : for sealknight - 'counter zap'
+			if (hero.belongings.armor.checkSeal() != null
+					&& hero.subClass == HeroSubClass.SEALKNIGHT) {
+				AntiMagic.SealMagic onMagic = Buff.affect( this, AntiMagic.SealMagic.class );
+				onMagic.prolong( reduction + 1 );
+				this.sprite.emitter().burst(MagicMissile.MagicParticle.ATTRACTING, reduction + 1);
+			}
 		}
+
+		// AddedPD : buff for berserker - this formula affects "after" gain berserk, so don't worry!
+		Berserk berserk = buff(Berserk.class);
+		if (berserk != null) { dmg = berserk.reduceFactor(dmg); }
 
 		super.damage( dmg, src );
 	}
@@ -1185,6 +1319,10 @@ public class Hero extends Char {
 				Buff.affect(this, Momentum.class).gainStack();
 			}
 
+			if (subClass == HeroSubClass.MONK && hero.visibleEnemies() >= 1){
+				Buff.affect(this, DwarfFocus.class).gainStack();
+			}
+
 			//FIXME this is a fairly sloppy fix for a crash involving pitfall traps.
 			//really there should be a way for traps to specify whether action should continue or
 			//not when they are pressed.
@@ -1252,13 +1390,9 @@ public class Hero extends Char {
 			curAction = new HeroAction.Ascend( cell );
 			
 		} else  {
-			
-			if (!Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell]
-					&& Dungeon.level.traps.get(cell) != null && Dungeon.level.traps.get(cell).visible) {
-				walkingToVisibleTrapInFog = true;
-			} else {
-				walkingToVisibleTrapInFog = false;
-			}
+
+			walkingToVisibleTrapInFog = !Dungeon.level.visited[cell] && !Dungeon.level.mapped[cell]
+					&& Dungeon.level.traps.get(cell) != null && Dungeon.level.traps.get(cell).visible;
 			
 			curAction = new HeroAction.Move( cell );
 			lastAction = null;
@@ -1290,6 +1424,9 @@ public class Hero extends Char {
 				i.onHeroGainExp(percent, this);
 			}
 		}
+
+		Devotion devotion = buff(Devotion.class);
+		if (devotion != null) devotion.onHeroGainExp();
 		
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {
@@ -1313,7 +1450,18 @@ public class Hero extends Char {
 				GLog.p( Messages.get(this, "level_cap"));
 				Sample.INSTANCE.play( Assets.SND_LEVELUP );
 			}
-			
+
+			if (devotion != null) {
+				devotion.onLevelUp();
+				// AddedPD : redeemer's ally CAN GAIN EACH OWN +LEVEL
+				for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
+					if (mob.isBaptized()) {
+						Baptized baptized = mob.buff(Baptized.class);
+						baptized.gainLevel(mob);
+						new Flare( 6, 32 ).show( mob.sprite, 4f );
+					}
+				}
+			}
 		}
 		
 		if (levelUp) {
@@ -1619,6 +1767,14 @@ public class Hero extends Char {
 				&& belongings.armor.hasGlyph(Brimstone.class, this)){
 			return true;
 		}
+
+		if ((effect == Frost.class || effect == Chill.class)
+				&& Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT
+				&& belongings.armor.checkSeal() != null
+				&& belongings.armor.hasGlyph(Brimstone.class, this)){
+			// Brimstone : immune to all 'heat-related' debuff
+			return true;
+		}
 		return super.isImmune(effect);
 	}
 
@@ -1744,6 +1900,11 @@ public class Hero extends Char {
 		HP = HT;
 		Dungeon.gold = 0;
 		exp = 0;
+
+		if (heroClass == HeroClass.CLERIC) {
+			Devotion devotion = new Devotion();
+			devotion.attachTo(this);
+		}
 		
 		belongings.resurrect( resetLevel );
 
@@ -1756,7 +1917,7 @@ public class Hero extends Char {
 			super.next();
 	}
 
-	public static interface Doom {
-		public void onDeath();
+	public interface Doom {
+		void onDeath();
 	}
 }

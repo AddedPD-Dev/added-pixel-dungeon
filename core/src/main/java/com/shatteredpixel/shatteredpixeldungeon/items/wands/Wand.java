@@ -116,6 +116,9 @@ public abstract class Wand extends Item {
 		if (owner.buff(MagicImmune.class) != null){
 			GLog.w( Messages.get(this, "no_magic") );
 			return false;
+		} if (owner.heroClass == HeroClass.CLERIC) {
+			GLog.w(Messages.get(Wand.class, "cleric_no_magic"));
+			return false;
 		}
 
 		if ( curCharges >= (cursed ? 1 : chargesPerCast())){

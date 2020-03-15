@@ -21,9 +21,13 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor.Glyph;
@@ -47,7 +51,12 @@ public class Entanglement extends Glyph {
 			Buff.affect( defender, Earthroot.Armor.class ).level( 5 + 2 * level );
 			CellEmitter.bottom( defender.pos ).start( EarthParticle.FACTORY, 0.05f, 8 );
 			Camera.main.shake( 1, 0.4f );
-			
+
+			// AddedPD : for sealknight - stuns enemy when glyph is activated
+			if (defender == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT && armor.checkSeal() != null) {
+				CellEmitter.get(attacker.pos).start(Speck.factory(Speck.ROCK), 0.07f, 5);
+				Buff.prolong( attacker, Paralysis.class, 2f );
+			}
 		}
 
 		return damage;

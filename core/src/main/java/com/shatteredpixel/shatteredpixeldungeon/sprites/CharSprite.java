@@ -24,14 +24,17 @@ package com.shatteredpixel.shatteredpixeldungeon.sprites;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.DarkBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.EmoIcon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText;
 import com.shatteredpixel.shatteredpixeldungeon.effects.IceBlock;
+import com.shatteredpixel.shatteredpixeldungeon.effects.LightBlock;
 import com.shatteredpixel.shatteredpixeldungeon.effects.ShieldHalo;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.effects.TorchHalo;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SnowParticle;
@@ -79,7 +82,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	protected float shadowOffset    = 0.25f;
 
 	public enum State {
-		BURNING, LEVITATING, INVISIBLE, PARALYSED, FROZEN, ILLUMINATED, CHILLED, DARKENED, MARKED, HEALING, SHIELDED
+		BURNING, LEVITATING, INVISIBLE, PARALYSED, FROZEN, ILLUMINATED, CHILLED, DARKENED, MARKED, HEALING, SHIELDED,
+		// AddedPD
+		NECROTIC, LIGHTENED
 	}
 	
 	protected Animation idle;
@@ -88,6 +93,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	protected Animation operate;
 	protected Animation zap;
 	protected Animation die;
+
+	// AddedPD
+	protected Animation kick;
 	
 	protected Callback animCallback;
 	
@@ -104,6 +112,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	protected TorchHalo light;
 	protected ShieldHalo shield;
 	protected AlphaTweener invisible;
+	//AddedPD
+	protected Emitter necrotic;
+	protected LightBlock lightBlock;
 	
 	protected EmoIcon emo;
 	protected CharHealthIndicator health;
@@ -225,12 +236,16 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	
 	public void attack( int cell ) {
 		turnTo( ch.pos, cell );
+		if (ch == Dungeon.hero && Dungeon.hero.heroClass == HeroClass.DWARF
+				&& Random.Float() < 0.5f ) { play( kick ); } else
 		play( attack );
 	}
 	
 	public void attack( int cell, Callback callback ) {
 		animCallback = callback;
 		turnTo( ch.pos, cell );
+		if (ch == Dungeon.hero && Dungeon.hero.heroClass == HeroClass.DWARF
+				&& Random.Float() < 0.5f ) { play( kick ); } else
 		play( attack );
 	}
 	
@@ -254,7 +269,7 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		animCallback = callback;
 		zap( cell );
 	}
-	
+
 	public void turnTo( int from, int to ) {
 		int fx = from % Dungeon.level.width();
 		int tx = to % Dungeon.level.width();
@@ -334,41 +349,41 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		switch (state) {
 			case BURNING:
 				burning = emitter();
-				burning.pour( FlameParticle.FACTORY, 0.06f );
+				burning.pour(FlameParticle.FACTORY, 0.06f);
 				if (visible) {
-					Sample.INSTANCE.play( Assets.SND_BURNING );
+					Sample.INSTANCE.play(Assets.SND_BURNING);
 				}
 				break;
 			case LEVITATING:
 				levitation = emitter();
-				levitation.pour( Speck.factory( Speck.JET ), 0.02f );
+				levitation.pour(Speck.factory(Speck.JET), 0.02f);
 				break;
 			case INVISIBLE:
 				if (invisible != null) {
 					invisible.killAndErase();
 				}
-				invisible = new AlphaTweener( this, 0.4f, 0.4f );
-				if (parent != null){
+				invisible = new AlphaTweener(this, 0.4f, 0.4f);
+				if (parent != null) {
 					parent.add(invisible);
 				} else
-					alpha( 0.4f );
+					alpha(0.4f);
 				break;
 			case PARALYSED:
 				paused = true;
 				break;
 			case FROZEN:
-				iceBlock = IceBlock.freeze( this );
+				iceBlock = IceBlock.freeze(this);
 				paused = true;
 				break;
 			case ILLUMINATED:
-				GameScene.effect( light = new TorchHalo( this ) );
+				GameScene.effect(light = new TorchHalo(this));
 				break;
 			case CHILLED:
 				chilled = emitter();
 				chilled.pour(SnowParticle.FACTORY, 0.1f);
 				break;
 			case DARKENED:
-				darkBlock = DarkBlock.darken( this );
+				darkBlock = DarkBlock.darken(this);
 				break;
 			case MARKED:
 				marked = emitter();
@@ -379,7 +394,17 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 				healing.pour(Speck.factory(Speck.HEALING), 0.5f);
 				break;
 			case SHIELDED:
-				GameScene.effect( shield = new ShieldHalo( this ));
+				GameScene.effect(shield = new ShieldHalo(this));
+				break;
+			case NECROTIC:
+				necrotic = emitter();
+				necrotic.pour(ElmoParticle.FACTORY, 0.75f);
+				if (visible) {
+					Sample.INSTANCE.play(Assets.SND_MELD);
+				}
+				break;
+			case LIGHTENED:
+				lightBlock = LightBlock.baptized(this);
 				break;
 		}
 	}
@@ -449,6 +474,18 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 					shield.putOut();
 				}
 				break;
+			case NECROTIC:
+			if (necrotic != null) {
+				necrotic.on = false;
+				necrotic = null;
+			}
+				break;
+			case LIGHTENED:
+				if (lightBlock != null) {
+					lightBlock.unlighten();
+					lightBlock = null;
+				}
+				break;
 		}
 	}
 	
@@ -480,6 +517,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		}
 		if (marked != null) {
 			marked.visible = visible;
+		}
+		if (necrotic != null) {
+			necrotic.visible = visible;
 		}
 		if (sleeping) {
 			showSleep();
@@ -657,8 +697,8 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 			executing.call();
 		} else {
 			
-			if (anim == attack) {
-				
+			if (anim == attack || anim == kick) {
+
 				idle();
 				ch.onAttackComplete();
 				

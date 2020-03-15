@@ -59,10 +59,11 @@ public class Combo extends Buff implements ActionIndicator.Action {
 	
 	@Override
 	public void tintIcon(Image icon) {
-		if (comboTime >= 3f){
+		// AddedPD : buff comboTime 4f -> 6f, so change 3f -> 5f
+		if (comboTime >= 5f){
 			icon.resetColor();
 		} else {
-			icon.tint(0xb3b3b3, 0.5f + 0.5f*(3f + 1 - comboTime)/3f);
+			icon.tint(0xb3b3b3, 0.5f + 0.5f*(5f + 1 - comboTime)/5f);
 		}
 	}
 	
@@ -74,7 +75,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 	public void hit( Char enemy ) {
 		
 		count++;
-		comboTime = 4f;
+		comboTime = 6f; // AddedPD : buff comboTime 4f -> 6f
 		misses = 0;
 		BuffIndicator.refreshHero();
 		
@@ -91,7 +92,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 
 	public void miss( Char enemy ){
 		misses++;
-		comboTime = 4f;
+		comboTime = 6f;	// AddedPD : buff comboTime 4f -> 6f
 		if (misses >= 2){
 			detach();
 		}
@@ -297,7 +298,7 @@ public class Combo extends Buff implements ActionIndicator.Action {
 					if (!enemy.isAlive()) {
 						//combo isn't reset, but rather increments with a cleave kill, and grants more time.
 						hit( enemy );
-						comboTime = 12f;
+						comboTime = 20f;	// AddedPD : buff cleave comboTime 12f -> 20f
 					} else {
 						detach();
 						ActionIndicator.clearAction(Combo.this);

@@ -298,6 +298,7 @@ public class Yog extends Mob {
 			properties.add(Property.BOSS);
 			properties.add(Property.DEMONIC);
 			properties.add(Property.FIERY);
+			properties.add(Property.MAGICAL); // AddedPD
 		}
 		
 		@Override

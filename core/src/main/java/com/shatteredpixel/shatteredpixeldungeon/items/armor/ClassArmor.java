@@ -69,6 +69,12 @@ abstract public class ClassArmor extends Armor {
 		case HUNTRESS:
 			classArmor = new HuntressArmor();
 			break;
+		case CLERIC:
+			classArmor = new ClericArmor();
+			break;
+		case DWARF:
+			classArmor = new DwarfArmor();
+			break;
 		}
 		
 		classArmor.level(armor.level() - (armor.curseInfusionBonus ? 1 : 0));
@@ -78,6 +84,7 @@ abstract public class ClassArmor extends Armor {
 		classArmor.cursed = armor.cursed;
 		classArmor.curseInfusionBonus = armor.curseInfusionBonus;
 		classArmor.identify();
+		classArmor.enlightened = armor.enlightened;
 		
 		return classArmor;
 	}

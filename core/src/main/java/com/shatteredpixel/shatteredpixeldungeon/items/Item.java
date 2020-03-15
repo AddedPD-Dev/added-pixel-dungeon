@@ -77,6 +77,8 @@ public class Item implements Bundlable {
 	
 	public boolean cursed;
 	public boolean cursedKnown;
+
+	public boolean enlightened;
 	
 	// Unique items persist through revival
 	public boolean unique = false;
@@ -361,6 +363,12 @@ public class Item implements Bundlable {
 		
 		return this;
 	}
+
+	// AddedPD : Cleric's enlightenment ability
+	public Item enlighten() {
+		enlightened = true;
+		return this;
+	}
 	
 	public void onHeroGainExp( float levelPercent, Hero hero ){
 		//do nothing by default
@@ -450,6 +458,7 @@ public class Item implements Bundlable {
 	private static final String LEVEL_KNOWN		= "levelKnown";
 	private static final String CURSED			= "cursed";
 	private static final String CURSED_KNOWN	= "cursedKnown";
+	private static final String ENLIGHTENED		= "enlightened";
 	private static final String QUICKSLOT		= "quickslotpos";
 	
 	@Override
@@ -459,6 +468,7 @@ public class Item implements Bundlable {
 		bundle.put( LEVEL_KNOWN, levelKnown );
 		bundle.put( CURSED, cursed );
 		bundle.put( CURSED_KNOWN, cursedKnown );
+		bundle.put( ENLIGHTENED, enlightened );
 		if (Dungeon.quickslot.contains(this)) {
 			bundle.put( QUICKSLOT, Dungeon.quickslot.getSlot(this) );
 		}
@@ -469,6 +479,7 @@ public class Item implements Bundlable {
 		quantity	= bundle.getInt( QUANTITY );
 		levelKnown	= bundle.getBoolean( LEVEL_KNOWN );
 		cursedKnown	= bundle.getBoolean( CURSED_KNOWN );
+		enlightened = bundle.getBoolean( ENLIGHTENED );
 		
 		int level = bundle.getInt( LEVEL );
 		if (level > 0) {

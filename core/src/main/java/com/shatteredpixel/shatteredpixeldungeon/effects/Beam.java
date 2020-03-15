@@ -71,7 +71,7 @@ public class Beam extends Image {
 			super(s, e, Effects.Type.HEALTH_RAY, 0.75f);
 		}
 	}
-	
+
 	@Override
 	public void update() {
 		super.update();

@@ -127,11 +127,14 @@ public class TitleScene extends PixelScene {
 			protected void onClick() {
 				WndOptions wnd = new WndOptions(Messages.get(TitleScene.class, "support"),
 						Messages.get(TitleScene.class, "patreon_body"),
-						Messages.get(TitleScene.class, "patreon_button")){
+						Messages.get(TitleScene.class, "patreon_button_shattered"),
+						Messages.get(TitleScene.class, "patreon_button_added")){
 					@Override
 					protected void onSelect(int index) {
 						if (index == 0){
 							DeviceCompat.openURI("https://www.patreon.com/ShatteredPixel");
+						} else if (index == 1) {
+							DeviceCompat.openURI("https://www.patreon.com/addedpd");
 						} else {
 							hide();
 						}
@@ -177,7 +180,7 @@ public class TitleScene extends PixelScene {
 				ShatteredPixelDungeon.switchNoFade( AboutScene.class );
 			}
 		};
-		btnAbout.icon(Icons.get(Icons.SHPX));
+		btnAbout.icon(Icons.get(Icons.ADDED_PD));
 		add(btnAbout);
 		
 		final int BTN_HEIGHT = 21;

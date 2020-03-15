@@ -142,16 +142,22 @@ public class WndClass extends WndTabbed {
 			String message = null;
 			switch (cl) {
 				case WARRIOR:
-					message = HeroSubClass.GLADIATOR.desc() + "\n\n" + HeroSubClass.BERSERKER.desc();
+					message = HeroSubClass.GLADIATOR.desc() + "\n\n" + HeroSubClass.BERSERKER.desc() + "\n\n" + HeroSubClass.SEALKNIGHT.desc();
 					break;
 				case MAGE:
-					message = HeroSubClass.BATTLEMAGE.desc() + "\n\n" + HeroSubClass.WARLOCK.desc();
+					message = HeroSubClass.BATTLEMAGE.desc() + "\n\n" + HeroSubClass.WARLOCK.desc() + "\n\n" + HeroSubClass.TRANSMUTER.desc();
 					break;
 				case ROGUE:
-					message = HeroSubClass.FREERUNNER.desc() + "\n\n" + HeroSubClass.ASSASSIN.desc();
+					message = HeroSubClass.FREERUNNER.desc() + "\n\n" + HeroSubClass.ASSASSIN.desc() + "\n\n" + HeroSubClass.BURGLAR.desc();
 					break;
 				case HUNTRESS:
-					message = HeroSubClass.SNIPER.desc() + "\n\n" + HeroSubClass.WARDEN.desc();
+					message = HeroSubClass.SNIPER.desc() + "\n\n" + HeroSubClass.WARDEN.desc() + "\n\n" + HeroSubClass.SPIRITWALKER.desc();
+					break;
+				case CLERIC:
+					message = HeroSubClass.CRUSADER.desc() + "\n\n" + HeroSubClass.SCHOLAR.desc() + "\n\n" + HeroSubClass.REDEEMER.desc();
+					break;
+				case DWARF:
+					message = HeroSubClass.THUNDERBRINGER.desc() + "\n\n" + HeroSubClass.MONK.desc() + "\n\n" + HeroSubClass.NECROSMITH.desc();
 					break;
 			}
 

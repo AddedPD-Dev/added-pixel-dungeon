@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TransfusionBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Beam;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
@@ -46,6 +47,8 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
+
+import java.time.Duration;
 
 public class WandOfTransfusion extends Wand {
 
@@ -72,9 +75,9 @@ public class WandOfTransfusion extends Wand {
 			processSoulMark(ch, chargesPerCast());
 			
 			//this wand does different things depending on the target.
-			
-			//heals/shields an ally or a charmed enemy while damaging self
-			if (ch.alignment == Char.Alignment.ALLY || ch.buff(Charm.class) != null){
+
+			//heals/shields an ally while damaging self
+			if (ch.alignment == Char.Alignment.ALLY){
 				
 				// 10% of max hp
 				int selfDmg = Math.round(curUser.HT*0.10f);
@@ -97,13 +100,22 @@ public class WandOfTransfusion extends Wand {
 					damageHero(selfDmg);
 				} else {
 					freeCharge = false;
+					// AddedPD : notice freecharge as a "buff"
+					TransfusionBuff tBuff = curUser.buff(TransfusionBuff.class);
+					if (tBuff != null) { Buff.detach(curUser, TransfusionBuff.class); }
 				}
 
 			//for enemies...
 			} else {
-				
+
+				// AddedPD : charmed enemy will no more healed, so using this wand feels less annoying
+				if (ch.buff(Charm.class) != null) {
+					// really little effect for already charmed mobs
+					Buff.affect(ch, Charm.class, 2).object = curUser.id();
+				}
+
 				//charms living enemies
-				if (!ch.properties().contains(Char.Property.UNDEAD)) {
+				else if (!ch.properties().contains(Char.Property.UNDEAD)) {
 					Buff.affect(ch, Charm.class, 5).object = curUser.id();
 					ch.sprite.centerEmitter().start( Speck.factory( Speck.HEART ), 0.2f, 3 + level()/2 );
 				
@@ -141,13 +153,16 @@ public class WandOfTransfusion extends Wand {
 
 	@Override
 	public void onHit(MagesStaff staff, Char attacker, Char defender, int damage) {
-		// lvl 0 - 10%
-		// lvl 1 - 18%
-		// lvl 2 - 25%
-		if (Random.Int( level() + 10 ) >= 9){
+		// AddedPD : slightly buff for ally-focused battlemage
+		// lvl 0 - 20% (was 10%)
+		// lvl 1 - 33% (was 18%)
+		// lvl 2 - 43% (was 25%)
+		if (Random.Int( level() + 5 ) >= 4){
 			//grants a free use of the staff
 			freeCharge = true;
-			GLog.p( Messages.get(this, "charged") );
+			GLog.p(Messages.get(this, "charged"));
+			TransfusionBuff tBuff = attacker.buff(TransfusionBuff.class);
+			if (tBuff == null) { Buff.affect(attacker, TransfusionBuff.class); }
 			attacker.sprite.emitter().burst(BloodParticle.BURST, 20);
 		}
 	}
@@ -167,6 +182,21 @@ public class WandOfTransfusion extends Wand {
 		particle.speed.polar( Random.Float(PointF.PI2), 2f );
 		particle.setSize( 1f, 2f);
 		particle.radiateXY(0.5f);
+	}
+
+	// AddedPD : this wand needs more specific description
+	@Override
+	public String statsDesc() {
+		int selfDmg = Math.round(Dungeon.hero.HT*0.10f);
+		int healing = selfDmg+3*level();
+		int selfSH = 5+2*level();
+		int undeadMin = 3+level()/2;
+		int undeadMax = 6+level();
+
+		if (levelKnown)
+			return Messages.get(this, "stats_desc", selfDmg, healing, selfSH, undeadMin, undeadMax);
+		else
+			return Messages.get(this, "stats_desc", selfDmg, selfDmg, 5, 3, 6);
 	}
 
 	private static final String FREECHARGE = "freecharge";

@@ -84,7 +84,7 @@ public class DisintegrationTrap extends Trap {
 						bag = (Bag)item;
 						item = Random.element(bag.items);
 					}
-					if (item == null || item.level() > 0 || item.unique) return;
+					if (item == null || item.level() > 0 || item.unique || item.enlightened) return;
 					if (!item.stackable){
 						item.detachAll(bag);
 						GLog.w( Messages.get(this, "one", item.name()) );

@@ -68,6 +68,8 @@ public class Speck extends Image {
 	public static final int STORM       = 117;
 	public static final int INFERNO     = 118;
 	public static final int BLIZZARD    = 119;
+	// AddedPD
+	public static final int SH_GEN		= 120;
 	
 	private static final int SIZE = 7;
 	
@@ -123,6 +125,9 @@ public class Speck extends Image {
 			break;
 		case CALM:
 			frame( film.get( SCREAM ) );
+			break;
+		case SH_GEN:
+			frame( film.get( HEALING ) );
 			break;
 		default:
 			frame( film.get( type ) );
@@ -360,6 +365,12 @@ public class Speck extends Image {
 			acc.y = 256;
 			lifespan = -speed.y / acc.y * 2;
 			break;
+
+		case SH_GEN:
+			tint(0xffffff);
+			speed.set( 0, -20 );
+			lifespan = 1f;
+			break;
 		}
 		
 		left = lifespan;
@@ -394,6 +405,7 @@ public class Speck extends Image {
 			case EVOKE:
 				
 			case HEALING:
+			case SH_GEN:
 				am = p < 0.5f ? 1 : 2 - p * 2;
 				break;
 

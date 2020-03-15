@@ -22,7 +22,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -47,7 +49,13 @@ public class Ankh extends Item {
 	}
 
 	private Boolean blessed = false;
-	
+
+	// AddedPD : for cleric's starting ankh, prevents 'ankh farming'
+	public Item isCleric() {
+		bones = false;
+		return this;
+	}
+
 	@Override
 	public boolean isUpgradable() {
 		return false;

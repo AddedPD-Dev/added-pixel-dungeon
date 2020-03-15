@@ -4,18 +4,18 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'com.android.tools.build:gradle:3.5.3'
     }
 }
 
 allprojects {
 
     ext {
-        appName = 'Shattered Pixel Dungeon'
-        appPackageName = 'com.shatteredpixel.shatteredpixeldungeon'
+        appName = 'Added Pixel Dungeon'
+        appPackageName = 'com.addedpixel.addedpixeldungeon'
 
-        appVersionCode = 382
-        appVersionName = '0.7.5e'
+        appVersionCode = 383
+        appVersionName = '0.7.5e_added_0.1.0'
 
         appAndroidCompileSDK = 29
         appAndroidMinSDK = 9

@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.BurglarSense;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MindVision;
@@ -44,6 +45,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bestiary;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Sheep;
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.WindParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
@@ -869,11 +872,23 @@ public abstract class Level implements Bundlable {
 			} else {
 
 				if (Dungeon.hero.pos == cell) {
-					Dungeon.hero.interrupt();
+					// AddedPD : the burglar's dodge trap ability
+					BurglarSense burglarSense = Dungeon.hero.buff(BurglarSense.class);
+					if (Dungeon.hero.subClass == HeroSubClass.BURGLAR
+							&& burglarSense == null && trap.active) {
+						Dungeon.hero.interrupt();
+						Sample.INSTANCE.play(Assets.SND_EVOKE);
+						CellEmitter.get(cell).burst(Speck.factory(Speck.STEAM), 10);
+						trap.disarm();
+						Buff.affect(Dungeon.hero, BurglarSense.class, BurglarSense.TRAP_DURATION);
+						GLog.w(Messages.get(BurglarSense.class, "disarm"));
+					} else {
+						Dungeon.hero.interrupt();
+
+					}
 				}
 
 				trap.trigger();
-
 			}
 		}
 		
@@ -897,6 +912,17 @@ public abstract class Level implements Bundlable {
 				blocking = Dungeon.level.losBlocking.clone();
 				for (int i = 0; i < blocking.length; i++){
 					if (blocking[i] && (Dungeon.level.map[i] == Terrain.HIGH_GRASS || Dungeon.level.map[i] == Terrain.FURROWED_GRASS)){
+						blocking[i] = false;
+					}
+				}
+			}
+			// AddedPD : for burglar - rouge's 3rd subclass
+			else if (c instanceof Hero && ((Hero) c).subClass == HeroSubClass.BURGLAR) {
+				blocking = Dungeon.level.losBlocking.clone();
+				for (int i = 0; i < blocking.length; i++){
+					// can see through door & locked door(except secret door) to check "is this room safe?" or "what's in this room?"
+					if (blocking[i] && (Dungeon.level.map[i] == Terrain.DOOR || Dungeon.level.map[i] == Terrain.LOCKED_DOOR
+										|| Dungeon.level.map[i] == Terrain.BARRICADE || Dungeon.level.map[i] == Terrain.BOOKSHELF)){
 						blocking[i] = false;
 					}
 				}
@@ -965,8 +991,14 @@ public abstract class Level implements Bundlable {
 			} else if (((Hero)c).heroClass == HeroClass.HUNTRESS) {
 				for (Mob mob : mobs) {
 					int p = mob.pos;
-					if (distance( c.pos, p) == 2) {
-
+					// AddedPD : spiritwalker has dubled detection
+					if (((Hero)c).subClass == HeroSubClass.SPIRITWALKER) {
+						if (distance( c.pos, p) <= 4 && distance( c.pos, p) >= 2) {
+							if (!fieldOfView[p]){
+								Dungeon.hero.mindVisionEnemies.add(mob);
+							}
+						}
+					} else if (distance( c.pos, p) == 2) {
 						if (!fieldOfView[p]){
 							Dungeon.hero.mindVisionEnemies.add(mob);
 						}
@@ -979,7 +1011,7 @@ public abstract class Level implements Bundlable {
 					fieldOfView[m.pos + i] = true;
 				}
 			}
-			
+
 			if (c.buff( Awareness.class ) != null) {
 				for (Heap heap : heaps.valueList()) {
 					int p = heap.pos;
@@ -989,7 +1021,9 @@ public abstract class Level implements Bundlable {
 			}
 
 			for (Mob ward : mobs){
-				if (ward instanceof WandOfWarding.Ward){
+				if (ward instanceof WandOfWarding.Ward ||
+						ward instanceof DriedRose.GhostHero ||
+						ward.isBaptized()){ // AddedPD : now sad ghost and redeemer's baptized ally share its vision
 					if (ward.fieldOfView == null || ward.fieldOfView.length != length()){
 						ward.fieldOfView = new boolean[length()];
 						Dungeon.level.updateFieldOfView( ward, ward.fieldOfView );

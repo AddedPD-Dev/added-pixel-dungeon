@@ -72,7 +72,7 @@ public class v0_4_X_Changes {
 				"_-_ Flail max damage increased by ~15%\n" +
 				"_-_ Wand of Frost damage reduction increased from 5% per turn of chill to 7.5%\n" +
 				"_-_ Ring of Furor speed bonus reduced by ~15% for slow weapons, ~0% for fast weapons\n" +
-				"_-_ Reduced sacrificial curse bleed by ~33%\n" +
+				"_-_ Reduced sacrificial curse fully_charged by ~33%\n" +
 				"_-_ Reworked glyph of brimstone, now grants shielding instead of healing\n" +
 				"_-_ Reworked glyph of stone, now reduces speed in doorways\n" +
 				"_-_ Thrown potions now trigger traps and plants"));
@@ -170,7 +170,7 @@ public class v0_4_X_Changes {
 				"_-_ Keys now exist in the journal, not inventory\n" +
 				"_-_ Improved donator menu button visuals\n" +
 				"_-_ Increased the efficiency of data storage\n" +
-				"_-_ Chasms now deal less damage, but bleed\n" +
+				"_-_ Chasms now deal less damage, but fully_charged\n" +
 				"_-_ Many shop prices adjusted\n" +
 				"_-_ Pirahna rooms no longer give cursed gear"));
 	}

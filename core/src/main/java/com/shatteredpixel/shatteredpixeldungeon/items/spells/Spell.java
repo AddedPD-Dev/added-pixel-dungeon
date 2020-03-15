@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.spells;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -55,6 +56,9 @@ public abstract class Spell extends Item {
 			
 			if (curUser.buff(MagicImmune.class) != null){
 				GLog.w( Messages.get(this, "no_magic") );
+				return;
+			} if (hero.heroClass == HeroClass.CLERIC) {
+				GLog.w( Messages.get(Spell.class, "cleric_no_magic") );
 				return;
 			}
 			

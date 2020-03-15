@@ -137,7 +137,30 @@ public class Badges {
 		GAMES_PLAYED_1( 60, true ),
 		GAMES_PLAYED_2( 61, true ),
 		GAMES_PLAYED_3( 62, true ),
-		GAMES_PLAYED_4( 63, true );
+		GAMES_PLAYED_4( 63, true ),
+		// AddedPD
+		UNLOCK_CLERIC(68),
+		UNLOCK_DWARF(69),
+		UNLOCK_SORCERER(70),
+		MASTERY_CLERIC,
+		MASTERY_DWARF,
+		BOSS_SLAIN_1_CLERIC,
+		BOSS_SLAIN_1_DWARF,
+		BOSS_SLAIN_1_ALL_ADDED_CLASSES( 71, true ),
+		BOSS_SLAIN_3_CRUSADER,
+		BOSS_SLAIN_3_SCHOLAR,
+		BOSS_SLAIN_3_REDEEMER,
+		BOSS_SLAIN_3_THUNDERBRINGER,
+		BOSS_SLAIN_3_MONK,
+		BOSS_SLAIN_3_NECROSMITH,
+		BOSS_SLAIN_3_SEALKNIGHT,
+		BOSS_SLAIN_3_RUNEMAGE,
+		BOSS_SLAIN_3_BURGLAR,
+		BOSS_SLAIN_3_SPIRITWALKER,
+		BOSS_SLAIN_3_ALL_ADDED_SUBCLASSES( 72, true ),
+		VICTORY_CLERIC,
+		VICTORY_DWARF,
+		VICTORY_ALL_ADDED_CLASSES( 73, true );
 
 		public boolean meta;
 
@@ -605,6 +628,17 @@ public class Badges {
 						saveNeeded = true;
 					}
 				}
+
+				if (global.contains( Badge.BOSS_SLAIN_1_CLERIC ) &&
+						global.contains( Badge.BOSS_SLAIN_1_DWARF )) {
+
+					badge = Badge.BOSS_SLAIN_1_ALL_ADDED_CLASSES;
+					if (!global.contains( badge )) {
+						displayBadge( badge );
+						global.add( badge );
+						saveNeeded = true;
+					}
+				}
 			} else
 			if (badge == Badge.BOSS_SLAIN_3) {
 				switch (Dungeon.hero.subClass) {
@@ -657,6 +691,25 @@ public class Badges {
 						saveNeeded = true;
 					}
 				}
+
+				if (global.contains( Badge.BOSS_SLAIN_3_SEALKNIGHT ) &&
+						global.contains( Badge.BOSS_SLAIN_3_RUNEMAGE ) &&
+						global.contains( Badge.BOSS_SLAIN_3_BURGLAR) &&
+						global.contains( Badge.BOSS_SLAIN_3_SPIRITWALKER ) &&
+						global.contains( Badge.BOSS_SLAIN_3_CRUSADER ) &&
+						global.contains( Badge.BOSS_SLAIN_3_SCHOLAR ) &&
+						global.contains( Badge.BOSS_SLAIN_3_REDEEMER ) &&
+						global.contains( Badge.BOSS_SLAIN_3_THUNDERBRINGER) &&
+						global.contains( Badge.BOSS_SLAIN_3_MONK ) &&
+						global.contains( Badge.BOSS_SLAIN_3_NECROSMITH )) {
+
+					badge = Badge.BOSS_SLAIN_3_ALL_ADDED_SUBCLASSES;
+					if (!global.contains( badge )) {
+						displayBadge( badge );
+						global.add( badge );
+						saveNeeded = true;
+					}
+				}
 			}
 		}
 	}
@@ -678,7 +731,7 @@ public class Badges {
 			badge = Badge.MASTERY_HUNTRESS;
 			break;
 		}
-		
+
 		if (!global.contains( badge )) {
 			global.add( badge );
 			saveNeeded = true;
@@ -700,6 +753,18 @@ public class Badges {
 	public static void validateHuntressUnlock(){
 		if (Statistics.thrownAssists >= 20 && !global.contains(Badge.UNLOCK_HUNTRESS)){
 			displayBadge( Badge.UNLOCK_HUNTRESS );
+		}
+	}
+
+	public static void validateClericUnlock(){
+		if (!global.contains(Badge.UNLOCK_CLERIC)){
+			displayBadge( Badge.UNLOCK_CLERIC );
+		}
+	}
+
+	public static void validateDwarfUnlock(){
+		if (!global.contains(Badge.UNLOCK_DWARF)){
+			displayBadge( Badge.UNLOCK_DWARF );
 		}
 	}
 	
@@ -742,6 +807,51 @@ public class Badges {
 			global.contains( Badge.VICTORY_HUNTRESS )) {
 			
 			badge = Badge.VICTORY_ALL_CLASSES;
+			displayBadge( badge );
+		}
+	}
+
+	public static void validateAddedMastery() {
+
+		Badge badge = null;
+		switch (Dungeon.hero.heroClass) {
+			case CLERIC:
+				badge = Badge.MASTERY_CLERIC;
+				break;
+			case DWARF:
+				badge = Badge.MASTERY_DWARF;
+				break;
+		}
+
+		if (!global.contains( badge )) {
+			global.add( badge );
+			saveNeeded = true;
+		}
+	}
+
+	public static void validateAddedVictory() {
+
+		Badge badge = Badge.VICTORY;
+		displayBadge( badge );
+
+		switch (Dungeon.hero.heroClass) {
+			case CLERIC:
+				badge = Badge.VICTORY_CLERIC;
+				break;
+			case DWARF:
+				badge = Badge.VICTORY_DWARF;
+				break;
+		}
+		local.add( badge );
+		if (!global.contains( badge )) {
+			global.add( badge );
+			saveNeeded = true;
+		}
+
+		if (global.contains( Badge.VICTORY_CLERIC ) &&
+				global.contains( Badge.VICTORY_DWARF )) {
+
+			badge = Badge.VICTORY_ALL_ADDED_CLASSES;
 			displayBadge( badge );
 		}
 	}

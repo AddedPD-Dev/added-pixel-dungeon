@@ -72,6 +72,8 @@ import com.watabou.utils.Random;
 
 import java.util.ArrayList;
 
+import static com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene.updateFog;
+
 public class DriedRose extends Artifact {
 
 	{
@@ -721,6 +723,7 @@ public class DriedRose extends Artifact {
 
 		@Override
 		public void destroy() {
+			updateFog();	// AddedPD : now ghost share its vision, so when it dies we must update fog
 			updateRose();
 			if (rose != null) {
 				rose.ghost = null;

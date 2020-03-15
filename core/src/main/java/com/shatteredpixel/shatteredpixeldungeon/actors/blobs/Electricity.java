@@ -25,11 +25,14 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -70,7 +73,12 @@ public class Electricity extends Blob {
 				if (cur[cell] > 0) {
 					Char ch = Actor.findChar( cell );
 					if (ch != null && !ch.isImmune(this.getClass())) {
-						Buff.prolong( ch, Paralysis.class, 1f);
+						// AddedPD : The Dwarf Survivor doesn't paralysed(but still receive damage)
+						if ( ch == Dungeon.hero && Dungeon.hero.heroClass == HeroClass.DWARF) {
+							// overcharge his cybernetic body!
+							Buff.prolong( Dungeon.hero, Haste.class, 4f);
+							ScrollOfRecharging.charge(Dungeon.hero);
+						} else { Buff.prolong( ch, Paralysis.class, 1f); }
 						if (cur[cell] % 2 == 1) {
 							ch.damage(Math.round(Random.Float(2 + Dungeon.depth / 5f)), this);
 							if (!ch.isAlive() && ch == Dungeon.hero){

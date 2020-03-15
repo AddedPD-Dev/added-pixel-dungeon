@@ -102,6 +102,12 @@ public class Assets {
 	public static final String SLIME	= "slime.png";
 	public static final String SNAKE	= "snake.png";
 	public static final String NECRO	= "necromancer.png";
+	// AddedPD
+	public static final String CLERIC	= "cleric.png";
+	public static final String MIRACLE	= "cleric_miracle.png";
+	public static final String DWARFHERO	= "dwarfhero.png";
+	public static final String NECROGOLEM	= "golem2.png";
+	public static final String DWARF_NPC	= "dwarf_npc.png";
 
 	public static final String ITEMS	        = "items.png";
 	public static final String TERRAIN_FEATURES	= "terrain_features.png";

@@ -87,6 +87,9 @@ public class Stylus extends Item {
 		} else if (armor.cursed || armor.hasCurseGlyph()){
 			GLog.w( Messages.get(this, "cursed"));
 			return;
+		} else if (armor.enlightened){
+			GLog.w (Messages.get(Hero.class, "enlightened"));
+			return;
 		}
 		
 		detach(curUser.belongings.backpack);

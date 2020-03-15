@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Fireball;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
@@ -31,11 +32,20 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.input.PointerEvent;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.Halo;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.PointerArea;
 import com.watabou.utils.DeviceCompat;
 
 public class AboutScene extends PixelScene {
+
+
+	private static final String TTL_ADDED_PD = "Added Pixel Dungeon";
+
+	private static final String TXT_ADDED_PD =
+			"Design, Code, & Graphics: Calming Creator";
+
+	private static final String LNK_ADDED_PD = "https://www.patreon.com/addedpd";
 
 	private static final String TTL_SHPX = "Shattered Pixel Dungeon";
 
@@ -57,12 +67,57 @@ public class AboutScene extends PixelScene {
 		super.create();
 
 		final float colWidth = Camera.main.width / (SPDSettings.landscape() ? 2 : 1);
-		final float colTop = (Camera.main.height / 2) - (SPDSettings.landscape() ? 30 : 90);
+		final float colTop = (Camera.main.height / 2) - (SPDSettings.landscape() ? 30 : 120);
 		final float wataOffset = SPDSettings.landscape() ? colWidth : 0;
+
+		Image added = Icons.ADDED_PD.get();
+		added.x = (colWidth - added.width()) / 2;
+		added.y = colTop;
+		align(added);
+		add( added );
+
+		Fireball fb = new Fireball();
+		fb.setPos( added.x+(added.width()/2), added.y+6 );
+		addToBack( fb );
+
+		RenderedTextBlock addedtitle = renderTextBlock( TTL_ADDED_PD, 8 );
+		addedtitle.hardlight( Window.ADDED_PD_COLOR );
+		add( addedtitle );
+
+		addedtitle.setPos(
+				(colWidth - addedtitle.width()) / 2,
+				added.y + added.height + 5
+		);
+		align(addedtitle);
+
+		RenderedTextBlock addedtext = renderTextBlock( TXT_ADDED_PD, 8 );
+		addedtext.maxWidth((int)Math.min(colWidth, 120));
+		add( addedtext );
+
+		addedtext.setPos((colWidth - addedtext.width()) / 2, addedtitle.bottom() + 12);
+		align(addedtext);
+
+		RenderedTextBlock addedlink = renderTextBlock( LNK_ADDED_PD, 8 );
+		addedlink.maxWidth(addedtext.maxWidth());
+		addedlink.hardlight( Window.ADDED_PD_COLOR );
+		add( addedlink );
+
+		addedlink.setPos((colWidth - addedlink.width()) / 2, addedtext.bottom() + 6);
+		align(addedlink);
+
+		PointerArea addedhotArea = new PointerArea( addedlink.left(), addedlink.top(), addedlink.width(), addedlink.height() ) {
+			@Override
+			protected void onClick( PointerEvent event ) {
+				DeviceCompat.openURI( "https://www.patreon.com/addedpd");
+			}
+		};
+		add( addedhotArea );
 
 		Image shpx = Icons.SHPX.get();
 		shpx.x = (colWidth - shpx.width()) / 2;
-		shpx.y = colTop;
+		shpx.y = SPDSettings.landscape() ?
+				colTop:
+				addedlink.top() + shpx.height + 20;
 		align(shpx);
 		add( shpx );
 

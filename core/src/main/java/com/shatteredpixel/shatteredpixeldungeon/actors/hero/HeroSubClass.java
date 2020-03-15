@@ -38,8 +38,24 @@ public enum HeroSubClass {
 	FREERUNNER( "freerunner" ),
 	
 	SNIPER( "sniper" ),
-	WARDEN( "warden" );
-	
+	WARDEN( "warden" ),
+
+	// AddedPD : 3rd subclasses for 'basic classes'
+	SEALKNIGHT("sealknight"),		// Warrior 3rd subclass : 'shield master', enhanced glyph
+	TRANSMUTER("transmuter"),		// Mage 3rd subclass : trickery magic, transmute staff when fully charged or ran out of charge
+	BURGLAR("burglar"),			// Rogue 3rd subclass : professional of thief-work, dungeoneering
+	SPIRITWALKER("spiritwalker"),	// Huntress 3rd subclass : detect enemy, aoe spirit arrow
+
+	// Cleric : No magic wands, Divine caster ; smite, combat-regen-aura, 'holy enchant'
+	CRUSADER("crusader"),			// Antimagic brawler - antimagic smite(blind), arcane armor, adrenaline aura
+	SCHOLAR("scholar"),			// Miracle master - greater smite(Aoe), blob of dispell undead, flood of holy water
+	REDEEMER("redeemer"),			// Reclaimer - healing smite(for ally), high-cost convert enemy which can level up
+
+	// Dwarf Survivor : 'one-melee-only', Infighter with fist of cyborg
+	THUNDERBRINGER("thunderbringer"), // Hit and run, charge stack by attack, blast lightning when stack becomes 3 charges
+	MONK("monk"),						// Building 'focus' while moving, dodge all attacks while focused, counter attack
+	NECROSMITH("necrosmith");			// Extreact souls, activate own 'Prismatic golem', with tanker form & attacker form
+
 	private String title;
 	
 	HeroSubClass( String title ) {

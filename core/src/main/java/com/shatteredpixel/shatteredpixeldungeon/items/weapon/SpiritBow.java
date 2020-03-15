@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Effects;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
@@ -35,7 +36,11 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.Group;
+import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
@@ -211,7 +216,43 @@ public class SpiritBow extends Weapon {
 	public SpiritArrow knockArrow(){
 		return new SpiritArrow();
 	}
-	
+
+	// AddedPD : spiritwalker's spectral blast
+	public static class SpectralBlast extends Image {
+
+		private static final float TIME_TO_FADE = 0.3f;
+		private float time;
+
+		public SpectralBlast(){
+			super(Effects.get(Effects.Type.RIPPLE));
+			origin.set(width / 2, height / 2);
+		}
+
+		public void reset(int pos) {
+			revive();
+			x = (pos % Dungeon.level.width()) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - width) / 2;
+			y = (pos / Dungeon.level.width()) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - height) / 2;
+			time = TIME_TO_FADE;
+		}
+
+		@Override
+		public void update() {
+			super.update();
+			if ((time -= Game.elapsed) <= 0) { kill(); }
+			else { float p = time / TIME_TO_FADE;
+				alpha(p);
+				scale.y = scale.x = (1-p)*3; } }
+
+		public static void blast(int pos) {
+			Group parent = Dungeon.hero.sprite.parent;
+			SpectralBlast b = (SpectralBlast) parent.recycle(SpectralBlast.class);
+			b.hardlight(0x99FFFF);
+			parent.bringToFront(b);
+			b.reset(pos);
+		}
+
+	}
+
 	public class SpiritArrow extends MissileWeapon {
 		
 		{

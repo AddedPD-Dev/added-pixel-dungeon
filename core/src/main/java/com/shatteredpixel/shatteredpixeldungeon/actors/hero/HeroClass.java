@@ -25,8 +25,11 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
+import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.TomeOfMastery;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
@@ -34,6 +37,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.SmallRation;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
@@ -42,25 +47,33 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.spells.CurseInfusion;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfShock;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Cudgel;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.DwarfArm;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.watabou.utils.Bundle;
-import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
 
-	WARRIOR( "warrior", HeroSubClass.BERSERKER, HeroSubClass.GLADIATOR ),
-	MAGE( "mage", HeroSubClass.BATTLEMAGE, HeroSubClass.WARLOCK ),
-	ROGUE( "rogue", HeroSubClass.ASSASSIN, HeroSubClass.FREERUNNER ),
-	HUNTRESS( "huntress", HeroSubClass.SNIPER, HeroSubClass.WARDEN );
+	WARRIOR( "warrior", HeroSubClass.BERSERKER, HeroSubClass.GLADIATOR, HeroSubClass.SEALKNIGHT ),
+	MAGE( "mage", HeroSubClass.BATTLEMAGE, HeroSubClass.WARLOCK, HeroSubClass.TRANSMUTER),
+	ROGUE( "rogue", HeroSubClass.ASSASSIN, HeroSubClass.FREERUNNER, HeroSubClass.BURGLAR ),
+	HUNTRESS( "huntress", HeroSubClass.SNIPER, HeroSubClass.WARDEN, HeroSubClass.SPIRITWALKER ),
+	CLERIC("cleric", HeroSubClass.CRUSADER, HeroSubClass.SCHOLAR, HeroSubClass.REDEEMER),
+	DWARF("dwarf", HeroSubClass.THUNDERBRINGER, HeroSubClass.MONK, HeroSubClass.NECROSMITH);
 
 	private String title;
 	private HeroSubClass[] subClasses;
@@ -92,6 +105,14 @@ public enum HeroClass {
 			case HUNTRESS:
 				initHuntress( hero );
 				break;
+
+			case CLERIC:
+				initCleric( hero );
+				break;
+
+			case DWARF:
+				initDwarf( hero );
+				break;
 		}
 		
 	}
@@ -106,9 +127,7 @@ public enum HeroClass {
 		if (Dungeon.isChallenged(Challenges.NO_FOOD)){
 			new SmallRation().collect();
 		}
-		
 		new ScrollOfIdentify().identify();
-
 	}
 
 	public Badges.Badge masteryBadge() {
@@ -121,6 +140,10 @@ public enum HeroClass {
 				return Badges.Badge.MASTERY_ROGUE;
 			case HUNTRESS:
 				return Badges.Badge.MASTERY_HUNTRESS;
+			case CLERIC:
+				return Badges.Badge.MASTERY_CLERIC;
+			case DWARF:
+				return Badges.Badge.MASTERY_DWARF;
 		}
 		return null;
 	}
@@ -154,7 +177,7 @@ public enum HeroClass {
 
 		new ScrollHolder().collect();
 		Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
-		
+
 		new ScrollOfUpgrade().identify();
 		new PotionOfLiquidFlame().identify();
 	}
@@ -193,6 +216,33 @@ public enum HeroClass {
 		new PotionOfMindVision().identify();
 		new ScrollOfLullaby().identify();
 	}
+
+	private static void initCleric( Hero hero ) {
+		(hero.belongings.weapon = new Cudgel()).identify();
+
+		Ankh ankh = new Ankh();
+		ankh.isCleric().collect();
+
+		Devotion devotion = new Devotion();
+		devotion.attachTo(hero);
+		ActionIndicator.setAction(devotion);
+
+		new PotionOfExperience().identify();
+		new ScrollOfRemoveCurse().identify();
+	}
+
+	private static void initDwarf( Hero hero ) {
+
+		(hero.belongings.weapon = new DwarfArm()).identify();
+
+		StoneOfShock stone = new StoneOfShock();
+		stone.identify().quantity(5).collect();
+
+		Dungeon.quickslot.setSlot(0, stone);
+
+		new PotionOfHaste().identify();
+		new ScrollOfRecharging().identify();
+	}
 	
 	public String title() {
 		return Messages.get(HeroClass.class, title);
@@ -212,6 +262,10 @@ public enum HeroClass {
 				return Assets.ROGUE;
 			case HUNTRESS:
 				return Assets.HUNTRESS;
+			case CLERIC:
+				return Assets.CLERIC;
+			case DWARF:
+				return Assets.DWARFHERO;
 		}
 	}
 	
@@ -249,22 +303,46 @@ public enum HeroClass {
 						Messages.get(HeroClass.class, "huntress_perk4"),
 						Messages.get(HeroClass.class, "huntress_perk5"),
 				};
+			case CLERIC:
+				return new String[]{
+						Messages.get(HeroClass.class, "cleric_perk1"),
+						Messages.get(HeroClass.class, "cleric_perk2"),
+						Messages.get(HeroClass.class, "cleric_perk3"),
+						Messages.get(HeroClass.class, "cleric_perk4"),
+						Messages.get(HeroClass.class, "cleric_perk5"),
+				};
+			case DWARF:
+				return new String[]{
+						Messages.get(HeroClass.class, "dwarf_perk1"),
+						Messages.get(HeroClass.class, "dwarf_perk2"),
+						Messages.get(HeroClass.class, "dwarf_perk3"),
+						Messages.get(HeroClass.class, "dwarf_perk4"),
+						Messages.get(HeroClass.class, "dwarf_perk5"),
+				};
 		}
 	}
 	
 	public boolean isUnlocked(){
 		//always unlock on debug builds
-		if (DeviceCompat.isDebug()) return true;
+		//if (DeviceCompat.isDebug()) return true;
 		
 		switch (this){
 			case WARRIOR: default:
 				return true;
 			case MAGE:
-				return Badges.isUnlocked(Badges.Badge.UNLOCK_MAGE);
+				//return Badges.isUnlocked(Badges.Badge.UNLOCK_MAGE);
+				return true;
 			case ROGUE:
-				return Badges.isUnlocked(Badges.Badge.UNLOCK_ROGUE);
+				//return Badges.isUnlocked(Badges.Badge.UNLOCK_ROGUE);
+				return true;
 			case HUNTRESS:
-				return Badges.isUnlocked(Badges.Badge.UNLOCK_HUNTRESS);
+				//return Badges.isUnlocked(Badges.Badge.UNLOCK_HUNTRESS);
+				return true;
+			case CLERIC:
+				//return Badges.isUnlocked(Badges.Badge.UNLOCK_CLERIC);
+				return true;
+			case DWARF:
+				return Badges.isUnlocked(Badges.Badge.UNLOCK_DWARF);
 		}
 	}
 	
@@ -278,6 +356,10 @@ public enum HeroClass {
 				return Messages.get(HeroClass.class, "rogue_unlock");
 			case HUNTRESS:
 				return Messages.get(HeroClass.class, "huntress_unlock");
+			case CLERIC:
+				return Messages.get(HeroClass.class, "cleric_unlock");
+			case DWARF:
+				return Messages.get(HeroClass.class, "dwarf_unlock");
 		}
 	}
 

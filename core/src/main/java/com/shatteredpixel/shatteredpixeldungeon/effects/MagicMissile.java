@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.effects;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.CorrosionParticle;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.FlameParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.LeafParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
@@ -62,6 +63,9 @@ public class MagicMissile extends Emitter {
 	public static final int RAINBOW         = 8;
 	public static final int EARTH           = 9;
 	public static final int WARD            = 10;
+	// AddedPD
+	public static final int OTHER_MAGIC     = 11;
+	public static final int ELMO			= 12;
 
 	public static final int FIRE_CONE       = 100;
 	public static final int FOLIAGE_CONE    = 101;
@@ -146,6 +150,15 @@ public class MagicMissile extends Emitter {
 			case WARD:
 				size( 4 );
 				pour( WardParticle.FACTORY, 0.01f );
+				break;
+			case OTHER_MAGIC:
+				size( 8 );
+				pour( MagicParticle.FACTORY, 0.01f );
+				time /= 2;
+				break;
+			case ELMO:
+				size( 4 );
+				pour(ElmoParticle.MISSILE, 0.01f );
 				break;
 
 			case FIRE_CONE:

@@ -21,7 +21,12 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Stamina;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -41,6 +46,14 @@ public class Repulsion extends Armor.Glyph {
 			int oppositeHero = attacker.pos + (attacker.pos - defender.pos);
 			Ballistica trajectory = new Ballistica(attacker.pos, oppositeHero, Ballistica.MAGIC_BOLT);
 			WandOfBlastWave.throwChar(attacker, trajectory, 2);
+
+			// AddedPD : for sealknight - gain small amount of stamina for hero to retreat, or engage to ranged mob!
+			if (defender == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT && armor.checkSeal() != null) {
+				if (defender.buff(Stamina.class) == null) {
+					Buff.prolong(defender, Stamina.class, attacker.distance(defender)+1);
+					Splash.at(defender.pos, 0xFFFFFF, 10);
+				}
+			}
 		}
 		
 		return damage;

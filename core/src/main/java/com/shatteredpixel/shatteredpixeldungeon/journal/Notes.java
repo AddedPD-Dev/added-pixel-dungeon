@@ -74,7 +74,9 @@ public class Notes {
 		GHOST,
 		WANDMAKER,
 		TROLL,
-		IMP;
+		IMP,
+		// AddedPD
+		DWARF;
 		
 		public String desc() {
 			return Messages.get(this, name());
