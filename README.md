@@ -6,7 +6,8 @@ Based on the source code of Pixel Dungeon(by Watabou) and Shattered Pixel Dungeo
 Patreon page:
 https://www.patreon.com/addedpd
 *Supports this patreon inspire me to devlop more passionate!
-*APK Link : https://drive.google.com/file/d/1wzSU40sM3kUdiy4qzMZ-K9KUjWsZD5uW/view?usp=sharing
+
+APK Link : https://drive.google.com/file/d/1wzSU40sM3kUdiy4qzMZ-K9KUjWsZD5uW/view?usp=sharing
 
 ## New class : The Cleric
 The cleric is a divine caster, who cannot use magical wands and spell crystals. 
