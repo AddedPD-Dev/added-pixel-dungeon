@@ -1,3 +1,22 @@
+# Added Pixel Dungeon
+
+An fork from Shattered Pixel Dungeon, with some original contents - such as new classes!
+Based on the source code of Pixel Dungeon(by Watabou) and Shattered Pixel Dungeon(by 00-Evan).
+
+Patreon page:
+https://www.patreon.com/addedpd
+*Supports this patreon inspire me to devlop more passionate!
+
+## New class : The Cleric
+The cleric is a divine caster, who cannot use magical wands and spell crystals. 
+
+## New class : The Dwarf Survivor
+The dwarf is an infighter who can only use his own mechanized arms.
+
+
+Look below for Shattered relate contents.
+
+
 # Shattered Pixel Dungeon
 
 A Roguelike RPG, with randomly generated levels, items, enemies, and traps!
