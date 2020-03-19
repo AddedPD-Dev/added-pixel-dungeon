@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -64,20 +65,31 @@ public class Blacksmith extends NPC {
 		throwItem();
 		return super.act();
 	}
-	
+
+	public static String chooseMsg() {
+		String msg = "";
+		if (Dungeon.hero.heroClass == HeroClass.DWARF){
+			msg = Messages.get(Blacksmith.class, "gold_1_dwarf");
+		} else msg = Messages.get(Blacksmith.class, "gold_1");
+
+		if (Quest.alternative) {
+			msg = Messages.get(Blacksmith.class, "blood_1");
+		}
+
+		return msg;
+	}
+
 	@Override
 	public boolean interact() {
 		
 		sprite.turnTo( pos, Dungeon.hero.pos );
-		
 		if (!Quest.given) {
 			
 			Game.runOnRenderThread(new Callback() {
 				@Override
 				public void call() {
-					GameScene.show( new WndQuest( Blacksmith.this,
-							Quest.alternative ? Messages.get(Blacksmith.this, "blood_1") : Messages.get(Blacksmith.this, "gold_1") ) {
-						
+					GameScene.show( new WndQuest( Blacksmith.this, Blacksmith.chooseMsg()) {
+
 						@Override
 						public void onBackPressed() {
 							super.onBackPressed();
@@ -318,7 +330,12 @@ public class Blacksmith extends NPC {
 				
 				rooms.add(new BlacksmithRoom());
 				spawned = true;
-				alternative = Random.Int( 2 ) == 0;
+
+				if (Dungeon.hero.heroClass == HeroClass.DWARF) {
+					alternative = false;
+				} else {
+					alternative = Random.Int(2) == 0;
+				}
 				
 				given = false;
 				

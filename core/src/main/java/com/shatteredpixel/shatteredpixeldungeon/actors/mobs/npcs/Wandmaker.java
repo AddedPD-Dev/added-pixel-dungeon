@@ -42,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.WandmakerSprite;
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndWandmaker;
 import com.watabou.noosa.Game;
@@ -104,12 +105,63 @@ public class Wandmaker extends NPC {
 			}
 
 			if (item != null) {
-				Game.runOnRenderThread(new Callback() {
-					@Override
-					public void call() {
-						GameScene.show( new WndWandmaker( Wandmaker.this, item ) );
+				if (Dungeon.hero.heroClass == HeroClass.CLERIC) {
+					String msg_cleric = "";
+					String msg_reward = "";
+					msg_cleric += Messages.get(this, "cleric_welcome");
+					switch (Quest.type){
+						case 1:
+							msg_cleric += Messages.get(this, "cleric_dust");
+							break;
+						case 2:
+							msg_cleric += Messages.get(this, "cleric_ember");
+							break;
+						case 3:
+							msg_cleric += Messages.get(this, "cleric_berry");
+							break;
 					}
-				});
+					msg_reward += Messages.get(this, "cleric_reward");
+
+					final String msgClericFinal = msg_cleric;
+					final String msgRewardFinal = msg_reward;
+
+					Game.runOnRenderThread(new Callback() {
+						@Override
+						public void call() {
+							GameScene.show(new WndQuest(Wandmaker.this, msgClericFinal){
+								@Override
+								public void hide() {
+									super.hide();
+									GameScene.show(new WndQuest(Wandmaker.this, msgRewardFinal));
+								}
+							});
+						}
+					});
+
+					item.detach( Dungeon.hero.belongings.backpack );
+
+					PotionOfExperience potion = new PotionOfExperience();
+					Wandmaker wandmaker = this;
+
+					potion.identify();
+					if (potion.doPickUp(Dungeon.hero)) {
+						GLog.i(Messages.get(Dungeon.hero, "you_now_have", potion.name()));
+					} else {
+						Dungeon.level.drop(potion, wandmaker.pos).sprite.drop();
+					}
+
+					wandmaker.destroy();
+					wandmaker.sprite.die();
+					Wandmaker.Quest.complete();
+
+				} else {
+					Game.runOnRenderThread(new Callback() {
+						@Override
+						public void call() {
+							GameScene.show(new WndWandmaker(Wandmaker.this, item));
+						}
+					});
+				}
 			} else {
 				String msg;
 				switch(Quest.type){
@@ -212,7 +264,6 @@ public class Wandmaker extends NPC {
 		
 		public static Wand wand1;
 		public static Wand wand2;
-		public static PotionOfExperience potion;
 		
 		public static void reset() {
 			spawned = false;

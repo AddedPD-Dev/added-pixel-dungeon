@@ -83,6 +83,8 @@ public class Badges {
 		BOSS_SLAIN_1_MAGE,
 		BOSS_SLAIN_1_ROGUE,
 		BOSS_SLAIN_1_HUNTRESS,
+		BOSS_SLAIN_1_CLERIC,
+		BOSS_SLAIN_1_DWARF,
 		BOSS_SLAIN_1( 12 ),
 		BOSS_SLAIN_2( 13 ),
 		BOSS_SLAIN_3( 14 ),
@@ -96,11 +98,23 @@ public class Badges {
 		BOSS_SLAIN_3_ASSASSIN,
 		BOSS_SLAIN_3_SNIPER,
 		BOSS_SLAIN_3_WARDEN,
+		BOSS_SLAIN_3_CRUSADER,
+		BOSS_SLAIN_3_SCHOLAR,
+		BOSS_SLAIN_3_REDEEMER,
+		BOSS_SLAIN_3_THUNDERBRINGER,
+		BOSS_SLAIN_3_MONK,
+		BOSS_SLAIN_3_NECROSMITH,
+		BOSS_SLAIN_3_SEALKNIGHT,
+		BOSS_SLAIN_3_TRANSMUTER,
+		BOSS_SLAIN_3_BURGLAR,
+		BOSS_SLAIN_3_SPIRITWALKER,
 		BOSS_SLAIN_3_ALL_SUBCLASSES( 33, true ),
 		VICTORY_WARRIOR,
 		VICTORY_MAGE,
 		VICTORY_ROGUE,
 		VICTORY_HUNTRESS,
+		VICTORY_CLERIC,
+		VICTORY_DWARF,
 		VICTORY( 34 ),
 		VICTORY_ALL_CLASSES( 35, true ),
 		HAPPY_END( 36 ),
@@ -119,6 +133,8 @@ public class Badges {
 		MASTERY_MAGE,
 		MASTERY_ROGUE,
 		MASTERY_HUNTRESS,
+		MASTERY_CLERIC,
+		MASTERY_DWARF,
 		UNLOCK_MAGE( 65 ),
 		UNLOCK_ROGUE( 66 ),
 		UNLOCK_HUNTRESS( 67 ),
@@ -140,27 +156,7 @@ public class Badges {
 		GAMES_PLAYED_4( 63, true ),
 		// AddedPD
 		UNLOCK_CLERIC(68),
-		UNLOCK_DWARF(69),
-		UNLOCK_SORCERER(70),
-		MASTERY_CLERIC,
-		MASTERY_DWARF,
-		BOSS_SLAIN_1_CLERIC,
-		BOSS_SLAIN_1_DWARF,
-		BOSS_SLAIN_1_ALL_ADDED_CLASSES( 71, true ),
-		BOSS_SLAIN_3_CRUSADER,
-		BOSS_SLAIN_3_SCHOLAR,
-		BOSS_SLAIN_3_REDEEMER,
-		BOSS_SLAIN_3_THUNDERBRINGER,
-		BOSS_SLAIN_3_MONK,
-		BOSS_SLAIN_3_NECROSMITH,
-		BOSS_SLAIN_3_SEALKNIGHT,
-		BOSS_SLAIN_3_RUNEMAGE,
-		BOSS_SLAIN_3_BURGLAR,
-		BOSS_SLAIN_3_SPIRITWALKER,
-		BOSS_SLAIN_3_ALL_ADDED_SUBCLASSES( 72, true ),
-		VICTORY_CLERIC,
-		VICTORY_DWARF,
-		VICTORY_ALL_ADDED_CLASSES( 73, true );
+		UNLOCK_DWARF(69);
 
 		public boolean meta;
 
@@ -609,6 +605,13 @@ public class Badges {
 				case HUNTRESS:
 					badge = Badge.BOSS_SLAIN_1_HUNTRESS;
 					break;
+
+				case CLERIC:
+					badge = Badge.BOSS_SLAIN_1_CLERIC;
+					break;
+				case DWARF:
+					badge = Badge.BOSS_SLAIN_1_DWARF;
+					break;
 				}
 				local.add( badge );
 				if (!global.contains( badge )) {
@@ -619,7 +622,10 @@ public class Badges {
 				if (global.contains( Badge.BOSS_SLAIN_1_WARRIOR ) &&
 					global.contains( Badge.BOSS_SLAIN_1_MAGE ) &&
 					global.contains( Badge.BOSS_SLAIN_1_ROGUE ) &&
-					global.contains( Badge.BOSS_SLAIN_1_HUNTRESS)) {
+					global.contains( Badge.BOSS_SLAIN_1_HUNTRESS) &&
+
+					global.contains( Badge.BOSS_SLAIN_1_CLERIC) &&
+					global.contains( Badge.BOSS_SLAIN_1_DWARF)) {
 					
 					badge = Badge.BOSS_SLAIN_1_ALL_CLASSES;
 					if (!global.contains( badge )) {
@@ -629,15 +635,15 @@ public class Badges {
 					}
 				}
 
-				if (global.contains( Badge.BOSS_SLAIN_1_CLERIC ) &&
-						global.contains( Badge.BOSS_SLAIN_1_DWARF )) {
+				//if (global.contains( Badge.BOSS_SLAIN_1_CLERIC ) &&
+						//global.contains( Badge.BOSS_SLAIN_1_DWARF )) {
 
-					badge = Badge.BOSS_SLAIN_1_ALL_ADDED_CLASSES;
-					if (!global.contains( badge )) {
-						displayBadge( badge );
-						global.add( badge );
-						saveNeeded = true;
-					}
+					//badge = Badge.BOSS_SLAIN_1_ALL_ADDED_CLASSES;
+					//if (!global.contains( badge )) {
+						//displayBadge( badge );
+						//global.add( badge );
+						//saveNeeded = true;
+				//}
 				}
 			} else
 			if (badge == Badge.BOSS_SLAIN_3) {
@@ -666,6 +672,37 @@ public class Badges {
 				case WARDEN:
 					badge = Badge.BOSS_SLAIN_3_WARDEN;
 					break;
+
+				case CRUSADER:
+					badge = Badge.BOSS_SLAIN_3_CRUSADER;
+					break;
+				case SCHOLAR:
+					badge = Badge.BOSS_SLAIN_3_SCHOLAR;
+					break;
+				case REDEEMER:
+					badge = Badge.BOSS_SLAIN_3_REDEEMER;
+					break;
+				case THUNDERBRINGER:
+					badge = Badge.BOSS_SLAIN_3_THUNDERBRINGER;
+					break;
+				case MONK:
+					badge = Badge.BOSS_SLAIN_3_MONK;
+					break;
+				case NECROSMITH:
+					badge = Badge.BOSS_SLAIN_3_NECROSMITH;
+					break;
+				case SEALKNIGHT:
+					badge = Badge.BOSS_SLAIN_3_SEALKNIGHT;
+					break;
+				case TRANSMUTER:
+					badge = Badge.BOSS_SLAIN_3_TRANSMUTER;
+					break;
+				case BURGLAR:
+					badge = Badge.BOSS_SLAIN_3_BURGLAR;
+					break;
+				case SPIRITWALKER:
+					badge = Badge.BOSS_SLAIN_3_SPIRITWALKER;
+					break;
 				default:
 					return;
 				}
@@ -682,7 +719,18 @@ public class Badges {
 					global.contains( Badge.BOSS_SLAIN_3_FREERUNNER ) &&
 					global.contains( Badge.BOSS_SLAIN_3_ASSASSIN ) &&
 					global.contains( Badge.BOSS_SLAIN_3_SNIPER ) &&
-					global.contains( Badge.BOSS_SLAIN_3_WARDEN )) {
+					global.contains( Badge.BOSS_SLAIN_3_WARDEN ) &&
+
+					global.contains( Badge.BOSS_SLAIN_3_CRUSADER ) &&
+					global.contains( Badge.BOSS_SLAIN_3_SCHOLAR ) &&
+					global.contains( Badge.BOSS_SLAIN_3_REDEEMER ) &&
+					global.contains( Badge.BOSS_SLAIN_3_THUNDERBRINGER ) &&
+					global.contains( Badge.BOSS_SLAIN_3_MONK ) &&
+					global.contains( Badge.BOSS_SLAIN_3_NECROSMITH ) &&
+					global.contains( Badge.BOSS_SLAIN_3_SEALKNIGHT ) &&
+					global.contains( Badge.BOSS_SLAIN_3_TRANSMUTER ) &&
+					global.contains( Badge.BOSS_SLAIN_3_BURGLAR ) &&
+					global.contains( Badge.BOSS_SLAIN_3_SPIRITWALKER )) {
 					
 					badge = Badge.BOSS_SLAIN_3_ALL_SUBCLASSES;
 					if (!global.contains( badge )) {
@@ -691,26 +739,6 @@ public class Badges {
 						saveNeeded = true;
 					}
 				}
-
-				if (global.contains( Badge.BOSS_SLAIN_3_SEALKNIGHT ) &&
-						global.contains( Badge.BOSS_SLAIN_3_RUNEMAGE ) &&
-						global.contains( Badge.BOSS_SLAIN_3_BURGLAR) &&
-						global.contains( Badge.BOSS_SLAIN_3_SPIRITWALKER ) &&
-						global.contains( Badge.BOSS_SLAIN_3_CRUSADER ) &&
-						global.contains( Badge.BOSS_SLAIN_3_SCHOLAR ) &&
-						global.contains( Badge.BOSS_SLAIN_3_REDEEMER ) &&
-						global.contains( Badge.BOSS_SLAIN_3_THUNDERBRINGER) &&
-						global.contains( Badge.BOSS_SLAIN_3_MONK ) &&
-						global.contains( Badge.BOSS_SLAIN_3_NECROSMITH )) {
-
-					badge = Badge.BOSS_SLAIN_3_ALL_ADDED_SUBCLASSES;
-					if (!global.contains( badge )) {
-						displayBadge( badge );
-						global.add( badge );
-						saveNeeded = true;
-					}
-				}
-			}
 		}
 	}
 	
@@ -729,6 +757,12 @@ public class Badges {
 			break;
 		case HUNTRESS:
 			badge = Badge.MASTERY_HUNTRESS;
+			break;
+		case CLERIC:
+			badge = Badge.MASTERY_CLERIC;
+			break;
+		case DWARF:
+			badge = Badge.MASTERY_DWARF;
 			break;
 		}
 
@@ -794,6 +828,12 @@ public class Badges {
 		case HUNTRESS:
 			badge = Badge.VICTORY_HUNTRESS;
 			break;
+		case CLERIC:
+			badge = Badge.VICTORY_CLERIC;
+			break;
+		case DWARF:
+			badge = Badge.VICTORY_DWARF;
+			break;
 		}
 		local.add( badge );
 		if (!global.contains( badge )) {
@@ -804,54 +844,12 @@ public class Badges {
 		if (global.contains( Badge.VICTORY_WARRIOR ) &&
 			global.contains( Badge.VICTORY_MAGE ) &&
 			global.contains( Badge.VICTORY_ROGUE ) &&
-			global.contains( Badge.VICTORY_HUNTRESS )) {
+			global.contains( Badge.VICTORY_HUNTRESS ) &&
+
+			global.contains( Badge.VICTORY_CLERIC ) &&
+			global.contains( Badge.VICTORY_DWARF )) {
 			
 			badge = Badge.VICTORY_ALL_CLASSES;
-			displayBadge( badge );
-		}
-	}
-
-	public static void validateAddedMastery() {
-
-		Badge badge = null;
-		switch (Dungeon.hero.heroClass) {
-			case CLERIC:
-				badge = Badge.MASTERY_CLERIC;
-				break;
-			case DWARF:
-				badge = Badge.MASTERY_DWARF;
-				break;
-		}
-
-		if (!global.contains( badge )) {
-			global.add( badge );
-			saveNeeded = true;
-		}
-	}
-
-	public static void validateAddedVictory() {
-
-		Badge badge = Badge.VICTORY;
-		displayBadge( badge );
-
-		switch (Dungeon.hero.heroClass) {
-			case CLERIC:
-				badge = Badge.VICTORY_CLERIC;
-				break;
-			case DWARF:
-				badge = Badge.VICTORY_DWARF;
-				break;
-		}
-		local.add( badge );
-		if (!global.contains( badge )) {
-			global.add( badge );
-			saveNeeded = true;
-		}
-
-		if (global.contains( Badge.VICTORY_CLERIC ) &&
-				global.contains( Badge.VICTORY_DWARF )) {
-
-			badge = Badge.VICTORY_ALL_ADDED_CLASSES;
 			displayBadge( badge );
 		}
 	}

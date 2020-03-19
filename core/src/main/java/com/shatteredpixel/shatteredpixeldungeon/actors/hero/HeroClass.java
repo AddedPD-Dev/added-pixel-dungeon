@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.TomeOfMastery;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
@@ -60,6 +61,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.DwarfArm;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Stake;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKnife;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -140,10 +142,7 @@ public enum HeroClass {
 				return Badges.Badge.MASTERY_ROGUE;
 			case HUNTRESS:
 				return Badges.Badge.MASTERY_HUNTRESS;
-			case CLERIC:
-				return Badges.Badge.MASTERY_CLERIC;
-			case DWARF:
-				return Badges.Badge.MASTERY_DWARF;
+			//case CLERIC: return Badges.Badge.MASTERY_CLERIC;case DWARF: return Badges.Badge.MASTERY_DWARF;
 		}
 		return null;
 	}
@@ -220,12 +219,17 @@ public enum HeroClass {
 	private static void initCleric( Hero hero ) {
 		(hero.belongings.weapon = new Cudgel()).identify();
 
-		Ankh ankh = new Ankh();
-		ankh.isCleric().collect();
+		Stake stake = new Stake();
+		stake.quantity(3).collect();
+
+		Dungeon.quickslot.setSlot(0, stake);
 
 		Devotion devotion = new Devotion();
 		devotion.attachTo(hero);
 		ActionIndicator.setAction(devotion);
+
+		new MagicalHolster().collect();
+		Dungeon.LimitedDrops.MAGICAL_HOLSTER.drop();
 
 		new PotionOfExperience().identify();
 		new ScrollOfRemoveCurse().identify();
@@ -239,6 +243,9 @@ public enum HeroClass {
 		stone.identify().quantity(5).collect();
 
 		Dungeon.quickslot.setSlot(0, stone);
+
+		new VelvetPouch().collect();
+		Dungeon.LimitedDrops.VELVET_POUCH.drop();
 
 		new PotionOfHaste().identify();
 		new ScrollOfRecharging().identify();

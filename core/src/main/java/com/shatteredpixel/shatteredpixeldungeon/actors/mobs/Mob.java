@@ -516,7 +516,7 @@ public abstract class Mob extends Char {
 		}
 		if (buff(Baptized.class) != null) {
 			int levelBonus = Devotion.Baptized_Level(this);
-			damage += Random.NormalIntRange(0, levelBonus);
+			damage += Random.NormalIntRange(0, Math.min(levelBonus, 12));
 		}
 		return damage;
 	}
@@ -538,8 +538,8 @@ public abstract class Mob extends Char {
 			else return this.defenseSkill;
 		} else {
 			if (buff(Baptized.class) != null && enemy != Dungeon.hero) {
-				int levelBonus = 2*Devotion.Baptized_Level(this);
-				return this.defenseSkill += levelBonus;
+				int levelBonus = 3*Devotion.Baptized_Level(this);
+				return this.defenseSkill += Math.min(levelBonus, 21);
 			} else return 0;
 		}
 	}
@@ -723,7 +723,7 @@ public abstract class Mob extends Char {
 			if (devotion != null && properties.contains(Property.BOSS)) devotion.onOther(Dungeon.depth);
 		}
 
-		if (buff(Baptized.class) != null) {
+		if (isBaptized()) {
 			Devotion devotion = Dungeon.hero.buff(Devotion.class);
 			devotion.Baptized_canUse();
 		}
@@ -912,6 +912,25 @@ public abstract class Mob extends Char {
 		@Override
 		public boolean act( boolean enemyInFOV, boolean justAlerted ) {
 			enemySeen = enemyInFOV;
+
+			if (intelligentAlly && (enemy instanceof Piranha || enemy instanceof RotLasher)) {
+				if (enemyInFOV && !isCharmedBy( enemy ) && canAttack( enemy )) {
+					if (!Dungeon.level.adjacent( pos, enemy.pos )) {
+						return doAttack(enemy);
+					}
+				}
+
+				if (Dungeon.level.adjacent( pos, enemy.pos )) {
+					state = WANDERING;
+					if (!Dungeon.level.adjacent( enemy.pos, Dungeon.hero.pos)) {
+						getCloser(Dungeon.hero.pos);
+					} else {
+						target = Dungeon.level.randomDestination();
+					}
+					return true;
+				}
+			}
+
 			if (enemyInFOV && !isCharmedBy( enemy ) && canAttack( enemy )) {
 
 				return doAttack( enemy );

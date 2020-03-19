@@ -76,14 +76,42 @@ public class v0_7_X_Changes {
 			changeInfos.add(changes);
 
 		if (SPDSettings.language() == Languages.KOREAN) {
+
+			changes = new ChangeInfo("2020-03-19", false, null);
+			changes.hardlight( Window.TITLE_COLOR );
+			changeInfos.add(changes);
+
+			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.STAKE, null), "말뚝",
+					"이제 사제와 드워프 생존자는 각각 _마법 보관집_과 _벨벳 주머니_를 가지고 시작합니다.\n\n" +
+							"또한 사제는 고유한 투척 무기로 _말뚝_ 3개를 가지고 시작합니다. 지상과 비교적 가까운 덕분에, 하수구에선 말뚝의 내구도가 소모되지 않습니다. 그리고 다트처럼 쇠뇌에 장전할 수 있습니다!"));
+
+			changes.addButton(new ChangeButton(new Image(Assets.CLERIC, 0, 15, 12, 15), "사제 상향",
+					"_열광의 기도_가 더 많은 열광을 제공합니다."));
+
+			changes.addButton(new ChangeButton(Icons.get(Icons.CLERIC), "대속자 상향",
+					"대속자가 세례받은 대상을 _안식_에 들게 하면 _60_의 헌신을 돌려받습니다.\n\n +" +
+							"또한, 세례받은 대상은 즉시 12의 추가 체력을 얻으며, 3레벨만큼 성장하면 세 가지 _특성_ 중 하나를 얻습니다!:\n" +
+							"_- 신성한 활력_은 빠른 체력 재생력을 제공합니다. 죽어가는 상태에선 더욱 빠르게 재생합니다.\n" +
+							"_- 원소 저항력_은 (원소의 반지처럼) 각종 해로운 효과와 적대적인 마법에 저항합니다.\n" +
+							"_- 수호자의 영혼_은 주기적으로 자신을 제외한 주변 아군에게 방어막을 부여합니다."));
+
+			changes.addButton( new ChangeButton(new Image(Assets.SPINNER, 144, 0, 16, 16), Messages.get(ChangesScene.class, "버그 수정"),
+					"여태까지 보고된 각종 버그들이 수정되었습니다... 제대로 수정되었는지 확인해주세요!\n" +
+							"_-_ 사제가 강타 기적을 사용한 후 헌신을 새로 얻기 전까지 기적을 쓸 수 없는 버그\n" +
+							"_-_ 사제로 폐광에 첫 진입하면 게임이 깨지는 버그\n" +
+							"_-_ 대속자가 세례 기적을 사용할 수 없는 버그\n" +
+							"_-_ 드워프 생존자가 아닌 영웅으로 완력의 반지 사용시 게임이 깨지는 버그\n" +
+							"_-_ 23층에 진입하면 게임이 깨지는 버그\n" +
+							"_-_ 사제가 지팡이 깎는 노인의 퀘스트를 완료할 수 없는 버그"));
+
 			changes = new ChangeInfo("사제", false, null);
 			changes.hardlight(0xFFFFFF);
 			changeInfos.add(changes);
 
 			changes.addButton(new ChangeButton(new Image(Assets.CLERIC, 0, 15, 12, 15), "사제",
 					"사제는 신성한 기적을 다룹니다. 이 컨셉은 고전적인 '신성 마법사' 캐릭터들과 00-Evan의 블로그 포스트로부터 영감을 얻었습니다. 사제를 해금하려면 한 게임을 지상으로 돌아감으로서 끝내야 합니다.\n\n" +
-							"사제는 _곤봉_을 갖고 시작합니다. 곤봉은 _명중률이 높은_ 무기로, 다른 원거리 무기 없이 시작하는 초반을 헤쳐나가는 데 도움이 될 겁니다.\n\n" +
-							"또한 사제는 축복받지 않은 _앙크_ 하나를 갖고 시작합니다. 이 여분의 앙크는 아무런 가방 없이 시작하는 것에 대한 일종의 보상입니다!\n\n" +
+							"사제는 _곤봉_을 갖고 시작합니다. 곤봉은 _명중률이 높은_ 무기입니다. 원거리 무기로는 _말뚝_을 갖고 시작합니다. 말뚝은 5층까지는 내구도를 잃지 않고, 다트처럼 쇠뇌에 장전할 수 있습니다!\n\n" +
+							"또한 사제 마법 보관집을 갖고 시작합니다. 보관집에는 원거리 무기를 넣어둘 수 있으며, 더 오래 쓸 수 있게 해줍니다.\n\n" +
 							"사제는 _마법 막대와 주문 결정_을 거부하기로 맹세했습니다. 지팡이 깎는 노인의 보상도 경험의 물약 하나로 대체됩니다.\n\n" +
 							"대신, 사제는 _빛의 신앙_에 헌신하여 어둠으로 가득한 던전에 빛의 힘을 불러낼 수 있습니다!"));
 
@@ -114,7 +142,7 @@ public class v0_7_X_Changes {
 					"온전한 정신을 지닌 마지막 드워프. 기계화된 정예 군인입니다. 악마들과의 옛 전쟁으로부터 살아남은 참전용사로, 드워프 왕의 폭정으로부터 가까스로 탈출했습니다. 드워프 생존자를 해금하려면 그를 찾아내어 구출해내야 합니다...\n\n" +
 							"드워프 생존자는 _기계화된 팔_을 무기로 사용합니다. 그의 팔은 _빠른 공격속도_와 _추가 방어력_을 지녔지만 다른 무기를 집어들 순 없습니다. 기계화된 팔을 강화하면 추가 방어력도 증가합니다.\n\n" +
 							"드워프 생존자는 원거리 무기 대신 5개의 _충격의 돌_을 갖고 시작합니다. 또한, 그는 (충격의 돌을 포함하여) 모든 종류의 전기 충격으로부터 잠시동안 _가속_되며, 전기 충격으로 인한 마비로부터 면역입니다.\n\n" +
-							"드워프 생존자는 아무런 가방 없이 시작합니다. 기계화된 팔 덕분에 무기를 모아둘 필요가 덜하긴 하지만요."));
+							"드워프 생존자는 벨벳 주머니를 갖고 시작합니다."));
 
 			changes.addButton(new ChangeButton(new Image(Assets.DWARFHERO, 0, 90, 12, 15), "세부 전직",
 					"_천둥기수_는 드워프 군대의 정예병으로, 기계화된 팔을 개량하여 공격할 떄마다 강력한 연쇄 번개를 충전합니다. 충전이 4번째 되는 순간, 주변에 있는 적의 수만큼 연쇄 번개가 뻗어나가며 잠깐동안 가속 효과를 받습니다.\n\n" +
@@ -182,14 +210,36 @@ public class v0_7_X_Changes {
 		}
 
 		else { // for ENG
+
+			changes = new ChangeInfo("2020-03-19", false, null);
+			changes.hardlight( Window.TITLE_COLOR );
+			changeInfos.add(changes);
+
+			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.STAKE, null), "Stake",
+					"Now the cleric and dwarf survivor start with _magical holster_ and _velvet pouch_.\n\n" +
+							"Also, the cleric starts with 3 _ Stakes_ as her unique throwing weapon. Because the surface is still near, using the stake ar the sewer isn't reduce durability. And stake can be loaded into the crossbow, like a dart!"));
+
+			changes.addButton(new ChangeButton(new Image(Assets.CLERIC, 0, 15, 12, 15), "Cleric Buff",
+					"_Pray of Zealot_ now grants more zeal."));
+
+			changes.addButton(new ChangeButton(Icons.get(Icons.CLERIC), "Redeemer Buff",
+					"When the redeemer prays the rest of peace for her baptized ally, she restore _60_ devotion.\n\n +" +
+							"Also, the baptized ally gets +12 bonus HP immediately, and gets new perk when it reaches 3rd level! :\n" +
+							"_- Divine Vigor_ grants faster regeneration, more faster when injured.\n" +
+							"_- Elemental Resistance_ allow to resist from harmful effects and hostile magic.\n" +
+							"_- Guardian Spirit_ sometimes emits shielding aura to nearby allies, expect itself."));
+
+			changes.addButton( new ChangeButton(new Image(Assets.SPINNER, 144, 0, 16, 16), Messages.get(ChangesScene.class, "Bugfix"),
+					"Various bugs reported so far have been fixed ... Please make sure they are correct!"));
+
 			changes = new ChangeInfo("The Cleric", false, null);
 			changes.hardlight(0xFFFFFF);
 			changeInfos.add(changes);
 
 			changes.addButton(new ChangeButton(new Image(Assets.CLERIC, 0, 15, 12, 15), "The Cleric",
 					"The Cleric is the 'Divine Caster', concepts from old-classic divine caster class and inspired by the DeVBlog of 00-Evan. Unlocked when you ends a run return to the surface.\n\n" +
-							"The Cleric starts with the _cudgel_, which only had its name in the source. The cudgel is _accurate_ weapon so helps the early-game without starting ranged weapon.\n\n" +
-							"Also, the cleric starts with an unblessed _ankh_. This extra ankh is given as a reward for starting without any bag.\n\n" +
+							"The Cleric starts with the _cudgel_, which only had its name in the source. The cudgel is _accurate_ weapon. And the three _stake_ are also cleric's starting throwing weapon, which can be used instead of darts when firing crossbow.\n\n"+
+							"Also she starts with the _magical holster_, which bag can contains ranged weapons and allows to collect easily them.\n\n" +
 							"She had an oath to _reject magic from wands and spell crystals._ The Wandmaker's reward also changes into a potion of experience.\n\n" +
 							"Instead, she devoted to _the faith of the light_, and call down the power of the brightness into the dungeon!"));
 
@@ -220,7 +270,7 @@ public class v0_7_X_Changes {
 					"The Last Dwarf Standing. Mechanized veteran soldier, survived from the old war against the demons and tyranny of the dwarf king. Unlocked when you rescue him from the hidden place...\n\n" +
 							"The Dwarf Survivor use his _mechanized arms_ as weapon. His arms are _fast_ and _durable_ weapon, but cannot wield any other weapon. Upgrade them will _increase those durability_.\n\n" +
 							"Instead of ranged weapon, the Dwarf Survivor starts with five _stone of shock_. And including stone of shock, he is _hastened_ for a while from all kinds of electric shocks. It means he is fully immune to electro-paralyze.\n\n" +
-							"The Dwarf Survivor starts without bag. Fortunately, he needs a little less to store another weapon thanks to his arms."));
+							"The Dwarf Survivor starts with Velvet pouch."));
 
 			changes.addButton(new ChangeButton(new Image(Assets.DWARFHERO, 0, 90, 12, 15), "The Dwarf subclass",
 					"_The Thunderbrigner_ reforged his arms, allow to blast chain lightning when thunder charges reach at 4. Successful attack charges thunder, and blast lighting will hasten you.\n\n" +

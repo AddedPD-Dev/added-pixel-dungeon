@@ -25,14 +25,15 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
-import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.WoundedDwarfRoom;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.WoundedDwarfRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
-import com.shatteredpixel.shatteredpixeldungeon.sprites.WandmakerSprite;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.WoundedDwarfSprite;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndWoundedDwarf;
 import com.watabou.noosa.Game;
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 public class WoundedDwarf extends NPC {
 
 	{
-		spriteClass = WandmakerSprite.class;
+		spriteClass = WoundedDwarfSprite.class;
 		properties.add(Property.IMMOVABLE);
 	}
 
@@ -53,7 +54,7 @@ public class WoundedDwarf extends NPC {
 	@Override
 	protected boolean act() {
 
-		if (!Quest.given && fieldOfView[Dungeon.hero.pos] && Dungeon.hero.invisible <= 0) {
+		if (!Quest.given && Dungeon.level.heroFOV[pos]) {
 			if (!seenBefore) {
 				yell( Messages.get(this, "yell" ) );
 			}
@@ -61,9 +62,7 @@ public class WoundedDwarf extends NPC {
 		} else {
 			seenBefore = false;
 		}
-
 		throwItem();
-
 		return super.act();
 	}
 	
@@ -164,7 +163,8 @@ public class WoundedDwarf extends NPC {
 		private static boolean given;
 		
 		public static void reset() {
-			spawned = false;
+			spawned		= false;
+			given		= false;
 		}
 		
 		private static final String NODE		= "dwarf";
@@ -196,9 +196,12 @@ public class WoundedDwarf extends NPC {
 		}
 
 		
-		public static ArrayList<Room> spawnRoom( ArrayList<Room> rooms) {
-			if (!spawned && (Dungeon.depth == 23) && !Badges.isUnlocked(Badges.Badge.UNLOCK_DWARF)) {
+		public static ArrayList<Room> spawn( ArrayList<Room> rooms) {
+			if (!spawned && (Dungeon.depth == 23)
+					&& !Badges.isUnlocked(Badges.Badge.UNLOCK_DWARF)
+					&& Dungeon.hero.heroClass != HeroClass.DWARF) {
 				rooms.add(new WoundedDwarfRoom());
+
 				spawned = true;
 				given = false;
 			}

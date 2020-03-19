@@ -50,12 +50,6 @@ public class Ankh extends Item {
 
 	private Boolean blessed = false;
 
-	// AddedPD : for cleric's starting ankh, prevents 'ankh farming'
-	public Item isCleric() {
-		bones = false;
-		return this;
-	}
-
 	@Override
 	public boolean isUpgradable() {
 		return false;

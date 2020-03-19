@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.DwarfArm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.watabou.utils.Random;
 
@@ -81,14 +82,15 @@ public class RingOfForce extends Ring {
 	@Override
 	public String statsInfo() {
 		float tier = tier(Dungeon.hero.STR());
-		if (Dungeon.hero.heroClass == HeroClass.DWARF) {
-			Messages.get(this,"dwarf_desc");
-			// AddedPD : Dwarf Survivor's alternative bonus is defined Hero.java
+		String msg = "";
+		if (Dungeon.hero.belongings.weapon instanceof DwarfArm) {
+			msg += Messages.get(this, "dwarf_desc");
 		}
+
 		if (isIdentified()) {
-			return Messages.get(this, "stats", min(soloBonus(), tier), max(soloBonus(), tier), soloBonus());
+			return Messages.get(this, "stats", min(soloBonus(), tier), max(soloBonus(), tier), soloBonus()) + msg;
 		} else {
-			return Messages.get(this, "typical_stats", min(1, tier), max(1, tier), 1);
+			return Messages.get(this, "typical_stats", min(1, tier), max(1, tier), 1) + msg;
 		}
 	}
 

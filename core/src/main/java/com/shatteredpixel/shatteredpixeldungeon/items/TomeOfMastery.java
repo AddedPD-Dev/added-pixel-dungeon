@@ -143,9 +143,10 @@ public class TomeOfMastery extends Item {
 		if (curUser.buff(Devotion.class) != null) {
 			Devotion devotion = new Devotion();
 			int preservedRank = devotion.getrank();
-			ActionIndicator.setAction(devotion);
 			devotion.onReset();
 			devotion.onOther(preservedRank);
+			ActionIndicator.setAction(devotion);
+			ActionIndicator.updateIcon();
 		}
 	}
 }

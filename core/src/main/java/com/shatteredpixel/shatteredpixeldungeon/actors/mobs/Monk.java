@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Imp;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.DwarfArm;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gauntlet;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -95,7 +96,9 @@ public class Monk extends Mob {
 			if (weapon != null
 					&& !(weapon instanceof Gloves)
 					&& !(weapon instanceof Gauntlet)
-					&& !weapon.cursed) {
+					&& !weapon.cursed
+					&& !weapon.enlightened
+					&& !(weapon instanceof DwarfArm)) {
 				if (hitsToDisarm == 0) hitsToDisarm = Random.NormalIntRange(4, 8);
 
 				if (--hitsToDisarm == 0) {

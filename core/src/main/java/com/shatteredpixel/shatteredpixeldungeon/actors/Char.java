@@ -29,7 +29,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.ToxicGas;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ArcaneArmor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Baptized;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
@@ -43,7 +42,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfArmorBuff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfFocus;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EarthImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FireImbue;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Frost;
@@ -64,6 +62,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Terror;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Vertigo;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
@@ -93,6 +92,8 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrimTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
 import com.watabou.noosa.Camera;
@@ -196,6 +197,9 @@ public abstract class Char extends Actor {
 										ally.sprite.parent.add( new AlphaTweener( ally.sprite, 1, 0.4f ) );
 									}
 
+									if (((Mob) ally).state == ((Mob) ally).HUNTING) ((Mob) ally).state = ((Mob) ally).WANDERING;
+									((Mob) ally).beckon(Dungeon.level.randomDestination());
+
 								} else { GLog.i( Messages.get(Devotion.class, "interact_recall_fail", ally.name) ); }
 							}
 
@@ -204,6 +208,14 @@ public abstract class Char extends Actor {
 								CellEmitter.get(ally.pos).start( ShaftParticle.FACTORY, 0.3f, 4 );
 								ally.destroy();
 								ally.sprite.kill();
+
+								Devotion devotion = Dungeon.hero.buff(Devotion.class);
+								devotion.Baptized_canUse();
+								devotion.onOther(60);
+								ActionIndicator.setAction(devotion);
+								ActionIndicator.updateIcon();
+								BuffIndicator.refreshHero();
+
 								Dungeon.hero.spendAndNext(Actor.TICK);
 							} }	}); }	});
 			return true;

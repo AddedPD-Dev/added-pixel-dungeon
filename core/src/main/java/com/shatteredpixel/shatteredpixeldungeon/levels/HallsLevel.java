@@ -68,7 +68,7 @@ public class HallsLevel extends RegularLevel {
 
 	@Override
 	protected ArrayList<Room> initRooms() {
-		return WoundedDwarf.Quest.spawnRoom(super.initRooms());
+		return WoundedDwarf.Quest.spawn(super.initRooms());
 	}
 
 	@Override

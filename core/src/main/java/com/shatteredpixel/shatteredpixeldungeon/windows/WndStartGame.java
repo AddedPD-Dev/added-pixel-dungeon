@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -349,12 +350,12 @@ public class WndStartGame extends Window {
 						case CLERIC:
 							heroItem.icon(Icons.get(Icons.CLERIC));
 							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.CUDGEL, null));
-							heroMisc.icon(new ItemSprite(ItemSpriteSheet.ANKH, null));
+							heroMisc.icon(new ItemSprite(ItemSpriteSheet.CLERIC_MISC, null));
 							break;
 						case DWARF:
 							heroItem.icon(new ItemSprite(ItemSpriteSheet.DWARFARM, null));
 							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.STONE_SHOCK, null));
-							heroMisc.icon(new ItemSprite(ItemSpriteSheet.TOKEN));
+							heroMisc.icon(new ItemSprite(ItemSpriteSheet.DWARF_MISC, null));
 							break;					}
 					
 					layout();

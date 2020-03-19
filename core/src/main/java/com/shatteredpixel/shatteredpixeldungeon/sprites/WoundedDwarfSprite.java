@@ -22,10 +22,8 @@
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.effects.ShieldHalo;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.noosa.audio.Sample;
 
@@ -36,10 +34,10 @@ public class WoundedDwarfSprite extends MobSprite {
 		
 		texture( Assets.DWARF_NPC );
 		
-		TextureFilm frames = new TextureFilm( texture, 12, 14 );
+		TextureFilm frames = new TextureFilm( texture, 12, 12 );
 		
 		idle = new Animation( 10, true );
-		idle.frames( frames, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 3, 3, 2, 1 );
+		idle.frames( frames, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 );
 		
 		run = new Animation( 20, true );
 		run.frames( frames, 0 );
@@ -55,9 +53,11 @@ public class WoundedDwarfSprite extends MobSprite {
 		super.die();
 
 		emitter().start( Speck.factory( Speck.HEALING ), 0.03f, 4 );
+		emitter().start( ShaftParticle.FACTORY, 0.3f, 4 );
+		emitter().start( Speck.factory( Speck.LIGHT ), 0.2f, 3 );
 
 		if (visible) {
-			Sample.INSTANCE.play( Assets.SND_DRINK );
+			Sample.INSTANCE.play( Assets.SND_BEACON );
 		}
 	}
 

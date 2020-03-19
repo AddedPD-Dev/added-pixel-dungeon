@@ -117,6 +117,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfWarding;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.DwarfArm;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Flail;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.MissileWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
@@ -432,9 +433,8 @@ public class Hero extends Char {
 		if (wep != null) {
 			dmg = wep.damageRoll( this );
 			if (!(wep instanceof MissileWeapon)) {
-				if (Dungeon.hero.heroClass == HeroClass.DWARF && RingOfForce.damageRoll(this)/2 > 0) {
-					// AddedPD : Dwarf Survivor cannot be unarmed, so gain bonus dmg(as half as when unarmed)
-					dmg += RingOfForce.damageRoll(this)/2;
+				if (wep instanceof DwarfArm) {
+					dmg += Math.floor(0.5*RingOfForce.damageRoll(this));
 				} else dmg += RingOfForce.armedDamageBonus(this);
 			}
 		} else {
@@ -1426,7 +1426,7 @@ public class Hero extends Char {
 		}
 
 		Devotion devotion = buff(Devotion.class);
-		if (devotion != null) devotion.onHeroGainExp();
+		if (devotion != null && exp >= 1) devotion.onHeroGainExp();
 		
 		boolean levelUp = false;
 		while (this.exp >= maxExp()) {

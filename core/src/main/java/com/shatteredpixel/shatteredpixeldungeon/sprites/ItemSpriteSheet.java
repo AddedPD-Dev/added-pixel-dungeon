@@ -86,6 +86,9 @@ public class ItemSpriteSheet {
 	
 	public static final int TENGU_BOMB      = UNCOLLECTIBLE+9;
 	public static final int TENGU_SHOCKER   = UNCOLLECTIBLE+10;
+	// AddedPD : well... I think this is the best thing I can do
+	public static final int DWARF_MISC	    = UNCOLLECTIBLE+11;
+	public static final int CLERIC_MISC  	= UNCOLLECTIBLE+12;
 	static{
 		assignItemRect(GOLD,        15, 13);
 		assignItemRect(DEWDROP,     10, 10);
@@ -98,6 +101,8 @@ public class ItemSpriteSheet {
 		
 		assignItemRect(TENGU_BOMB,      10, 10);
 		assignItemRect(TENGU_SHOCKER,   10, 10);
+		assignItemRect(DWARF_MISC,      16, 16);
+		assignItemRect(CLERIC_MISC,   16, 16);
 	}
 
 	private static final int CONTAINERS     =                               xy(1, 3);   //16 slots
@@ -653,6 +658,8 @@ public class ItemSpriteSheet {
 	public static final int TOKEN   = QUEST+6;
 	public static final int BLOB    = QUEST+7;
 	public static final int SHARD   = QUEST+8;
+	// AddedPD : cleric's stake
+	public static final int STAKE  	= QUEST+9;
 	static{
 		assignItemRect(SKULL,   16, 11);
 		assignItemRect(DUST,    12, 11);
@@ -663,6 +670,7 @@ public class ItemSpriteSheet {
 		assignItemRect(TOKEN,   12, 12);
 		assignItemRect(BLOB,    10,  9);
 		assignItemRect(SHARD,    8, 10);
+		assignItemRect(STAKE,    13, 13);
 	}
 
 	private static final int BAGS       =                                   xy(1, 31);  //16 slots

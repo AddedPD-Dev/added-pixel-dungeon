@@ -121,7 +121,7 @@ public class WndLangs extends Window {
 		PixelScene.align(title);
 		add(title);
 
-		if (currLang == Languages.ENGLISH){
+		if (currLang == Languages.KOREAN){
 
 			RenderedTextBlock info = PixelScene.renderTextBlock(6);
 			info.text("This is the source language, written by the developer.", width - textLeft);

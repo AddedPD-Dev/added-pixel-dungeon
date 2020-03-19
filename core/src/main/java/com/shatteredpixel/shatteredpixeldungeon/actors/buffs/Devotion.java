@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CermateFire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotHeart;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotLasher;
@@ -78,7 +79,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 	private int rank = 0;
 	private int partialRank = 0;
-	private boolean baptizeUsed = false;
+	private int baptizeUsed = 0;
 
 	private static final String RANK = "rank";
 	private static final String RANK_PARTIAL = "partialRank";
@@ -97,7 +98,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		super.restoreFromBundle(bundle);
 		rank = bundle.getInt(RANK);
 		partialRank = bundle.getInt(RANK_PARTIAL);
-		baptizeUsed = bundle.getBoolean(BAPTIZE_USED);
+		baptizeUsed = bundle.getInt(BAPTIZE_USED);
 		if (rank >= 0) ActionIndicator.setAction(this);
 	}
 
@@ -111,24 +112,28 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		}
 		rank++;
 		ActionIndicator.setAction( this );
+		ActionIndicator.updateIcon();
 		BuffIndicator.refreshHero();
 	}
 
 	public void onLevelUp(){ // 1 level up = 5 rank
 		rank += 5;
 		ActionIndicator.setAction( this );
+		ActionIndicator.updateIcon();
 		BuffIndicator.refreshHero();
 	}
 
 	public void onOther(int point){
 		rank += point;
 		ActionIndicator.setAction( this );
+		ActionIndicator.updateIcon();
 		BuffIndicator.refreshHero();
 	}
 
 	public void onReset(){
 		rank = 0;
 		ActionIndicator.setAction( this );
+		ActionIndicator.updateIcon();
 		BuffIndicator.refreshHero();
 	}
 
@@ -139,6 +144,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		new Flare( 6, 32 ).show( hero.sprite, 4f );
 		SpellSprite.show(Dungeon.hero, SpellSprite.MASTERY);
 		ActionIndicator.setAction( this );
+		ActionIndicator.updateIcon();
 		BuffIndicator.refreshHero();
 	}
 
@@ -397,7 +403,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 					break;
 				case REDEEMER:
 					if (enemy.alignment == Char.Alignment.ALLY && !enemy.isCharmedBy(hero)) {
-						Buff.affect( enemy, Healing.class ).setHeal((int)(0.5f*(2*dmg) + 14), 0.25f, 0);
+						Buff.affect( enemy, Healing.class ).setHeal((int)(0.8f*(2*dmg) + 14), 0.25f, 0);
 						for (Buff b : enemy.buffs()){
 							if (b.type == Buff.buffType.NEGATIVE && !(b instanceof Corruption)){
 								b.detach();
@@ -421,8 +427,10 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			Sample.INSTANCE.play( Assets.SND_LEVELUP );
 			new Flare( 6, 32 ).show( hero.sprite, 4f );
 
-			Devotion devotion = new Devotion();
+			Devotion devotion = Dungeon.hero.buff(Devotion.class);
 			ActionIndicator.setAction(devotion);
+			ActionIndicator.updateIcon();
+			BuffIndicator.refreshHero();
 			hero.spendAndNext(Actor.TICK);
 		}
 
@@ -434,7 +442,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				default: return Messages.get(Devotion.class, "smite_prompt", dmg, Math.round(dmg*1.333f));
 				case CRUSADER: return Messages.get(Devotion.class, "smite_prompt_crusader", dmg, Math.round(dmg*1.333f));
 				case SCHOLAR: return Messages.get(Devotion.class, "smite_prompt_scholar", dmg, Math.round(dmg*1.333f));
-				case REDEEMER: return Messages.get(Devotion.class, "smite_prompt_redeemer", dmg, Math.round(dmg*1.333f), (int)(0.5f*(2*dmg) + 14));
+				case REDEEMER: return Messages.get(Devotion.class, "smite_prompt_redeemer", dmg, Math.round(dmg*1.333f), (int)(0.8f*(2*dmg) + 14));
 			}
 		}
 	};
@@ -602,7 +610,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 	private void doZealot(){
 
-		int amount = 4 + hero.HT/5 + 3*hero.lvl;
+		int amount = 8 + hero.HT/5 + 4*hero.lvl;
 
 		for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
 			if (Dungeon.level.heroFOV[mob.pos]) {
@@ -654,7 +662,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 	private void doHolyWater(){
 
-		int amount = 4*hero.lvl;
+		int amount = 6*hero.lvl;
 
 		PathFinder.buildDistanceMap( hero.pos, BArray.not( Dungeon.level.solid, null ), 2 );
 		for (int i = 0; i < PathFinder.distance.length; i++) {
@@ -691,7 +699,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 	private void doCermate(){
 
-		int amount = 2*hero.lvl;
+		int amount = 3*hero.lvl;
 
 		PathFinder.buildDistanceMap( hero.pos, BArray.not( Dungeon.level.solid, null ), 2 );
 		for (int i = 0; i < PathFinder.distance.length; i++) {
@@ -718,7 +726,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 		rank -= 25;
 		invocation();
-		baptizeUsed = true;
 		hero.spendAndNext(Actor.TICK);
 	}
 
@@ -726,7 +733,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		@Override
 		public void onSelect(Integer cell) {
 			Devotion devotion = Dungeon.hero.buff(Devotion.class);
-			if (devotion.baptizeUsed = true) {
+			if (devotion.baptizeUsed != 0) {
 				GLog.w(Messages.get(Devotion.class, "baptize_used"));
 				return;
 			}
@@ -738,6 +745,9 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			} else if (enemy.properties().contains(Char.Property.BOSS)
 					|| enemy.properties().contains(Char.Property.MINIBOSS)) {
 				GLog.w(Messages.get(Devotion.class, "baptize_cannot_boss"));
+				return;
+			} else if (enemy instanceof Bee) {
+				GLog.w(Messages.get(Devotion.class, "baptize_bad_target_bee"));
 				return;
 			} else {
 				if (cell != null) {
@@ -752,6 +762,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		}
 
 		private void doBaptize(final Char enemy) {
+		    enemy.HT += 12;
 			enemy.HP = enemy.HT;
 			for (Buff buff : enemy.buffs()) {
 				if (buff.type == Buff.buffType.NEGATIVE) {
@@ -764,11 +775,21 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			Mob bMob = (Mob) enemy;
 			Buff.affect(bMob, Baptized.class);
 
+			((HeroSprite) hero.sprite).read();
 			Invisibility.dispel();
 			Sample.INSTANCE.play( Assets.SND_LEVELUP );
+			new Flare( 6, 32 ).show( hero.sprite, 4f );
+			SpellSprite.show(Dungeon.hero, SpellSprite.MASTERY);
+
 			GLog.p( Messages.get(Devotion.class, "baptize_on", enemy.name) );
 
+			baptizeUsed = 1;
 			rank -= 60;
+            Devotion devotion = Dungeon.hero.buff(Devotion.class);
+            ActionIndicator.setAction(devotion);
+            ActionIndicator.updateIcon();
+            BuffIndicator.refreshHero();
+
 			hero.spendAndNext(Actor.TICK);
 		}
 
@@ -784,6 +805,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 	}
 
 	public void Baptized_canUse() {
-		baptizeUsed = false;
+		baptizeUsed = 0;
 	}
 }
