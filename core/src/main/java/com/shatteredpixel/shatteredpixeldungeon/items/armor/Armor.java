@@ -573,12 +573,16 @@ public class Armor extends EquipableItem {
 	}
 
 	public Armor inscribe( Glyph glyph ) {
-		if (glyph == null || !glyph.curse()) curseInfusionBonus = false;
-		this.glyph = glyph;
-		if (seal != null && !glyph.curse() && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT) {
-			BrokenSeal brokenSeal = this.seal;
-			brokenSeal.glyph = glyph;
+		if (glyph == null || !glyph.curse()) {
+			curseInfusionBonus = false;
+
+			if (seal != null && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT) {
+				BrokenSeal brokenSeal = this.seal;
+				brokenSeal.glyph = glyph;
+			}
 		}
+		this.glyph = glyph;
+
 		updateQuickslot();
 		return this;
 	}

@@ -31,7 +31,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.TomeOfMastery;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.PlateArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.DriedRose;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
@@ -44,6 +46,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfMindVision;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfForce;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfIdentify;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
@@ -59,6 +63,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Cudgel;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Dagger;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.DwarfArm;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Gloves;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Greatsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.WornShortsword;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.Stake;
@@ -67,6 +72,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSt
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.watabou.utils.Bundle;
+import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
 
@@ -233,6 +239,9 @@ public enum HeroClass {
 
 		new PotionOfExperience().identify();
 		new ScrollOfRemoveCurse().identify();
+
+		new DriedRose().collect();
+		new TomeOfMastery().collect();
 	}
 
 	private static void initDwarf( Hero hero ) {
@@ -331,23 +340,19 @@ public enum HeroClass {
 	
 	public boolean isUnlocked(){
 		//always unlock on debug builds
-		//if (DeviceCompat.isDebug()) return true;
+		if (DeviceCompat.isDebug()) return true;
 		
 		switch (this){
 			case WARRIOR: default:
 				return true;
 			case MAGE:
-				//return Badges.isUnlocked(Badges.Badge.UNLOCK_MAGE);
-				return true;
+				return Badges.isUnlocked(Badges.Badge.UNLOCK_MAGE);
 			case ROGUE:
-				//return Badges.isUnlocked(Badges.Badge.UNLOCK_ROGUE);
-				return true;
+				return Badges.isUnlocked(Badges.Badge.UNLOCK_ROGUE);
 			case HUNTRESS:
-				//return Badges.isUnlocked(Badges.Badge.UNLOCK_HUNTRESS);
-				return true;
+				return Badges.isUnlocked(Badges.Badge.UNLOCK_HUNTRESS);
 			case CLERIC:
-				//return Badges.isUnlocked(Badges.Badge.UNLOCK_CLERIC);
-				return true;
+				return Badges.isUnlocked(Badges.Badge.UNLOCK_CLERIC);
 			case DWARF:
 				return Badges.isUnlocked(Badges.Badge.UNLOCK_DWARF);
 		}

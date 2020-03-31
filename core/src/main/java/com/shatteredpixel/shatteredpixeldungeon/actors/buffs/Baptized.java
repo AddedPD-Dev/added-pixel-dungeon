@@ -83,6 +83,7 @@ public class Baptized extends Buff {
 	private static final String PERK 	= "perk";
 	private static final String LEVEL	= "level";
 	private static final String INJURED	= "injured";
+	private static final String REGEN	= "partialRegen";
 
 	@Override
 	public void storeInBundle( Bundle bundle ) {
@@ -90,6 +91,7 @@ public class Baptized extends Buff {
 		bundle.put( PERK, perk );
 		bundle.put( LEVEL, level );
 		bundle.put( INJURED, injured );
+		bundle.put( REGEN, partialRegen );
 	}
 
 	@Override
@@ -98,6 +100,7 @@ public class Baptized extends Buff {
 		perk = bundle.getEnum( PERK, Perk.class );
 		level = bundle.getInt( LEVEL );
 		injured = bundle.getBoolean( INJURED );
+		partialRegen = bundle.getInt( REGEN );
 	}
 
 	public void gainLevel(Mob mob) {
@@ -113,7 +116,7 @@ public class Baptized extends Buff {
 				GLog.p( Messages.get(Devotion.class, "baptize_perk", target.name) );
 				switch (Random.Int(2)) {
 					case 0: default:
-						perk = Perk.VIGOR;
+						perk = Perk.GUARDIAN;
 						break;
 					case 1:
 						perk = Perk.ELEMENTAL;
@@ -150,7 +153,7 @@ public class Baptized extends Buff {
 						resistances.add( Yog.BurningFist.DarkBolt.class );
 						break;
 					case 2:
-						perk = Perk.GUARDIAN;
+						perk = Perk.VIGOR;
 						break;
 				}
 			}
@@ -182,7 +185,7 @@ public class Baptized extends Buff {
 			}
 
 			if (partialRegen == 7 && perk == Perk.GUARDIAN){
-				target.sprite.emitter().pour(RainbowParticle.ATTRACTING, 0.05f);
+				target.sprite.emitter().burst(RainbowParticle.ATTRACTING, 12);
 			}
 
 			if (partialRegen >= 8) {

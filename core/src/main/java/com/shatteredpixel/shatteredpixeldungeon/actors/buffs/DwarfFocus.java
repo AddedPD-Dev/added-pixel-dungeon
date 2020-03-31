@@ -93,7 +93,7 @@ public class DwarfFocus extends Buff {
 	public String desc() {
 		if (focused){
 			return Messages.get(this, "desc_focused");
-		} else return Messages.get(this, "desc", 11-stacks);
+		} else return Messages.get(this, "desc", Math.max(10-stacks, 1));
 	}
 
 	private static final String STACKS =        "stacks";

@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Roots;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TransmuterBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
@@ -78,6 +79,13 @@ public class MageArmor extends ClassArmor {
 					SoulMark soulMark = mob.buff(SoulMark.class);
 					// prevents reduce mark duration which are already marked mobs
 					if (soulMark == null) { SoulMark.prolong(mob, SoulMark.class, 5); }
+				}
+
+				// transmuter - remove 'moment of change', allow to instant re-transmuting
+				if (curUser.subClass == HeroSubClass.WARLOCK) {
+					TransmuterBuff tbuff = curUser.buff(TransmuterBuff.class);
+					// remove 'cooltime' instantly
+					if (tbuff != null) { tbuff.detach(); }
 				}
 
 				Buff.affect( mob, Burning.class ).reignite( mob );

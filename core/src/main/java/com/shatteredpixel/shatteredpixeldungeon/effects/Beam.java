@@ -72,6 +72,12 @@ public class Beam extends Image {
 		}
 	}
 
+	public static class GreenRay extends Beam{
+		public GreenRay(PointF s, PointF e){
+			super(s, e, Effects.Type.GREEN_RAY, 0.75f);
+		}
+	}
+
 	@Override
 	public void update() {
 		super.update();

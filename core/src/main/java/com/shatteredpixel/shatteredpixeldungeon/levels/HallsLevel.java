@@ -66,6 +66,7 @@ public class HallsLevel extends RegularLevel {
 		color2 = 0xa68521;
 	}
 
+
 	@Override
 	protected ArrayList<Room> initRooms() {
 		return WoundedDwarf.Quest.spawn(super.initRooms());

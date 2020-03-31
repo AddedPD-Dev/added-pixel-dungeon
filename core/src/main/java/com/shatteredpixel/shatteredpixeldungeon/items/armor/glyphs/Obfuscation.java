@@ -71,7 +71,7 @@ public class Obfuscation extends Armor.Glyph {
 			}
 			if (affected > 0) {
                 CellEmitter.center(defender.pos).burst(Speck.factory(Speck.SMOKE), 30);
-				Buff.affect(defender, SealCooldown.class, set);
+				Buff.affect(defender, SealCooldown.class, Math.max(6, set));
 			}
 
 			return damage; } else

@@ -77,7 +77,7 @@ public class v0_7_X_Changes {
 
 		if (SPDSettings.language() == Languages.KOREAN) {
 
-			changes = new ChangeInfo("2020-03-19", false, null);
+			changes = new ChangeInfo("20.03.19-31", false, null);
 			changes.hardlight( Window.TITLE_COLOR );
 			changeInfos.add(changes);
 
@@ -88,8 +88,8 @@ public class v0_7_X_Changes {
 			changes.addButton(new ChangeButton(new Image(Assets.CLERIC, 0, 15, 12, 15), "사제 상향",
 					"_열광의 기도_가 더 많은 열광을 제공합니다."));
 
-			changes.addButton(new ChangeButton(Icons.get(Icons.CLERIC), "대속자 상향",
-					"대속자가 세례받은 대상을 _안식_에 들게 하면 _60_의 헌신을 돌려받습니다.\n\n +" +
+			changes.addButton(new ChangeButton(new Image(Assets.CLERIC, 0, 90, 12, 15),  "대속자 상향",
+					"대속자가 세례받은 대상을 _안식_에 들게 하면 _60_의 헌신을 돌려받습니다. 일반적인 전투에서 세례받은 대상이 쓰러지면 _30_의 헌신을 돌려받습니다.\n\n +" +
 							"또한, 세례받은 대상은 즉시 12의 추가 체력을 얻으며, 3레벨만큼 성장하면 세 가지 _특성_ 중 하나를 얻습니다!:\n" +
 							"_- 신성한 활력_은 빠른 체력 재생력을 제공합니다. 죽어가는 상태에선 더욱 빠르게 재생합니다.\n" +
 							"_- 원소 저항력_은 (원소의 반지처럼) 각종 해로운 효과와 적대적인 마법에 저항합니다.\n" +
@@ -100,9 +100,10 @@ public class v0_7_X_Changes {
 							"_-_ 사제가 강타 기적을 사용한 후 헌신을 새로 얻기 전까지 기적을 쓸 수 없는 버그\n" +
 							"_-_ 사제로 폐광에 첫 진입하면 게임이 깨지는 버그\n" +
 							"_-_ 대속자가 세례 기적을 사용할 수 없는 버그\n" +
-							"_-_ 드워프 생존자가 아닌 영웅으로 완력의 반지 사용시 게임이 깨지는 버그\n" +
+							"_-_ 드워프 생존자가 아닌 영웅으로 맨손 공격 또는 완력의 반지 사용시 게임이 깨지는 버그\n" +
 							"_-_ 23층에 진입하면 게임이 깨지는 버그\n" +
-							"_-_ 사제가 지팡이 깎는 노인의 퀘스트를 완료할 수 없는 버그"));
+							"_-_ 사제가 지팡이 깎는 노인의 퀘스트를 완료할 수 없는 버그\n +" +
+							"_-_ 드워프 생존자에게 치유 물약을 줄 수 없는 버그"));
 
 			changes = new ChangeInfo("사제", false, null);
 			changes.hardlight(0xFFFFFF);
@@ -132,7 +133,7 @@ public class v0_7_X_Changes {
 
 			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.ARMOR_CLERIC, new ItemSprite.Glowing(0xFFFFFF)), "전설 갑옷",
 					"사제의 전설 갑옷은 '빛의 대변자' 입니다.\n\n" +
-							"빛의 대변자는 _광휘_ 능력을 사용할 수 있습니다. 광휘는 사제의 시야 안의 모든 적을 실명시키고 밀쳐냅니다!"));
+							"빛의 대변자는 _광휘_ 능력을 사용할 수 있습니다. 광휘는 사제에게 걸린 해로운 효과를 정화하고, 시야 안의 모든 적을 실명시키며 밀쳐냅니다!"));
 
 			changes = new ChangeInfo("드워프 생존자", false, null);
 			changes.hardlight(0xFFC65A);
@@ -159,7 +160,7 @@ public class v0_7_X_Changes {
 
 			changes.addButton(new ChangeButton(new Image(Assets.WARRIOR, 0, 90, 12, 15), "인장기사",
 					"_인장기사_는 부서진 인장의 힘을 일깨웠습니다! 부서진 인장이 방어막을 2배 빠르게 재생하고, 갑옷의 상형문자까지 옮길 수 있습니다.\n\n" +
-							"또한 인장이 붙은 갑옷의 상형문자가 강화로 지워지지 않도록 보존 가능하며, 종류에 따라 특수한 효과를 제공합니다:\n\n" +
+							"또한 인장이 붙은 갑옷의 상형문자가 종류에 따라 특수한 효과를 제공합니다:\n\n" +
 							"_애정_ - 매혹된 적 공격시 방어막 회복\n" +
 							"_항마_ - 흡수된 마법 피해로 반격 가능\n" +
 							"_유황불_ - 빙결과 얼어붙음에도 면역\n" +
@@ -179,7 +180,7 @@ public class v0_7_X_Changes {
 							"그러나 지팡이의 강화 수치가 높을수록, 혼돈의 힘이 잠시 잔류하며 지팡이의 마법을 뒤틀어놓습니다. 또한 저주받은 지팡이는 이미 너무 많은 혼돈의 힘이 있기에 변환시킬 수 없습니다."));
 
 			changes.addButton(new ChangeButton(new Image(Assets.ROGUE, 0, 90, 12, 15), "밤손님",
-					"_밤손님_은 도둑질의 달인입니다. 닫혀있건 잠겨있건 문 너머를 바라볼 수 있고, 적을 쓰러뜨릴 때마다 주변의 지형으로부터 비밀을 밝혀냅니다.\n\n" +
+					"_밤손님_은 도둑질의 달인입니다. 투명화 상태에서는 닫혀있건 잠겨있건 문 너머를 바라볼 수 있고, 적을 쓰러뜨릴 때마다 주변의 지형으로부터 비밀을 밝혀냅니다.\n\n" +
 							"만약 밤손님이 함정을 밟게 되면, 함정이 발동하기 직전에 초인적인 반사신경으로 해체해버립니다! 이 '반사신경'을 다시 발휘하려면 20턴의 대기 시간이 필요합니다."));
 
 			changes.addButton(new ChangeButton(new Image(Assets.HUNTRESS, 0, 90, 12, 15), "영혼길잡이",
@@ -199,7 +200,8 @@ public class v0_7_X_Changes {
 			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.ARMOR_MAGE), "마법사의 로브",
 					"마법사의 전설 갑옷 능력은 이제 마법사의 세부 전직에 따라 추가 효과를 일으킵니다.\n" +
 							"_-_ _전투 마법사_는 대지 융해로 영향을 준 적의 수만큼 즉시 충전량을 얻습니다.\n" +
-							"_-_ _흑마법사_는 대지 융해로 영향을 준 모든 적에게 영혼의 낙인을 찍습니다."));
+							"_-_ _흑마법사_는 대지 융해로 영향을 준 모든 적에게 영혼의 낙인을 찍습니다.\n" +
+							"_-_ _변환술사_는 즉시 '변환의 시간' 디버프가 사라집니다."));
 
 			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.WAND_TRANSFUSION), "수혈의 마법 막대",
 					"이식의 마법 막대가 보다 원래 뜻에 가까운 '수혈의 마법 막대' 로 번역이 변경되었습니다.\n\n" +
@@ -211,7 +213,7 @@ public class v0_7_X_Changes {
 
 		else { // for ENG
 
-			changes = new ChangeInfo("2020-03-19", false, null);
+			changes = new ChangeInfo("20.03.19-31", false, null);
 			changes.hardlight( Window.TITLE_COLOR );
 			changeInfos.add(changes);
 
@@ -260,7 +262,7 @@ public class v0_7_X_Changes {
 
 			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.ARMOR_CLERIC, new ItemSprite.Glowing(0xFFFFFF)), "Epic armor",
 					"The Cleirc's epic armor is named 'Light's Advoate'.\n\n" +
-							"The Light's Advocate has an ability called _'Emit Radiance'_: push all enemies in your sight and blind them shortly."));
+							"The Light's Advocate has an ability called _'Emit Radiance'_: cleanse yourself and push all enemies in your sight, blind them shortly."));
 
 			changes = new ChangeInfo("The Dwarf Survivor", false, null);
 			changes.hardlight(0xFFC65A);
@@ -287,7 +289,7 @@ public class v0_7_X_Changes {
 
 			changes.addButton(new ChangeButton(new Image(Assets.WARRIOR, 0, 90, 12, 15), "The Sealknight",
 					"_The Sealknight_ awakes power of the broken seal! His seal regenerates shields as twice as faster, and can also transfer glyph.\n\n" +
-							"Also, the glyph on the seal-affixed armor can be preserved from upgrade scrolls(or choose erase glyph), and gain additional effects:\n\n" +
+							"Also, the glyph on the seal-affixed armor gain additional effects:\n\n" +
 							"_affection_ - gain shield by hit charmed enemy\n" +
 							"_antimagic_ - counter-zap by absorbed damage\n" +
 							"_brimstone_ - also immune to chill and frost\n" +
@@ -307,7 +309,7 @@ public class v0_7_X_Changes {
 							"But depend on the upgrades, the more chaotic energy lasts to distort maigc. Also the cursed staff can't transmute because its already filled by chaotic energy."));
 
 			changes.addButton(new ChangeButton(new Image(Assets.ROGUE, 0, 90, 12, 15), "The Burglar",
-					"_The Burglar_ is master of thievery. He can see through doors(even locked), and detects area from defeated enemy.\n\n" +
+					"_The Burglar_ is master of thievery. He can see through doors while invisible(even locked), and detects area from defeated enemy.\n\n" +
 							"When the burglar steps on a trap, reflexively disarms just before it activates! This reflex needs 20 turns for cooldown."));
 
 			changes.addButton(new ChangeButton(new Image(Assets.HUNTRESS, 0, 90, 12, 15), "The Spiritwalker",
@@ -327,7 +329,8 @@ public class v0_7_X_Changes {
 			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.ARMOR_MAGE), "Mage robe",
 					"The Mage's epic armor has special effects by subclass.\n" +
 							"_-_ _The Battlemage_ recharges immediately depends on the number of enemies affected by Molten Earth.\n" +
-							"_-_ _The Warlock_ marks souls of unmarked enemies affected by Molten Earth for a short time."));
+							"_-_ _The Warlock_ marks souls of unmarked enemies affected by Molten Earth for a short time.\n" +
+							"_-_ _The Transmuter_ removes his 'moment of change' debuff instantly."));
 
 			changes.addButton(new ChangeButton(new ItemSprite(ItemSpriteSheet.WAND_TRANSFUSION), "Wand of transfusion",
 					"When the battle mage attacks with his staff that fuses blood transfusion, it has a higher chance of getting a 'free transfusion' effect.\n" +

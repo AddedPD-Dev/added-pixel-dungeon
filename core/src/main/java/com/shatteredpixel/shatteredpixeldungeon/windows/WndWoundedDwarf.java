@@ -55,12 +55,12 @@ public class WndWoundedDwarf extends Window {
 			msg = Messages.get(this, "potion");
 		}
 
-		RenderedTextBlock message = PixelScene.renderTextBlock( msg, 6 );
+		RenderedTextBlock message = PixelScene.renderTextBlock(msg, 6);
 		message.maxWidth(WIDTH);
 		message.setPos(0, titlebar.bottom() + GAP);
-		add( message );
+		add(message);
 		
-		RedButton btnEnd = new RedButton( Messages.get(this, "end")) {
+		RedButton btnEnd = new RedButton( Messages.get(this, "button")) {
 			@Override
 			protected void onClick() {
 				endQuest( woundedDwarf );
@@ -68,6 +68,8 @@ public class WndWoundedDwarf extends Window {
 		};
 		btnEnd.setRect(0, message.top() + message.height() + GAP, WIDTH, BTN_HEIGHT);
 		add( btnEnd );
+
+		resize(WIDTH, (int) btnEnd.bottom());
 	}
 	
 	private void endQuest(WoundedDwarf woundedDwarf) {

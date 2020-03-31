@@ -32,8 +32,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotHeart;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotLasher;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.PrismaticImage;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Enchanting;
@@ -365,8 +368,8 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 			if (enemy.properties().contains(Char.Property.BOSS)) {
 				// prvents "SMITE! HA HA I WON" situation, by NEVER one-kill bosses
-				if (dmg >= enemy.HT/4) {
-					dmg = enemy.HT/4;
+				if (dmg >= enemy.HP/4) {
+					dmg = enemy.HP/4;
 					GLog.w( Messages.capitalize(Messages.get(Devotion.class, "smite_boss", enemy.name)) );
 				}
 			}
@@ -389,13 +392,13 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				case SCHOLAR:
 					for (int i : PathFinder.NEIGHBOURS8) {
 						enemy.damage( dmg, this );
-						CellEmitter.get(i).burst(RainbowParticle.BURST, 10+dmg);
-						CellEmitter.get(i).start( ShaftParticle.FACTORY, 0.25f, 8 );
 						Char ch = Actor.findChar(enemy.pos + i);
 						if (ch != null) {
 							// only harm enemy(no self damage, no friendly fire)
 							if (ch.alignment != Char.Alignment.ALLY || ch != Dungeon.hero) {
 								ch.damage( dmg, this );
+								CellEmitter.get(ch.pos).burst(RainbowParticle.BURST, 10+dmg);
+								CellEmitter.get(ch.pos).start( ShaftParticle.FACTORY, 0.25f, 8 );
 							}
 						}
 					}
@@ -538,7 +541,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 							}
 
 							if (mob.properties().contains(Char.Property.MINIBOSS)) {
-								if (mob instanceof RotLasher || mob instanceof RotHeart) {
+								if (mob instanceof RotLasher || mob instanceof RotHeart || mob instanceof Piranha) {
 									if (mob.distance(target) == 1) {
 										enemies++;
 									}
@@ -743,7 +746,9 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				GLog.w(Messages.get(Devotion.class, "baptize_bad_target"));
 				return;
 			} else if (enemy.properties().contains(Char.Property.BOSS)
-					|| enemy.properties().contains(Char.Property.MINIBOSS)) {
+					|| enemy.properties().contains(Char.Property.MINIBOSS)
+					|| enemy instanceof Wraith
+					|| enemy instanceof Statue) {
 				GLog.w(Messages.get(Devotion.class, "baptize_cannot_boss"));
 				return;
 			} else if (enemy instanceof Bee) {
@@ -787,8 +792,11 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			rank -= 60;
             Devotion devotion = Dungeon.hero.buff(Devotion.class);
             ActionIndicator.setAction(devotion);
-            ActionIndicator.updateIcon();
-            BuffIndicator.refreshHero();
+			ActionIndicator.updateIcon();
+			BuffIndicator.refreshHero();
+
+            BaptizedOrder order = new BaptizedOrder();
+            order.attachTo(hero);
 
 			hero.spendAndNext(Actor.TICK);
 		}

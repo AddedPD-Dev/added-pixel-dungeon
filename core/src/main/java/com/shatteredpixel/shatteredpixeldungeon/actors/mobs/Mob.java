@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Adrenaline;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Baptized;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.BaptizedOrder;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Charm;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
@@ -69,6 +70,8 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
@@ -343,16 +346,6 @@ public abstract class Mob extends Char {
 	}
 	
 	protected boolean getCloser( int target ) {
-
-		// AddedPD : the Redeemer's baptized ally - act just like ally golden bee
-		if (isBaptized()) {
-			if (enemy == null) {
-				target = Dungeon.hero.pos;
-			} else if (enemy != null) {
-				target = enemy.pos;
-			} else if (state == WANDERING || Dungeon.level.distance(target, Dungeon.hero.pos) > 3)
-				this.target = target = Dungeon.hero.pos;
-		}
 
 		if (rooted || target == pos) {
 			return false;
@@ -725,6 +718,10 @@ public abstract class Mob extends Char {
 
 		if (isBaptized()) {
 			Devotion devotion = Dungeon.hero.buff(Devotion.class);
+			devotion.onOther(30);
+			ActionIndicator.setAction(devotion);
+			ActionIndicator.updateIcon();
+			BuffIndicator.refreshHero();
 			devotion.Baptized_canUse();
 		}
 		
@@ -870,38 +867,75 @@ public abstract class Mob extends Char {
 
 		@Override
 		public boolean act( boolean enemyInFOV, boolean justAlerted ) {
-			if (enemyInFOV && (justAlerted || Random.Float( distance( enemy ) / 2f + enemy.stealth() ) < 1)) {
 
-				enemySeen = true;
+			if (isBaptized()) {
+				BaptizedOrder o = Dungeon.hero.buff(BaptizedOrder.class);
+				if (enemyInFOV && !o.BmovingToDefendPos) {
 
-				notice();
-				alerted = true;
-				state = HUNTING;
-				target = enemy.pos;
+					enemySeen = true;
 
-				if (Dungeon.isChallenged( Challenges.SWARM_INTELLIGENCE )) {
-					for (Mob mob : Dungeon.level.mobs) {
-						if (Dungeon.level.distance(pos, mob.pos) <= 8 && mob.state != mob.HUNTING) {
-							mob.beckon( target );
+					notice();
+					alerted = true;
+					state = HUNTING;
+					target = enemy.pos;
+
+				} else {
+
+					enemySeen = false;
+
+					int oldPos = pos;
+					target = o.BdefendingPos != -1 ? o.BdefendingPos : Dungeon.hero.pos;
+					//always move towards the hero when wandering
+					if (getCloser(target)) {
+						//moves 2 tiles at a time when returning to the hero
+						if (o.BdefendingPos == -1 && !Dungeon.level.adjacent(target, pos)) {
+							getCloser(target);
 						}
+						spend(1 / speed());
+						if (pos == o.BdefendingPos) o.BmovingToDefendPos = false;
+						return moveSprite(oldPos, pos);
+					} else {
+						spend(TICK);
 					}
+
 				}
+				return true;
 
 			} else {
 
-				enemySeen = false;
+				if (enemyInFOV && (justAlerted || Random.Float(distance(enemy) / 2f + enemy.stealth()) < 1)) {
 
-				int oldPos = pos;
-				if (target != -1 && getCloser( target )) {
-					spend( 1 / speed() );
-					return moveSprite( oldPos, pos );
+					enemySeen = true;
+
+					notice();
+					alerted = true;
+					state = HUNTING;
+					target = enemy.pos;
+
+					if (Dungeon.isChallenged(Challenges.SWARM_INTELLIGENCE)) {
+						for (Mob mob : Dungeon.level.mobs) {
+							if (Dungeon.level.distance(pos, mob.pos) <= 8 && mob.state != mob.HUNTING) {
+								mob.beckon(target);
+							}
+						}
+					}
+
 				} else {
-					target = Dungeon.level.randomDestination();
-					spend( TICK );
-				}
 
+					enemySeen = false;
+
+					int oldPos = pos;
+					if (target != -1 && getCloser(target)) {
+						spend(1 / speed());
+						return moveSprite(oldPos, pos);
+					} else {
+						target = Dungeon.level.randomDestination();
+						spend(TICK);
+					}
+
+				}
+				return true;
 			}
-			return true;
 		}
 	}
 
@@ -912,25 +946,6 @@ public abstract class Mob extends Char {
 		@Override
 		public boolean act( boolean enemyInFOV, boolean justAlerted ) {
 			enemySeen = enemyInFOV;
-
-			if (intelligentAlly && (enemy instanceof Piranha || enemy instanceof RotLasher)) {
-				if (enemyInFOV && !isCharmedBy( enemy ) && canAttack( enemy )) {
-					if (!Dungeon.level.adjacent( pos, enemy.pos )) {
-						return doAttack(enemy);
-					}
-				}
-
-				if (Dungeon.level.adjacent( pos, enemy.pos )) {
-					state = WANDERING;
-					if (!Dungeon.level.adjacent( enemy.pos, Dungeon.hero.pos)) {
-						getCloser(Dungeon.hero.pos);
-					} else {
-						target = Dungeon.level.randomDestination();
-					}
-					return true;
-				}
-			}
-
 			if (enemyInFOV && !isCharmedBy( enemy ) && canAttack( enemy )) {
 
 				return doAttack( enemy );
@@ -1025,6 +1040,8 @@ public abstract class Mob extends Char {
 
 			// AddedPD : also baptized allies
 			} else if (mob.isBaptized()) {
+				BaptizedOrder baptizedOrder = Dungeon.hero.buff(BaptizedOrder.class);
+				baptizedOrder.clearDefensingPos();
 				level.mobs.remove( mob );
 				heldAllies.add(mob);
 

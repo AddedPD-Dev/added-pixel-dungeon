@@ -359,11 +359,10 @@ public class Hero extends Char {
 			}
 		}
 
-		if (wep.enlightened && target instanceof Wraith) {
-			accuracy *= 10f;
-		}
-
 		if (wep != null) {
+			if (wep.enlightened && target instanceof Wraith) {
+				accuracy *= 20f;
+			}
 			return (int)(attackSkill * accuracy * wep.accuracyFactor( this ));
 		} else {
 			return (int)(attackSkill * accuracy);

@@ -39,7 +39,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corrosion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Corruption;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Doom;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.DwarfArmorBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.EarthImbue;
@@ -153,89 +152,26 @@ public abstract class Char extends Actor {
 	}
 
 	public boolean canInteract( Hero h ){
-		if (isBaptized()) {
-			// AddedPD : redeemer can recall or dismiss baptized ally
-			return true;
-		}
 		return Dungeon.level.adjacent( pos, h.pos );
 	}
 	
 	//swaps places by default
 	public boolean interact(){
-		// AddedPD : redeemer can recall or dismiss baptized ally
-		if (isBaptized() && !Dungeon.level.adjacent( pos, Dungeon.hero.pos )) {
-			Char ally = Char.this;
-			Game.runOnRenderThread(new Callback() {
-				@Override
-				public void call() {
-					GameScene.show(new WndOptions(
-							Messages.get(Devotion.class, "interact_title"),
-							Messages.get(Devotion.class, "interact_prompt", name),
-							Messages.get(Devotion.class, "interact_recall"),
-							Messages.get(Devotion.class, "interact_dismiss"),
-							Messages.get(Devotion.class, "interact_cancel")){
-						@Override
-						protected void onSelect(int index) {
-							if (index == 0){
-								int bestPos = -1;
-								for (int i = 0; i < PathFinder.NEIGHBOURS8.length; i++) {
-									int p = Dungeon.hero.pos + PathFinder.NEIGHBOURS8[i];
-									if (Actor.findChar( p ) == null && Dungeon.level.passable[p]) {
-										if (bestPos == -1){ bestPos = p; } } }
-
-								if (bestPos != -1) {
-									GLog.i( Messages.get(Devotion.class, "interact_recall_on", ally.name) );
-
-									ScrollOfTeleportation.appear( ally, bestPos );
-
-									Sample.INSTANCE.play( Assets.SND_TELEPORT );
-									ally.sprite.emitter().start( Speck.factory(Speck.LIGHT), 0.2f, 3 );
-									Dungeon.hero.spendAndNext(Actor.TICK);
-
-									if (ally.invisible == 0) {
-										ally.sprite.alpha( 0 );
-										ally.sprite.parent.add( new AlphaTweener( ally.sprite, 1, 0.4f ) );
-									}
-
-									if (((Mob) ally).state == ((Mob) ally).HUNTING) ((Mob) ally).state = ((Mob) ally).WANDERING;
-									((Mob) ally).beckon(Dungeon.level.randomDestination());
-
-								} else { GLog.i( Messages.get(Devotion.class, "interact_recall_fail", ally.name) ); }
-							}
-
-							if (index == 1) {
-								GLog.p( Messages.get(Devotion.class, "interact_dismiss_on", ally.name) );
-								CellEmitter.get(ally.pos).start( ShaftParticle.FACTORY, 0.3f, 4 );
-								ally.destroy();
-								ally.sprite.kill();
-
-								Devotion devotion = Dungeon.hero.buff(Devotion.class);
-								devotion.Baptized_canUse();
-								devotion.onOther(60);
-								ActionIndicator.setAction(devotion);
-								ActionIndicator.updateIcon();
-								BuffIndicator.refreshHero();
-
-								Dungeon.hero.spendAndNext(Actor.TICK);
-							} }	}); }	});
+		if (!Dungeon.level.passable[pos] && !Dungeon.hero.flying) {
 			return true;
 		}
-		
-		if (!Dungeon.level.passable[pos] && !Dungeon.hero.flying){
-			return true;
-		}
-		
+
 		int curPos = pos;
-		
-		moveSprite( pos, Dungeon.hero.pos );
-		move( Dungeon.hero.pos );
-		
-		Dungeon.hero.sprite.move( Dungeon.hero.pos, curPos );
-		Dungeon.hero.move( curPos );
-		
-		Dungeon.hero.spend( 1 / Dungeon.hero.speed() );
+
+		moveSprite(pos, Dungeon.hero.pos);
+		move(Dungeon.hero.pos);
+
+		Dungeon.hero.sprite.move(Dungeon.hero.pos, curPos);
+		Dungeon.hero.move(curPos);
+
+		Dungeon.hero.spend(1 / Dungeon.hero.speed());
 		Dungeon.hero.busy();
-		
+
 		return true;
 	}
 	

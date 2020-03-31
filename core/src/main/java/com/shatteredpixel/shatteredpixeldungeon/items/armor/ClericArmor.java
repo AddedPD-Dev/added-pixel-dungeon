@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
@@ -29,6 +30,11 @@ public class ClericArmor extends ClassArmor {
                     Buff.affect(mob, Paralysis.class, 0f);  // just keep their current turn, like AquaBlast spell
                    }  }
         Hero hero = curUser;
+        for (Buff b : hero.buffs()) {
+            if (b.type == Buff.buffType.NEGATIVE && !(b instanceof Hunger)) {
+                b.detach();
+            }
+        }
         hero.HP -= curUser.HP / 3;
         curUser.spend( Actor.TICK );
         curUser.sprite.operate(curUser.pos);

@@ -51,6 +51,20 @@ public class WoundedDwarf extends NPC {
 
 	private boolean seenBefore = false;
 
+	private static final String SEEN = "seenBefore";
+
+	@Override
+	public void storeInBundle( Bundle bundle ) {
+		super.storeInBundle( bundle );
+		bundle.put( SEEN, seenBefore );
+	}
+
+	@Override
+	public void restoreFromBundle( Bundle bundle ) {
+		super.restoreFromBundle( bundle );
+		seenBefore = bundle.getBoolean( SEEN );
+	}
+
 	@Override
 	protected boolean act() {
 
