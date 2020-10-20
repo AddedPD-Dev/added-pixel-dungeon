@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ public class Chasm {
 		
 		jumpConfirmed = false;
 				
-		Sample.INSTANCE.play( Assets.SND_FALLING );
+		Sample.INSTANCE.play( Assets.Sounds.FALLING );
 
 		Buff buff = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
 		if (buff != null) buff.detach();
@@ -116,8 +116,8 @@ public class Chasm {
 		Dungeon.level.occupyCell(hero );
 		Buff.prolong( hero, Cripple.class, Cripple.DURATION );
 
-		//The lower the hero's HP, the more fully_charged and the less upfront damage.
-		//Hero has a 50% chance to fully_charged out at 66% HP, and begins to risk instant-death at 25%
+		//The lower the hero's HP, the more bleed and the less upfront damage.
+		//Hero has a 50% chance to bleed out at 66% HP, and begins to risk instant-death at 25%
 		Buff.affect( hero, FallBleed.class).set( Math.round(hero.HT / (6f + (6f*(hero.HP/(float)hero.HT)))));
 		hero.damage( Math.max( hero.HP / 2, Random.NormalIntRange( hero.HP / 2, hero.HT / 4 )), new Hero.Doom() {
 			@Override

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,14 +26,11 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EnergyParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.watabou.noosa.audio.Sample;
@@ -50,7 +47,7 @@ public class StoneOfShock extends Runestone {
 	@Override
 	protected void activate(int cell) {
 		
-		Sample.INSTANCE.play( Assets.SND_LIGHTNING );
+		Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 		
 		ArrayList<Lightning.Arc> arcs = new ArrayList<>();
 		int hits = 0;
@@ -61,10 +58,7 @@ public class StoneOfShock extends Runestone {
 				Char n = Actor.findChar(i);
 				if (n != null) {
 					arcs.add(new Lightning.Arc(cell, n.sprite.center()));
-					if (n == curUser && curUser.heroClass == HeroClass.DWARF) {
-						Buff.affect(n, Haste.class, 4f);
-						ScrollOfRecharging.charge(curUser);
-					} else { Buff.prolong(n, Paralysis.class, 1f); }
+					Buff.prolong(n, Paralysis.class, 1f);
 					hits++;
 				}
 			}
@@ -75,7 +69,7 @@ public class StoneOfShock extends Runestone {
 		if (hits > 0) {
 			curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
 			curUser.sprite.centerEmitter().burst(EnergyParticle.FACTORY, 10);
-			Sample.INSTANCE.play( Assets.SND_LIGHTNING );
+			Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 			
 			curUser.belongings.charge(1f + hits);
 		}

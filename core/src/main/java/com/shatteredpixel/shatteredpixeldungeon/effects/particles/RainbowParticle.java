@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,28 +28,10 @@ import com.watabou.utils.Random;
 
 public class RainbowParticle extends PixelParticle {
 
-	public static final Emitter.Factory FACTORY = new Emitter.Factory() {
-		@Override
-		public void emit( Emitter emitter, int index, float x, float y ) {
-			((RainbowParticle)emitter.recycle( RainbowParticle.class )).reset( x,  y );
-		}
-	};
-
 	public static final Emitter.Factory BURST = new Emitter.Factory() {
 		@Override
 		public void emit( Emitter emitter, int index, float x, float y ) {
 			((RainbowParticle)emitter.recycle( RainbowParticle.class )).resetBurst( x, y );
-		}
-		@Override
-		public boolean lightMode() {
-			return true;
-		}
-	};
-
-	public static final Emitter.Factory ATTRACTING = new Emitter.Factory() {
-		@Override
-		public void emit( Emitter emitter, int index, float x, float y ) {
-			((RainbowParticle)emitter.recycle( RainbowParticle.class )).resetAttract( x, y );
 		}
 		@Override
 		public boolean lightMode() {
@@ -85,17 +67,6 @@ public class RainbowParticle extends PixelParticle {
 		speed.polar( Random.Float( PointF.PI2 ), Random.Float( 16, 32 ) );
 
 		left = lifespan;
-	}
-
-	public void resetAttract( float x, float y) {
-		revive();
-
-		//size = 8;
-		left = lifespan;
-
-		speed.polar( Random.Float( PointF.PI2 ), Random.Float( 16, 32 ) );
-		this.x = x - speed.x * lifespan;
-		this.y = y - speed.y * lifespan;
 	}
 
 	@Override

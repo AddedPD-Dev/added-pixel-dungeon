@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ package com.watabou.noosa;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.watabou.gltextures.SmartTexture;
-import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Matrix;
 import com.watabou.glwrap.Quad;
 import com.watabou.glwrap.Vertexbuffer;
@@ -210,8 +209,10 @@ public class BitmapText extends Visual {
 	}
 
 	public synchronized void text( String str ) {
-		text = str;
-		dirty = true;
+		if (str == null || !str.equals(text)) {
+			text = str;
+			dirty = true;
+		}
 	}
 	
 	public static class Font extends TextureFilm {
@@ -342,15 +343,15 @@ public class BitmapText extends Visual {
 			return pixel != color;
 		}
 		
-		public static Font colorMarked( Pixmap bmp, int color, String chars ) {
-			Font font = new Font( TextureCache.get( bmp ) );
-			font.splitBy( bmp, bmp.getHeight(), color, chars );
+		public static Font colorMarked( SmartTexture tex, int color, String chars ) {
+			Font font = new Font( tex );
+			font.splitBy( tex.bitmap, tex.height, color, chars );
 			return font;
 		}
 		 
-		public static Font colorMarked( Pixmap bmp, int height, int color, String chars ) {
-			Font font = new Font( TextureCache.get( bmp ) );
-			font.splitBy( bmp, height, color, chars );
+		public static Font colorMarked( SmartTexture tex, int height, int color, String chars ) {
+			Font font = new Font( tex );
+			font.splitBy( tex.bitmap, height, color, chars );
 			return font;
 		}
 		

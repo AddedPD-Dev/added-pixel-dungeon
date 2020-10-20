@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.stones;
 
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Enchanting;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -37,17 +36,21 @@ public class StoneOfEnchantment extends InventoryStone {
 	{
 		mode = WndBag.Mode.ENCHANTABLE;
 		image = ItemSpriteSheet.STONE_ENCHANT;
+
+		unique = true;
 	}
 	
 	@Override
 	protected void onItemSelected(Item item) {
-
+		
 		if (item instanceof Weapon) {
-			if (((Weapon)item).enlightened) { GLog.w (Messages.get(Hero.class, "enlightened")); return; }
-			else ((Weapon)item).enchant();
+			
+			((Weapon)item).enchant();
+			
 		} else {
-			if (((Armor)item).enlightened) { GLog.w (Messages.get(Hero.class, "enlightened")); return; }
-			else ((Armor)item).inscribe();
+			
+			((Armor)item).inscribe();
+			
 		}
 		
 		curUser.sprite.emitter().start( Speck.factory( Speck.LIGHT ), 0.1f, 5 );
@@ -64,7 +67,7 @@ public class StoneOfEnchantment extends InventoryStone {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		return 30 * quantity;
 	}
 }

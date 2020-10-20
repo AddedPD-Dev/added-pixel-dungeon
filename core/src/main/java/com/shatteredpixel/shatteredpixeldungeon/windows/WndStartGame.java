@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
-import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -52,7 +51,7 @@ import com.watabou.utils.DeviceCompat;
 
 public class WndStartGame extends Window {
 	
-	private static final int WIDTH    = 124;
+	private static final int WIDTH    = 120;
 	private static final int HEIGHT   = 140;
 
 	public WndStartGame(final int slot){
@@ -66,7 +65,7 @@ public class WndStartGame extends Window {
 		PixelScene.align(title);
 		add(title);
 		
-		float heroBtnSpacing = (WIDTH - 6*HeroBtn.WIDTH)/6f;
+		float heroBtnSpacing = (WIDTH - 4*HeroBtn.WIDTH)/5f;
 		
 		float curX = heroBtnSpacing;
 		for (HeroClass cl : HeroClass.values()){
@@ -123,11 +122,13 @@ public class WndStartGame extends Window {
 					Icons.get( SPDSettings.challenges() > 0 ? Icons.CHALLENGE_ON :Icons.CHALLENGE_OFF)){
 				@Override
 				protected void onClick() {
-					ShatteredPixelDungeon.scene().add(new WndChallenges(SPDSettings.challenges(), true) {
+					ShatteredPixelDungeon.scene().addToFront(new WndChallenges(SPDSettings.challenges(), true) {
 						public void onBackPressed() {
 							super.onBackPressed();
-							icon( Icons.get( SPDSettings.challenges() > 0 ?
-									Icons.CHALLENGE_ON :Icons.CHALLENGE_OFF ) );
+							if (parent != null) {
+								icon(Icons.get(SPDSettings.challenges() > 0 ?
+										Icons.CHALLENGE_ON : Icons.CHALLENGE_OFF));
+							}
 						}
 					} );
 				}
@@ -166,21 +167,8 @@ public class WndStartGame extends Window {
 			super();
 			
 			this.cl = cl;
-			
-			if (cl == HeroClass.WARRIOR){
-				hero = new Image(Assets.WARRIOR, 0, 90, 12, 15);
-			} else if (cl == HeroClass.MAGE){
-				hero = new Image(Assets.MAGE, 0, 90, 12, 15);
-			} else if (cl == HeroClass.ROGUE){
-				hero = new Image(Assets.ROGUE, 0, 90, 12, 15);
-			} else if (cl == HeroClass.HUNTRESS){
-				hero = new Image(Assets.HUNTRESS, 0, 90, 12, 15);
-			} else if (cl == HeroClass.CLERIC){
-				hero = new Image(Assets.CLERIC, 0, 90, 12, 15);
-			}  else if (cl == HeroClass.DWARF){
-				hero = new Image(Assets.DWARFHERO, 0, 90, 12, 15);
-			}
-			add(hero);
+
+			add(hero = new Image(cl.spritesheet(), 0, 90, 12, 15));
 			
 		}
 		
@@ -199,9 +187,7 @@ public class WndStartGame extends Window {
 			super.update();
 			if (cl != GamesInProgress.selectedClass){
 				if (!cl.isUnlocked()){
-					if (cl == HeroClass.DWARF){
-						hero.brightness(0f);
-					} else hero.brightness(0.3f);
+					hero.brightness(0.3f);
 				} else {
 					hero.brightness(0.6f);
 				}
@@ -215,8 +201,7 @@ public class WndStartGame extends Window {
 			super.onClick();
 			
 			if( !cl.isUnlocked() ){
-				ShatteredPixelDungeon.scene().add(
-						new WndMessage(cl.unlockMsg()));
+				ShatteredPixelDungeon.scene().addToFront( new WndMessage(cl.unlockMsg()));
 			} else {
 				GamesInProgress.selectedClass = cl;
 			}
@@ -242,7 +227,7 @@ public class WndStartGame extends Window {
 		protected void createChildren() {
 			super.createChildren();
 			
-			avatar = new Image(Assets.AVATARS);
+			avatar = new Image(Assets.Sprites.AVATARS);
 			avatar.scale.set(2f);
 			add(avatar);
 			
@@ -250,7 +235,7 @@ public class WndStartGame extends Window {
 				@Override
 				protected void onClick() {
 					if (cl == null) return;
-					ShatteredPixelDungeon.scene().add(new WndMessage(Messages.get(cl, cl.name() + "_desc_item")));
+					ShatteredPixelDungeon.scene().addToFront(new WndMessage(Messages.get(cl, cl.name() + "_desc_item")));
 				}
 			};
 			heroItem.setSize(BTN_SIZE, BTN_SIZE);
@@ -260,7 +245,7 @@ public class WndStartGame extends Window {
 				@Override
 				protected void onClick() {
 					if (cl == null) return;
-					ShatteredPixelDungeon.scene().add(new WndMessage(Messages.get(cl, cl.name() + "_desc_loadout")));
+					ShatteredPixelDungeon.scene().addToFront(new WndMessage(Messages.get(cl, cl.name() + "_desc_loadout")));
 				}
 			};
 			heroLoadout.setSize(BTN_SIZE, BTN_SIZE);
@@ -270,7 +255,7 @@ public class WndStartGame extends Window {
 				@Override
 				protected void onClick() {
 					if (cl == null) return;
-					ShatteredPixelDungeon.scene().add(new WndMessage(Messages.get(cl, cl.name() + "_desc_misc")));
+					ShatteredPixelDungeon.scene().addToFront(new WndMessage(Messages.get(cl, cl.name() + "_desc_misc")));
 				}
 			};
 			heroMisc.setSize(BTN_SIZE, BTN_SIZE);
@@ -284,7 +269,7 @@ public class WndStartGame extends Window {
 					for (HeroSubClass sub : cl.subClasses()){
 						msg += "\n\n" + sub.desc();
 					}
-					ShatteredPixelDungeon.scene().add(new WndMessage(msg));
+					ShatteredPixelDungeon.scene().addToFront(new WndMessage(msg));
 				}
 			};
 			heroSubclass.setSize(BTN_SIZE, BTN_SIZE);
@@ -345,18 +330,9 @@ public class WndStartGame extends Window {
 						case HUNTRESS:
 							heroItem.icon(new ItemSprite(ItemSpriteSheet.SPIRIT_BOW, null));
 							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.GLOVES, null));
-							heroMisc.icon(new Image(Assets.TILES_SEWERS, 112, 96, 16, 16 ));
+							heroMisc.icon(new Image(Assets.Environment.TILES_SEWERS, 112, 96, 16, 16 ));
 							break;
-						case CLERIC:
-							heroItem.icon(Icons.get(Icons.CLERIC));
-							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.CUDGEL, null));
-							heroMisc.icon(new ItemSprite(ItemSpriteSheet.CLERIC_MISC, null));
-							break;
-						case DWARF:
-							heroItem.icon(new ItemSprite(ItemSpriteSheet.DWARFARM, null));
-							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.STONE_SHOCK, null));
-							heroMisc.icon(new ItemSprite(ItemSpriteSheet.DWARF_MISC, null));
-							break;					}
+					}
 					
 					layout();
 					

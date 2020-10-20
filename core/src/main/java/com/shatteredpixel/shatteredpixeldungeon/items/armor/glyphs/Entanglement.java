@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,9 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Paralysis;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.EarthParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor.Glyph;
@@ -44,19 +40,14 @@ public class Entanglement extends Glyph {
 	@Override
 	public int proc(Armor armor, Char attacker, final Char defender, final int damage ) {
 
-		final int level = Math.max( 0, armor.level() );
+		final int level = Math.max( 0, armor.buffedLvl() );
 		
 		if (Random.Int( 4 ) == 0) {
 			
 			Buff.affect( defender, Earthroot.Armor.class ).level( 5 + 2 * level );
 			CellEmitter.bottom( defender.pos ).start( EarthParticle.FACTORY, 0.05f, 8 );
 			Camera.main.shake( 1, 0.4f );
-
-			// AddedPD : for sealknight - stuns enemy when glyph is activated
-			if (defender == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT && armor.checkSeal() != null) {
-				CellEmitter.get(attacker.pos).start(Speck.factory(Speck.ROCK), 0.07f, 5);
-				Buff.prolong( attacker, Paralysis.class, 2f );
-			}
+			
 		}
 
 		return damage;

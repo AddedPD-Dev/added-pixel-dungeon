@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,8 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
-import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
@@ -42,12 +40,12 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Rotberry;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.WandmakerSprite;
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndQuest;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndWandmaker;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
+import com.watabou.utils.Point;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -62,13 +60,15 @@ public class Wandmaker extends NPC {
 	
 	@Override
 	protected boolean act() {
-		throwItem();
+		if (Dungeon.level.heroFOV[pos] && Quest.wand1 != null){
+			Notes.add( Notes.Landmark.WANDMAKER );
+		}
 		return super.act();
 	}
 	
 	@Override
 	public int defenseSkill( Char enemy ) {
-		return 100_000_000;
+		return INFINITE_EVASION;
 	}
 	
 	@Override
@@ -85,9 +85,13 @@ public class Wandmaker extends NPC {
 	}
 	
 	@Override
-	public boolean interact() {
-		
+	public boolean interact(Char c) {
 		sprite.turnTo( pos, Dungeon.hero.pos );
+
+		if (c != Dungeon.hero){
+			return true;
+		}
+
 		if (Quest.given) {
 			
 			Item item;
@@ -105,74 +109,23 @@ public class Wandmaker extends NPC {
 			}
 
 			if (item != null) {
-				if (Dungeon.hero.heroClass == HeroClass.CLERIC) {
-					String msg_cleric = "";
-					String msg_reward = "";
-					msg_cleric += Messages.get(this, "cleric_welcome");
-					switch (Quest.type){
-						case 1:
-							msg_cleric += Messages.get(this, "cleric_dust");
-							break;
-						case 2:
-							msg_cleric += Messages.get(this, "cleric_ember");
-							break;
-						case 3:
-							msg_cleric += Messages.get(this, "cleric_berry");
-							break;
+				Game.runOnRenderThread(new Callback() {
+					@Override
+					public void call() {
+						GameScene.show( new WndWandmaker( Wandmaker.this, item ) );
 					}
-					msg_reward += Messages.get(this, "cleric_reward");
-
-					final String msgClericFinal = msg_cleric;
-					final String msgRewardFinal = msg_reward;
-
-					Game.runOnRenderThread(new Callback() {
-						@Override
-						public void call() {
-							GameScene.show(new WndQuest(Wandmaker.this, msgClericFinal){
-								@Override
-								public void hide() {
-									super.hide();
-									GameScene.show(new WndQuest(Wandmaker.this, msgRewardFinal));
-								}
-							});
-						}
-					});
-
-					item.detach( Dungeon.hero.belongings.backpack );
-
-					PotionOfExperience potion = new PotionOfExperience();
-					Wandmaker wandmaker = this;
-
-					potion.identify();
-					if (potion.doPickUp(Dungeon.hero)) {
-						GLog.i(Messages.get(Dungeon.hero, "you_now_have", potion.name()));
-					} else {
-						Dungeon.level.drop(potion, wandmaker.pos).sprite.drop();
-					}
-
-					wandmaker.destroy();
-					wandmaker.sprite.die();
-					Wandmaker.Quest.complete();
-
-				} else {
-					Game.runOnRenderThread(new Callback() {
-						@Override
-						public void call() {
-							GameScene.show(new WndWandmaker(Wandmaker.this, item));
-						}
-					});
-				}
+				});
 			} else {
 				String msg;
 				switch(Quest.type){
 					case 1: default:
-						msg = Messages.get(this, "reminder_dust", Dungeon.hero.givenName());
+						msg = Messages.get(this, "reminder_dust", Dungeon.hero.name());
 						break;
 					case 2:
-						msg = Messages.get(this, "reminder_ember", Dungeon.hero.givenName());
+						msg = Messages.get(this, "reminder_ember", Dungeon.hero.name());
 						break;
 					case 3:
-						msg = Messages.get(this, "reminder_berry", Dungeon.hero.givenName());
+						msg = Messages.get(this, "reminder_berry", Dungeon.hero.name());
 						break;
 				}
 				Game.runOnRenderThread(new Callback() {
@@ -195,16 +148,10 @@ public class Wandmaker extends NPC {
 					msg1 += Messages.get(this, "intro_rogue");
 					break;
 				case MAGE:
-					msg1 += Messages.get(this, "intro_mage", Dungeon.hero.givenName());
+					msg1 += Messages.get(this, "intro_mage", Dungeon.hero.name());
 					break;
 				case HUNTRESS:
 					msg1 += Messages.get(this, "intro_huntress");
-					break;
-				case CLERIC:
-					msg1 += Messages.get(this, "intro_cleric");
-					break;
-				case DWARF:
-					msg1 += Messages.get(this, "intro_dwarf");
 					break;
 			}
 
@@ -222,12 +169,7 @@ public class Wandmaker extends NPC {
 					break;
 			}
 
-			if (Dungeon.hero.heroClass == HeroClass.CLERIC) {
-				msg2 += Messages.get(this, "intro_2_cleric");
-			} else {
-				msg2 += Messages.get(this, "intro_2");
-			}
-
+			msg2 += Messages.get(this, "intro_2");
 			final String msg1Final = msg1;
 			final String msg2Final = msg2;
 			
@@ -244,11 +186,10 @@ public class Wandmaker extends NPC {
 				}
 			});
 
-			Notes.add( Notes.Landmark.WANDMAKER );
 			Quest.given = true;
 		}
 
-		return false;
+		return true;
 	}
 	
 	public static class Quest {
@@ -294,10 +235,9 @@ public class Wandmaker extends NPC {
 				node.put( TYPE, type );
 				
 				node.put( GIVEN, given );
-
-
-				node.put(WAND1, wand1);
-				node.put(WAND2, wand2);
+				
+				node.put( WAND1, wand1 );
+				node.put( WAND2, wand2 );
 
 				if (type == 2){
 					node.put( RITUALPOS, CeremonialCandle.ritualPos );
@@ -317,8 +257,9 @@ public class Wandmaker extends NPC {
 				type = node.getInt(TYPE);
 				
 				given = node.getBoolean( GIVEN );
-				wand1 = (Wand) node.get(WAND1);
-				wand2 = (Wand) node.get(WAND2);
+				
+				wand1 = (Wand)node.get( WAND1 );
+				wand2 = (Wand)node.get( WAND2 );
 
 				if (type == 2){
 					CeremonialCandle.ritualPos = node.getInt( RITUALPOS );
@@ -337,9 +278,23 @@ public class Wandmaker extends NPC {
 				questRoomSpawned = false;
 				
 				Wandmaker npc = new Wandmaker();
+				boolean validPos;
+				//Do not spawn wandmaker on the entrance, a trap, or in front of a door.
 				do {
+					validPos = true;
 					npc.pos = level.pointToCell(room.random());
-				} while (npc.pos == level.entrance);
+					if (npc.pos == level.entrance){
+						validPos = false;
+					}
+					for (Point door : room.connected.values()){
+						if (level.trueDistance( npc.pos, level.pointToCell( door ) ) <= 1){
+							validPos = false;
+						}
+					}
+					if (level.traps.get(npc.pos) != null){
+						validPos = false;
+					}
+				} while (!validPos);
 				level.mobs.add( npc );
 
 				spawned = true;
@@ -354,6 +309,7 @@ public class Wandmaker extends NPC {
 				} while (wand2.getClass().equals(wand1.getClass()));
 				wand2.cursed = false;
 				wand2.upgrade();
+				
 			}
 		}
 		

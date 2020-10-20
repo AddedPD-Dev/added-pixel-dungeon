@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,15 +23,18 @@ package com.shatteredpixel.shatteredpixeldungeon.items.artifacts;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Blandfruit;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -85,12 +88,17 @@ public class HornOfPlenty extends Artifact {
 			else if (charge == 0)  GLog.i( Messages.get(this, "no_food") );
 			else {
 				//consume as much food as it takes to be full, to a minimum of 1
-				Hunger hunger = Buff.affect(Dungeon.hero, Hunger.class);
-				int chargesToUse = Math.max( 1, hunger.hunger() / (int)(Hunger.STARVING/10));
-				if (chargesToUse > charge) chargesToUse = charge;
-				hunger.satisfy((Hunger.STARVING/10) * chargesToUse);
+				int satietyPerCharge = (int) (Hunger.STARVING/10f);
+				if (Dungeon.isChallenged(Challenges.NO_FOOD)){
+					satietyPerCharge /= 3;
+				}
 
-				Food.foodProc( hero );
+				Hunger hunger = Buff.affect(Dungeon.hero, Hunger.class);
+				int chargesToUse = Math.max( 1, hunger.hunger() / satietyPerCharge);
+				if (chargesToUse > charge) chargesToUse = charge;
+				hunger.satisfy(satietyPerCharge * chargesToUse);
+
+				Talent.onFoodEaten(hero, satietyPerCharge * chargesToUse);
 
 				Statistics.foodEaten++;
 
@@ -99,7 +107,7 @@ public class HornOfPlenty extends Artifact {
 				hero.sprite.operate(hero.pos);
 				hero.busy();
 				SpellSprite.show(hero, SpellSprite.FOOD);
-				Sample.INSTANCE.play(Assets.SND_EAT);
+				Sample.INSTANCE.play(Assets.Sounds.EAT);
 				GLog.i( Messages.get(this, "eat") );
 
 				hero.spend(Food.TIME_TO_EAT);
@@ -222,10 +230,12 @@ public class HornOfPlenty extends Artifact {
 			
 			if (charge < chargeCap) {
 
-				//generates 0.2x max hunger value every hero level, +0.1x max value per horn level
-				//to a max of 1.2x max hunger value per hero level
-				//This means that a standard ration will be recovered in 6.67 hero levels
-				partialCharge += Hunger.STARVING * levelPortion * (0.2f + (0.1f*level()));
+				//generates 0.25x max hunger value every hero level, +0.125x max value per horn level
+				//to a max of 1.5x max hunger value per hero level
+				//This means that a standard ration will be recovered in ~5.333 hero levels
+				float chargeGain = Hunger.STARVING * levelPortion * (0.25f + (0.125f*level()));
+				chargeGain *= RingOfEnergy.artifactChargeMultiplier(target);
+				partialCharge += chargeGain;
 
 				//charge is in increments of 1/10 max hunger value.
 				while (partialCharge >= Hunger.STARVING/10) {

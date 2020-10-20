@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,8 +107,6 @@ public class MeleeWeapon extends Weapon {
 			info += "\n\n" + Messages.get(Weapon.class, "cursed");
 		} else if (!isIdentified() && cursedKnown){
 			info += "\n\n" + Messages.get(Weapon.class, "not_cursed");
-		} else if (enlightened) { // AddedPD : cleric's enlightenment power
-			info += "\n\n" + Messages.get(Weapon.class, "enlightened_info");
 		}
 		
 		return info;
@@ -119,7 +117,7 @@ public class MeleeWeapon extends Weapon {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		int price = 20 * tier;
 		if (hasGoodEnchant()) {
 			price *= 1.5;

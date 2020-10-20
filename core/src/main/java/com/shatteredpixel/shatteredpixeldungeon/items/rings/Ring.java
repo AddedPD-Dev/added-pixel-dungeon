@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindofMisc;
@@ -250,7 +251,7 @@ public class Ring extends KindofMisc {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		int price = 75;
 		if (cursed && cursedKnown) {
 			price /= 2;
@@ -284,15 +285,11 @@ public class Ring extends KindofMisc {
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
 		levelsToID = bundle.getFloat( LEVELS_TO_ID );
-		
-		//pre-0.7.2 saves
-		if (bundle.contains( "unfamiliarity" )){
-			levelsToID = bundle.getInt( "unfamiliarity" ) / 200f;
-		}
 	}
 	
 	public void onHeroGainExp( float levelPercent, Hero hero ){
 		if (isIdentified() || !isEquipped(hero)) return;
+		levelPercent *= Talent.itemIDSpeedFactor(hero, this);
 		//becomes IDed after 1 level
 		levelsToID -= levelPercent;
 		if (levelsToID <= 0){
@@ -309,12 +306,28 @@ public class Ring extends KindofMisc {
 		}
 		return bonus;
 	}
+
+	public static int getBuffedBonus(Char target, Class<?extends RingBuff> type){
+		int bonus = 0;
+		for (RingBuff buff : target.buffs(type)) {
+			bonus += buff.buffedLvl();
+		}
+		return bonus;
+	}
 	
 	public int soloBonus(){
 		if (cursed){
 			return Math.min( 0, Ring.this.level()-2 );
 		} else {
 			return Ring.this.level()+1;
+		}
+	}
+
+	public int soloBuffedBonus(){
+		if (cursed){
+			return Math.min( 0, Ring.this.buffedLvl()-2 );
+		} else {
+			return Ring.this.buffedLvl()+1;
 		}
 	}
 
@@ -330,6 +343,10 @@ public class Ring extends KindofMisc {
 
 		public int level(){
 			return Ring.this.soloBonus();
+		}
+
+		public int buffedLvl(){
+			return Ring.this.soloBuffedBonus();
 		}
 
 	}

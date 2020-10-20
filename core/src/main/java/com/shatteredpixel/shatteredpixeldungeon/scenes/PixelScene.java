@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
+import com.watabou.gltextures.TextureCache;
 import com.watabou.glwrap.Blending;
 import com.watabou.input.PointerEvent;
 import com.watabou.noosa.BitmapText;
@@ -40,7 +41,7 @@ import com.watabou.noosa.Gizmo;
 import com.watabou.noosa.Scene;
 import com.watabou.noosa.Visual;
 import com.watabou.noosa.ui.Component;
-import com.watabou.utils.BitmapCache;
+import com.watabou.utils.GameMath;
 import com.watabou.utils.Reflection;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class PixelScene extends Scene {
 		GameScene.scene = null;
 
 		float minWidth, minHeight;
-		if (SPDSettings.landscape()) {
+		if (landscape()) {
 			minWidth = MIN_WIDTH_L;
 			minHeight = MIN_HEIGHT_L;
 		} else {
@@ -87,13 +88,7 @@ public class PixelScene extends Scene {
 		defaultZoom = SPDSettings.scale();
 
 		if (defaultZoom < Math.ceil( Game.density * 2 ) || defaultZoom > maxDefaultZoom){
-			defaultZoom = (int)Math.ceil( Game.density * 2.5 );
-			while ((
-				Game.width / defaultZoom < minWidth ||
-				Game.height / defaultZoom < minHeight
-			) && defaultZoom > 1) {
-				defaultZoom--;
-			}
+			defaultZoom = (int)GameMath.gate(2, (int)Math.ceil( Game.density * 2.5 ), maxDefaultZoom);
 		}
 
 		minZoom = 1;
@@ -109,7 +104,7 @@ public class PixelScene extends Scene {
 
 			// 3x5 (6)
 			pixelFont = Font.colorMarked(
-				BitmapCache.get( Assets.PIXELFONT), 0x00000000, BitmapText.Font.LATIN_FULL );
+				TextureCache.get( Assets.Fonts.PIXELFONT), 0x00000000, BitmapText.Font.LATIN_FULL );
 			pixelFont.baseLine = 6;
 			pixelFont.tracking = -1;
 			
@@ -125,7 +120,9 @@ public class PixelScene extends Scene {
 			renderedTextPageSize = 1024;
 		}
 		//asian languages have many more unique characters, so increase texture size to anticipate that
-		if (Messages.lang() == Languages.KOREAN){
+		if (Messages.lang() == Languages.KOREAN ||
+				Messages.lang() == Languages.CHINESE ||
+				Messages.lang() == Languages.JAPANESE){
 			renderedTextPageSize *= 2;
 		}
 		Game.platform.setupFontGenerators(renderedTextPageSize, SPDSettings.systemFont());
@@ -136,7 +133,9 @@ public class PixelScene extends Scene {
 	private static ArrayList<Class<?extends Window>> savedWindows = new ArrayList<>();
 	private static Class<?extends PixelScene> savedClass = null;
 	
-	public void saveWindows(){
+	public synchronized void saveWindows(){
+		if (members == null) return;
+
 		savedWindows.clear();
 		savedClass = getClass();
 		for (Gizmo g : members.toArray(new Gizmo[0])){
@@ -146,7 +145,7 @@ public class PixelScene extends Scene {
 		}
 	}
 	
-	public void restoreWindows(){
+	public synchronized void restoreWindows(){
 		if (getClass().equals(savedClass)){
 			for (Class<?extends Window> w : savedWindows){
 				try{

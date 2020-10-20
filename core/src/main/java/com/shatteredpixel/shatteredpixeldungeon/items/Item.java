@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Degrade;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
@@ -63,9 +65,10 @@ public class Item implements Bundlable {
 	
 	public String defaultAction;
 	public boolean usesTargeting;
-	
-	protected String name = Messages.get(this, "name");
+
+	//TODO should these be private and accessed through methods?
 	public int image = 0;
+	public int icon = -1; //used as an identifier for items with randomized images
 	
 	public boolean stackable = false;
 	protected int quantity = 1;
@@ -77,8 +80,6 @@ public class Item implements Bundlable {
 	
 	public boolean cursed;
 	public boolean cursedKnown;
-
-	public boolean enlightened;
 	
 	// Unique items persist through revival
 	public boolean unique = false;
@@ -104,7 +105,8 @@ public class Item implements Bundlable {
 		if (collect( hero.belongings.backpack )) {
 			
 			GameScene.pickUp( this, hero.pos );
-			Sample.INSTANCE.play( Assets.SND_ITEM );
+			Sample.INSTANCE.play( Assets.Sounds.ITEM );
+			Talent.onItemCollected( hero, this );
 			hero.spendAndNext( TIME_TO_PICK_UP );
 			return true;
 			
@@ -115,21 +117,20 @@ public class Item implements Bundlable {
 	
 	public void doDrop( Hero hero ) {
 		hero.spendAndNext(TIME_TO_DROP);
-		Dungeon.level.drop(detachAll(hero.belongings.backpack), hero.pos).sprite.drop(hero.pos);
+		int pos = hero.pos;
+		Dungeon.level.drop(detachAll(hero.belongings.backpack), pos).sprite.drop(pos);
 	}
 
 	//resets an item's properties, to ensure consistency between runs
-	public void reset(){
-		//resets the name incase the language has changed.
-		name = Messages.get(this, "name");
-	}
+	public void reset(){}
 
 	public void doThrow( Hero hero ) {
 		GameScene.selectCell(thrower);
 	}
 	
 	public void execute( Hero hero, String action ) {
-		
+
+		GameScene.cancel();
 		curUser = hero;
 		curItem = this;
 		
@@ -169,17 +170,28 @@ public class Item implements Bundlable {
 	}
 	
 	public boolean collect( Bag container ) {
-		
-		ArrayList<Item> items = container.items;
-		
-		if (items.contains( this )) {
+
+		if (quantity <= 0){
 			return true;
 		}
-		
+
+		ArrayList<Item> items = container.items;
+
 		for (Item item:items) {
-			if (item instanceof Bag && ((Bag)item).grab( this )) {
-				return collect( (Bag)item );
+			if (item instanceof Bag && ((Bag)item).canHold( this )) {
+				if (collect( (Bag)item )){
+					return true;
+				}
 			}
+		}
+
+		if (!container.canHold(this)){
+			GLog.n( Messages.get(Item.class, "pack_full", container.name()) );
+			return false;
+		}
+
+		if (items.contains( this )) {
+			return true;
 		}
 		
 		if (stackable) {
@@ -191,25 +203,17 @@ public class Item implements Bundlable {
 				}
 			}
 		}
-		
-		if (items.size() < container.size) {
-			
-			if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
-				Badges.validateItemLevelAquired( this );
-			}
-			
-			items.add( this );
-			Dungeon.quickslot.replacePlaceholder(this);
-			updateQuickslot();
-			Collections.sort( items, itemComparator );
-			return true;
-			
-		} else {
-			
-			GLog.n( Messages.get(Item.class, "pack_full", name()) );
-			return false;
-			
+
+		if (Dungeon.hero != null && Dungeon.hero.isAlive()) {
+			Badges.validateItemLevelAquired( this );
 		}
+
+		items.add( this );
+		Dungeon.quickslot.replacePlaceholder(this);
+		updateQuickslot();
+		Collections.sort( items, itemComparator );
+		return true;
+
 	}
 	
 	public boolean collect() {
@@ -272,6 +276,7 @@ public class Item implements Bundlable {
 			if (item == this) {
 				container.items.remove(this);
 				item.onDetach();
+				container.grabItems(); //try to put more items into the bag as it now has free space
 				return this;
 			} else if (item instanceof Bag) {
 				Bag bag = (Bag)item;
@@ -290,8 +295,19 @@ public class Item implements Bundlable {
 
 	protected void onDetach(){}
 
+	//returns the true level of the item, only affected by modifiers which are persistent (e.g. curse infusion)
 	public int level(){
 		return level;
+	}
+	
+	//returns the level of the item, after it may have been modified by temporary boosts/reductions
+	//note that not all item properties should care about buffs/debuffs! (e.g. str requirement)
+	public int buffedLvl(){
+		if (Dungeon.hero.buff( Degrade.class ) != null) {
+			return Degrade.reduceLevel(level());
+		} else {
+			return level();
+		}
 	}
 
 	public void level( int value ){
@@ -335,6 +351,10 @@ public class Item implements Bundlable {
 	public int visiblyUpgraded() {
 		return levelKnown ? level() : 0;
 	}
+
+	public int buffedVisiblyUpgraded() {
+		return levelKnown ? buffedLvl() : 0;
+	}
 	
 	public boolean visiblyCursed() {
 		return cursed && cursedKnown;
@@ -363,12 +383,6 @@ public class Item implements Bundlable {
 		
 		return this;
 	}
-
-	// AddedPD : Cleric's enlightenment ability
-	public Item enlighten() {
-		enlightened = true;
-		return this;
-	}
 	
 	public void onHeroGainExp( float levelPercent, Hero hero ){
 		//do nothing by default
@@ -394,11 +408,11 @@ public class Item implements Bundlable {
 	}
 	
 	public String name() {
-		return name;
+		return trueName();
 	}
 	
 	public final String trueName() {
-		return name;
+		return Messages.get(this, "name");
 	}
 	
 	public int image() {
@@ -428,7 +442,7 @@ public class Item implements Bundlable {
 		return this;
 	}
 	
-	public int price() {
+	public int value() {
 		return 0;
 	}
 	
@@ -458,7 +472,6 @@ public class Item implements Bundlable {
 	private static final String LEVEL_KNOWN		= "levelKnown";
 	private static final String CURSED			= "cursed";
 	private static final String CURSED_KNOWN	= "cursedKnown";
-	private static final String ENLIGHTENED		= "enlightened";
 	private static final String QUICKSLOT		= "quickslotpos";
 	
 	@Override
@@ -468,7 +481,6 @@ public class Item implements Bundlable {
 		bundle.put( LEVEL_KNOWN, levelKnown );
 		bundle.put( CURSED, cursed );
 		bundle.put( CURSED_KNOWN, cursedKnown );
-		bundle.put( ENLIGHTENED, enlightened );
 		if (Dungeon.quickslot.contains(this)) {
 			bundle.put( QUICKSLOT, Dungeon.quickslot.getSlot(this) );
 		}
@@ -479,7 +491,6 @@ public class Item implements Bundlable {
 		quantity	= bundle.getInt( QUANTITY );
 		levelKnown	= bundle.getBoolean( LEVEL_KNOWN );
 		cursedKnown	= bundle.getBoolean( CURSED_KNOWN );
-		enlightened = bundle.getBoolean( ENLIGHTENED );
 		
 		int level = bundle.getInt( LEVEL );
 		if (level > 0) {
@@ -501,6 +512,10 @@ public class Item implements Bundlable {
 	public int throwPos( Hero user, int dst){
 		return new Ballistica( user.pos, dst, Ballistica.PROJECTILE ).collisionPos;
 	}
+
+	public void throwSound(){
+		Sample.INSTANCE.play(Assets.Sounds.MISS, 0.6f, 0.6f, 1.5f);
+	}
 	
 	public void cast( final Hero user, final int dst ) {
 		
@@ -508,7 +523,7 @@ public class Item implements Bundlable {
 		user.sprite.zap( cell );
 		user.busy();
 
-		Sample.INSTANCE.play( Assets.SND_MISS, 0.6f, 0.6f, 1.5f );
+		throwSound();
 
 		Char enemy = Actor.findChar( cell );
 		QuickSlotButton.target(enemy);

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Effects;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfSharpshooting;
@@ -36,11 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.CellSelector;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
-import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
-import com.watabou.noosa.Game;
-import com.watabou.noosa.Group;
-import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Callback;
 import com.watabou.utils.Random;
@@ -171,8 +166,11 @@ public class SpiritBow extends Weapon {
 					damage = Math.round(damage * 0.5f);
 					break;
 				case DAMAGE:
+					//as distance increases so does damage, capping at 3x:
+					//1.20x|1.35x|1.52x|1.71x|1.92x|2.16x|2.43x|2.74x|3.00x
 					int distance = Dungeon.level.distance(owner.pos, targetPos) - 1;
-					damage = Math.round(damage * (1f + 0.1f * distance));
+					float multiplier = Math.min(3f, 1.2f * (float)Math.pow(1.125f, distance));
+					damage = Math.round(damage * multiplier);
 					break;
 			}
 		}
@@ -198,14 +196,13 @@ public class SpiritBow extends Weapon {
 	
 	@Override
 	public int level() {
-		//need to check if hero is null for loading an upgraded bow from pre-0.7.0
-		return (Dungeon.hero == null ? 0 : Dungeon.hero.lvl/5)
-				+ (curseInfusionBonus ? 1 : 0);
+		return (Dungeon.hero == null ? 0 : Dungeon.hero.lvl/5) + (curseInfusionBonus ? 1 : 0);
 	}
-	
-	//for fetching upgrades from a boomerang from pre-0.7.1
-	public int spentUpgrades() {
-		return super.level() - (curseInfusionBonus ? 1 : 0);
+
+	@Override
+	public int buffedLvl() {
+		//level isn't affected by buffs/debuffs
+		return level();
 	}
 	
 	@Override
@@ -216,47 +213,13 @@ public class SpiritBow extends Weapon {
 	public SpiritArrow knockArrow(){
 		return new SpiritArrow();
 	}
-
-	// AddedPD : spiritwalker's spectral blast
-	public static class SpectralBlast extends Image {
-
-		private static final float TIME_TO_FADE = 0.3f;
-		private float time;
-
-		public SpectralBlast(){
-			super(Effects.get(Effects.Type.RIPPLE));
-			origin.set(width / 2, height / 2);
-		}
-
-		public void reset(int pos) {
-			revive();
-			x = (pos % Dungeon.level.width()) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - width) / 2;
-			y = (pos / Dungeon.level.width()) * DungeonTilemap.SIZE + (DungeonTilemap.SIZE - height) / 2;
-			time = TIME_TO_FADE;
-		}
-
-		@Override
-		public void update() {
-			super.update();
-			if ((time -= Game.elapsed) <= 0) { kill(); }
-			else { float p = time / TIME_TO_FADE;
-				alpha(p);
-				scale.y = scale.x = (1-p)*3; } }
-
-		public static void blast(int pos) {
-			Group parent = Dungeon.hero.sprite.parent;
-			SpectralBlast b = (SpectralBlast) parent.recycle(SpectralBlast.class);
-			b.hardlight(0x99FFFF);
-			parent.bringToFront(b);
-			b.reset(pos);
-		}
-
-	}
-
+	
 	public class SpiritArrow extends MissileWeapon {
 		
 		{
 			image = ItemSpriteSheet.SPIRIT_ARROW;
+
+			hitSound = Assets.Sounds.HIT_ARROW;
 		}
 		
 		@Override
@@ -306,7 +269,12 @@ public class SpiritBow extends Weapon {
 				if (sniperSpecial && SpiritBow.this.augment != Augment.SPEED) sniperSpecial = false;
 			}
 		}
-		
+
+		@Override
+		public void throwSound() {
+			Sample.INSTANCE.play( Assets.Sounds.ATK_SPIRITBOW, 1, Random.Float(0.87f, 1.15f) );
+		}
+
 		int flurryCount = -1;
 		
 		@Override
@@ -330,7 +298,7 @@ public class SpiritBow extends Weapon {
 				
 				user.busy();
 				
-				Sample.INSTANCE.play( Assets.SND_MISS, 0.6f, 0.6f, 1.5f );
+				throwSound();
 				
 				((MissileSprite) user.sprite.parent.recycle(MissileSprite.class)).
 						reset(user.sprite,

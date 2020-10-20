@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,14 +91,9 @@ public class BuffIndicator extends Component {
 	public static final int WELL_FED    = 43;
 	public static final int HEALING     = 44;
 	public static final int WEAPON      = 45;
-	// AddedPD
-	public static final int DEVOTION    = 46;
-	public static final int ZEALOT		= 47;
-	public static final int WINGS		= 48;
-	public static final int CREMATE		= 49;
-	public static final int BAPTIZED	= 50;
-	public static final int ECTOPLASM	= 51;
-	public static final int TRANSMUTE	= 52;
+	public static final int VULNERABLE  = 46;
+	public static final int HEX         = 47;
+	public static final int DEGRADE     = 48;
 
 	public static final int SIZE	= 7;
 	
@@ -131,7 +126,7 @@ public class BuffIndicator extends Component {
 	
 	@Override
 	protected void createChildren() {
-		texture = TextureCache.get( Assets.BUFFS_SMALL );
+		texture = TextureCache.get( Assets.Interfaces.BUFFS_SMALL );
 		film = new TextureFilm( texture, SIZE, SIZE );
 	}
 	
@@ -158,7 +153,8 @@ public class BuffIndicator extends Component {
 		for (Buff buff : buffIcons.keySet().toArray(new Buff[0])){
 			if (!newBuffs.contains(buff)){
 				Image icon = buffIcons.get( buff ).icon;
-				icon.origin.set( SIZE / 2 );
+				icon.origin.set( SIZE / 2f );
+				icon.alpha(0.6f);
 				add( icon );
 				add( new AlphaTweener( icon, 0, 0.6f ) {
 					@Override
@@ -202,6 +198,7 @@ public class BuffIndicator extends Component {
 		private Buff buff;
 
 		public Image icon;
+		public Image grey;
 
 		public BuffIcon( Buff buff ){
 			super();
@@ -210,18 +207,29 @@ public class BuffIndicator extends Component {
 			icon = new Image( texture );
 			icon.frame( film.get( buff.icon() ) );
 			add( icon );
+
+			grey = new Image( TextureCache.createSolid(0xCC666666));
+			add( grey );
 		}
 		
 		public void updateIcon(){
 			icon.frame( film.get( buff.icon() ) );
 			buff.tintIcon(icon);
+			//round up to the nearest pixel if <50% faded, otherwise round down
+			float fadeHeight = buff.iconFadePercent() * icon.height();
+			float zoom = (camera() != null) ? camera().zoom : 1;
+			if (fadeHeight < icon.height()/2f){
+				grey.scale.set( icon.width(), (float)Math.ceil(zoom*fadeHeight)/zoom);
+			} else {
+				grey.scale.set( icon.width(), (float)Math.floor(zoom*fadeHeight)/zoom);
+			}
 		}
 
 		@Override
 		protected void layout() {
 			super.layout();
-			icon.x = this.x+1;
-			icon.y = this.y+2;
+			grey.x = icon.x = this.x+1;
+			grey.y = icon.y = this.y+2;
 		}
 
 		@Override

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,7 +130,7 @@ public class TextureCache {
 		try {
 			if (src instanceof Integer){
 				
-				//LibGDX does not support android resource integer handles, and they were
+				//libGDX does not support android resource integer handles, and they were
 				//never used by the game anyway, should probably remove this entirely
 				return null;
 				

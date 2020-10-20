@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.watabou.gltextures.SmartTexture;
 import com.watabou.gltextures.TextureCache;
 import com.watabou.noosa.Camera;
@@ -33,7 +32,6 @@ import com.watabou.noosa.Image;
 import com.watabou.noosa.TextureFilm;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
-import com.watabou.utils.Random;
 import com.watabou.utils.RectF;
 
 public class HeroSprite extends CharSprite {
@@ -50,7 +48,7 @@ public class HeroSprite extends CharSprite {
 
 	public HeroSprite() {
 		super();
-
+		
 		texture( Dungeon.hero.heroClass.spritesheet() );
 		updateArmor();
 		
@@ -65,65 +63,36 @@ public class HeroSprite extends CharSprite {
 	public void updateArmor() {
 
 		TextureFilm film = new TextureFilm( tiers(), Dungeon.hero.tier(), FRAME_WIDTH, FRAME_HEIGHT );
+		
+		idle = new Animation( 1, true );
+		idle.frames( film, 0, 0, 0, 1, 0, 0, 1, 1 );
+		
+		run = new Animation( RUN_FRAMERATE, true );
+		run.frames( film, 2, 3, 4, 5, 6, 7 );
+		
+		die = new Animation( 20, false );
+		die.frames( film, 8, 9, 10, 11, 12, 11 );
+		
+		attack = new Animation( 15, false );
+		attack.frames( film, 13, 14, 15, 0 );
+		
+		zap = attack.clone();
+		
+		operate = new Animation( 8, false );
+		operate.frames( film, 16, 17, 16, 17 );
+		
+		fly = new Animation( 1, true );
+		fly.frames( film, 18 );
 
-		if (Dungeon.hero.heroClass == HeroClass.DWARF) {
-
-			idle = new Animation(2, true);
-			idle.frames(film, 0, 0, 0, 1, 0, 0, 1, 1);
-
-			die = new Animation(20, false);
-			die.frames(film, 7, 8, 8, 9, 9, 10);
-
-			attack = new Animation(15, false);
-			attack.frames(film, 11, 12);
-
-			kick = new Animation(15, false);
-			kick.frames(film, 13, 14, 13);
-
-			zap = new Animation(15, false);
-			zap.frames(film, 15, 16, 16, 0);
-
-			fly = new Animation(1, true);
-			fly.frames(film, 7);
-
-			operate = new Animation(8, false);
-			operate.frames(film, 17, 18, 17, 18);
-
-			read = new Animation(20, false);
-			read.frames(film, 19, 20, 20, 20, 20, 20, 20, 20, 20, 19);
-
-		} else {
-
-			idle = new Animation(1, true);
-			idle.frames(film, 0, 0, 0, 1, 0, 0, 1, 1);
-
-			die = new Animation(20, false);
-			die.frames(film, 8, 9, 10, 11, 12, 11);
-
-			attack = new Animation(15, false);
-			attack.frames(film, 13, 14, 15, 0);
-
-			zap = attack.clone();
-
-			fly = new Animation(1, true);
-			fly.frames(film, 18);
-
-			operate = new Animation(8, false);
-			operate.frames(film, 16, 17, 16, 17);
-
-			read = new Animation(20, false);
-			read.frames(film, 19, 20, 20, 20, 20, 20, 20, 20, 20, 19);
-		}
-
-		run = new Animation(RUN_FRAMERATE, true);
-		run.frames(film, 2, 3, 4, 5, 6, 7);
-
+		read = new Animation( 20, false );
+		read.frames( film, 19, 20, 20, 20, 20, 20, 20, 20, 20, 19 );
+		
 		if (Dungeon.hero.isAlive())
 			idle();
 		else
 			die();
 	}
-
+	
 	@Override
 	public void place( int p ) {
 		super.place( p );
@@ -181,7 +150,7 @@ public class HeroSprite extends CharSprite {
 	
 	public static TextureFilm tiers() {
 		if (tiers == null) {
-			SmartTexture texture = TextureCache.get( Assets.ROGUE );
+			SmartTexture texture = TextureCache.get( Assets.Sprites.ROGUE );
 			tiers = new TextureFilm( texture, texture.width, FRAME_HEIGHT );
 		}
 		

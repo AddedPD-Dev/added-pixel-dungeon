@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,13 +21,10 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs;
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.watabou.utils.GameMath;
 
 public class Stone extends Armor.Glyph {
 
@@ -49,17 +46,11 @@ public class Stone extends Armor.Glyph {
 		}
 		
 		//75% of dodge chance is applied as damage reduction
-		hitChance = (1f + 3f*hitChance)/4f;
+		// we clamp in case accuracy or evasion were negative
+		hitChance = GameMath.gate(0.25f, (1f + 3f*hitChance)/4f, 1f);
 		
 		damage = (int)Math.ceil(damage * hitChance);
-
-		// AddedPD : sealknight can stack barkskin when attacked
-		// AddedPD : for sealknight - 'counter zap'
-		if (defender == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.SEALKNIGHT
-				&& armor.checkSeal() != null) {
-			Buff.affect(Dungeon.hero, Barkskin.class).set(damage/10, 4);
-		}
-
+		
 		return damage;
 	}
 	

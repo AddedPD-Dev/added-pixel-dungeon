@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,21 +21,12 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon;
 
-import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
@@ -51,10 +42,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blazin
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blocking;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Blooming;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Chilling;
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Corrupting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Elastic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Grim;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Kinetic;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Lucky;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Projecting;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
@@ -63,7 +54,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampir
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
-import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
@@ -103,7 +93,7 @@ abstract public class Weapon extends KindOfWeapon {
 	public Augment augment = Augment.NONE;
 	
 	private static final int USES_TO_ID = 20;
-	private int usesLeftToID = USES_TO_ID;
+	private float usesLeftToID = USES_TO_ID;
 	private float availableUsesToID = USES_TO_ID/2f;
 	
 	public Enchantment enchantment;
@@ -115,51 +105,11 @@ abstract public class Weapon extends KindOfWeapon {
 		if (enchantment != null && attacker.buff(MagicImmune.class) == null) {
 			damage = enchantment.proc( this, attacker, defender, damage );
 		}
-
-		// AddedPD : for cleric's enlightened weapon
-		if (enlightened) {
-			if (Dungeon.hero.heroClass == HeroClass.CLERIC) {
-				Bless bless = attacker.buff(Bless.class);
-				int duration = 3+Dungeon.hero.lvl/2;
-				if (Random.Int(3 ) >= 2) {
-					// 33% chance to blessing
-					if (bless == null) {
-						Buff.prolong(attacker, Bless.class, duration);
-						CellEmitter.get( attacker.pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
-					}
-
-					for (Mob mob : Dungeon.level.mobs.toArray( new Mob[0] )) {
-						Bless allybless = mob.buff(Bless.class);
-						if (mob.alignment == Char.Alignment.ALLY && attacker.fieldOfView[mob.pos]
-								&& !mob.isCharmedBy(Dungeon.hero) && allybless == null) {
-							Buff.prolong(mob, Bless.class, duration);
-							CellEmitter.get( mob.pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
-						}
-					}
-
-					// also triggered by when wielder is ally(ex : sad ghost)
-					Bless herobless = Dungeon.hero.buff(Bless.class);
-					if (attacker != Dungeon.hero && herobless == null && attacker.fieldOfView[Dungeon.hero.pos]) {
-						Buff.prolong(Dungeon.hero, Bless.class, duration);
-						CellEmitter.get( Dungeon.hero.pos ).start( ShaftParticle.FACTORY, 0.2f, 3 );
-					}
-				}
-			}
-			// ...also crusader's enlightened weapon ALLWAYS blinds spellcasting monster!
-			if (Dungeon.hero.subClass == HeroSubClass.CRUSADER
-				&& defender.properties().contains(Char.Property.MAGICAL)) {
-				Blindness blindness = defender.buff(Blindness.class);
-				if (blindness == null) {
-					Buff.prolong(defender, Blindness.class, 3f);
-					CellEmitter.bottom(defender.pos).start(RainbowParticle.FACTORY, 0.05f, 8);
-					Sample.INSTANCE.play(Assets.SND_BLAST);
-				}
-			}
-		}
-
-		if (!levelKnown && attacker == Dungeon.hero && availableUsesToID >= 1) {
-			availableUsesToID--;
-			usesLeftToID--;
+		
+		if (!levelKnown && attacker == Dungeon.hero) {
+			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor(Dungeon.hero, this) );
+			availableUsesToID -= uses;
+			usesLeftToID -= uses;
 			if (usesLeftToID <= 0) {
 				identify();
 				GLog.p( Messages.get(Weapon.class, "identify") );
@@ -171,6 +121,7 @@ abstract public class Weapon extends KindOfWeapon {
 	}
 	
 	public void onHeroGainExp( float levelPercent, Hero hero ){
+		levelPercent *= Talent.itemIDSpeedFactor(hero, this);
 		if (!levelKnown && isEquipped(hero) && availableUsesToID <= USES_TO_ID/2f) {
 			//gains enough uses to ID over 0.5 levels
 			availableUsesToID = Math.min(USES_TO_ID/2f, availableUsesToID + levelPercent * USES_TO_ID);
@@ -196,17 +147,11 @@ abstract public class Weapon extends KindOfWeapon {
 	@Override
 	public void restoreFromBundle( Bundle bundle ) {
 		super.restoreFromBundle( bundle );
-		usesLeftToID = bundle.getInt( USES_LEFT_TO_ID );
-		availableUsesToID = bundle.getInt( AVAILABLE_USES );
+		usesLeftToID = bundle.getFloat( USES_LEFT_TO_ID );
+		availableUsesToID = bundle.getFloat( AVAILABLE_USES );
 		enchantment = (Enchantment)bundle.get( ENCHANTMENT );
 		curseInfusionBonus = bundle.getBoolean( CURSE_INFUSION_BONUS );
-		
-		//pre-0.7.2 saves
-		if (bundle.contains( "unfamiliarity" )){
-			usesLeftToID = bundle.getInt( "unfamiliarity" );
-			availableUsesToID = USES_TO_ID/2f;
-		}
-		
+
 		augment = bundle.getEnum(AUGMENT, Augment.class);
 	}
 	
@@ -265,6 +210,16 @@ abstract public class Weapon extends KindOfWeapon {
 		return super.level() + (curseInfusionBonus ? 1 : 0);
 	}
 	
+	//overrides as other things can equip these
+	@Override
+	public int buffedLvl() {
+		if (isEquipped( Dungeon.hero ) || Dungeon.hero.belongings.contains( this )){
+			return super.buffedLvl();
+		} else {
+			return level();
+		}
+	}
+	
 	@Override
 	public Item upgrade() {
 		return upgrade(false);
@@ -291,9 +246,7 @@ abstract public class Weapon extends KindOfWeapon {
 	
 	@Override
 	public String name() {
-		if (enlightened)
-			return Messages.get(Weapon.class, "enlightened_name") + " " + super.name();
-		else return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.name( super.name() ) : super.name();
+		return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.name( super.name() ) : super.name();
 	}
 	
 	@Override
@@ -341,10 +294,7 @@ abstract public class Weapon extends KindOfWeapon {
 	public boolean hasEnchant(Class<?extends Enchantment> type, Char owner) {
 		return enchantment != null && enchantment.getClass() == type && owner.buff(MagicImmune.class) == null;
 	}
-
-	// AddedPD : cleric's enlightenment power
-	public boolean isEnlightened() { return enchantment == null && enlightened;}
-
+	
 	//these are not used to process specific enchant effects, so magic immune doesn't affect them
 	public boolean hasGoodEnchant(){
 		return enchantment != null && !enchantment.curse();
@@ -356,8 +306,7 @@ abstract public class Weapon extends KindOfWeapon {
 
 	@Override
 	public ItemSprite.Glowing glowing() {
-		if (enlightened) { return new ItemSprite.Glowing( 0xFFFFCC ); }
-		else return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.glowing() : null;
+		return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.glowing() : null;
 	}
 
 	public static abstract class Enchantment implements Bundlable {
@@ -387,11 +336,10 @@ abstract public class Weapon extends KindOfWeapon {
 		public abstract int proc( Weapon weapon, Char attacker, Char defender, int damage );
 
 		public String name() {
-			if (!curse()) {
-				if (enlightened()) {
-					return name(Messages.get(this, "enlightened_name"));
-				} else return name(Messages.get(this, "enchant")); }
-			else return name( Messages.get(Item.class, "curse"));
+			if (!curse())
+				return name( Messages.get(this, "enchant"));
+			else
+				return name( Messages.get(Item.class, "curse"));
 		}
 
 		public String name( String weaponName ) {
@@ -404,10 +352,6 @@ abstract public class Weapon extends KindOfWeapon {
 
 		public boolean curse() {
 			return false;
-		}
-
-		public boolean enlightened() { // AddedPD : cleric's enlightenment power
-			return false; // Use for String name()
 		}
 
 		@Override

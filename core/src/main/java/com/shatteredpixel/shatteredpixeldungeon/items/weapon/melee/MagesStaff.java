@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,27 +23,22 @@ package com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
-import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.TransmuterBuff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
-import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
-import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTransmutation;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorrosion;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfCorruption;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfLivingEarth;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfRegrowth;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -51,8 +46,8 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndItem;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndUseItem;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.particles.PixelParticle;
@@ -72,6 +67,8 @@ public class MagesStaff extends MeleeWeapon {
 
 	{
 		image = ItemSpriteSheet.MAGES_STAFF;
+		hitSound = Assets.Sounds.HIT;
+		hitSoundPitch = 1.1f;
 
 		tier = 1;
 
@@ -99,7 +96,6 @@ public class MagesStaff extends MeleeWeapon {
 		this.wand = wand;
 		updateWand(false);
 		wand.curCharges = wand.maxCharges;
-		name = Messages.get(wand, "staff_name");
 	}
 
 	@Override
@@ -129,48 +125,27 @@ public class MagesStaff extends MeleeWeapon {
 
 		} else if (action.equals(AC_ZAP)){
 
-			// AddedPD : transmuter's staff-change
-			if (curUser.subClass == HeroSubClass.TRANSMUTER && wand!= null && isEquipped(curUser)
-					&& wand.curCharges == 0 && !hasCurseEnchant() && curseInfusionBonus == false
-					&& curUser.buff(TransmuterBuff.class) == null) {
+			if (wand == null) {
+				GameScene.show(new WndUseItem(null, this));
+				return;
+			}
 
-				float dur = 8f + (float)(2*level());
+			if (cursed || hasCurseEnchant()) wand.cursed = true;
+			else                             wand.cursed = false;
+			wand.execute(hero, AC_ZAP);
+		}
+	}
 
-				Wand n;
-				do {
-					n = (Wand) Generator.random(Generator.Category.WAND);
-				} while (Challenges.isItemBlocked(n) || n.getClass() == wandClass());
-				n.level(0);
-				n.identify();
-				imbueWand(n, null);
-
-				int slot = Dungeon.quickslot.getSlot( this );
-				doUnequip(Dungeon.hero, false);
-				doEquip(hero);
-				if (slot != -1) {
-					Dungeon.quickslot.setSlot( slot, this );
-					wand.curCharges = 1;
-					updateQuickslot();
-				}
-
-				curUser.sprite.emitter().burst( Speck.factory( Speck.CHANGE ), 4);
-				curUser.sprite.emitter().burst(StaffParticleFactory, 30);
-				Buff.affect(curUser, Recharging.class, 4f);
-				Buff.affect(curUser, TransmuterBuff.class, dur);
-				GLog.p( Messages.get(MagesStaff.class, "transmute", this.name()));
-
-			} else {
-
-				if (wand == null) {
-					GameScene.show(new WndItem(null, this, true));
-					return;
-				}
-
-				if (cursed || hasCurseEnchant() || curUser.buff(TransmuterBuff.class) != null) wand.cursed = true;
-				else wand.cursed = false;
-				wand.execute(hero, AC_ZAP);
+	@Override
+	public int buffedLvl() {
+		int lvl = super.buffedLvl();
+		if (curUser != null && wand != null) {
+			WandOfMagicMissile.MagicCharge buff = curUser.buff(WandOfMagicMissile.MagicCharge.class);
+			if (buff != null && buff.level() > lvl){
+				return buff.level();
 			}
 		}
+		return lvl;
 	}
 
 	@Override
@@ -228,8 +203,6 @@ public class MagesStaff extends MeleeWeapon {
 		wand.curCharges = wand.maxCharges;
 		if (owner != null) wand.charge(owner);
 
-		name = Messages.get(wand, "staff_name");
-
 		//This is necessary to reset any particles.
 		//FIXME this is gross, should implement a better way to fully reset quickslot visuals
 		int slot = Dungeon.quickslot.getSlot(this);
@@ -261,6 +234,14 @@ public class MagesStaff extends MeleeWeapon {
 
 		updateWand(true);
 
+		if (wand != null && Dungeon.hero.hasTalent(Talent.ENERGIZING_UPGRADE)){
+			wand.curCharges += Dungeon.hero.pointsInTalent(Talent.ENERGIZING_UPGRADE);
+			wand.curCharges = Math.min( wand.curCharges, wand.maxCharges + Dungeon.hero.pointsInTalent(Talent.ENERGIZING_UPGRADE));
+			ScrollOfRecharging.charge( Dungeon.hero );
+			SpellSprite.show( curUser, SpellSprite.CHARGE );
+			updateQuickslot();
+		}
+
 		return this;
 	}
 
@@ -288,6 +269,16 @@ public class MagesStaff extends MeleeWeapon {
 	public String status() {
 		if (wand == null) return super.status();
 		else return wand.status();
+	}
+
+	@Override
+	public String name() {
+		if (wand == null) {
+			return super.name();
+		} else {
+			String name = Messages.get(wand, "staff_name");
+			return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.name( name ) : name;
+		}
 	}
 
 	@Override
@@ -329,12 +320,11 @@ public class MagesStaff extends MeleeWeapon {
 		wand = (Wand) bundle.get(WAND);
 		if (wand != null) {
 			wand.maxCharges = Math.min(wand.maxCharges + 1, 10);
-			name = Messages.get(wand, "staff_name");
 		}
 	}
 
 	@Override
-	public int price() {
+	public int value() {
 		return 0;
 	}
 	
@@ -387,7 +377,7 @@ public class MagesStaff extends MeleeWeapon {
 		}
 
 		private void applyWand(Wand wand){
-			Sample.INSTANCE.play(Assets.SND_BURNING);
+			Sample.INSTANCE.play(Assets.Sounds.BURNING);
 			curUser.sprite.emitter().burst( ElmoParticle.FACTORY, 12 );
 			evoke(curUser);
 

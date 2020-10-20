@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.items;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -48,8 +46,8 @@ public class Ankh extends Item {
 		bones = true;
 	}
 
-	private Boolean blessed = false;
-
+	private boolean blessed = false;
+	
 	@Override
 	public boolean isUpgradable() {
 		return false;
@@ -85,7 +83,7 @@ public class Ankh extends Item {
 				hero.busy();
 
 
-				Sample.INSTANCE.play( Assets.SND_DRINK );
+				Sample.INSTANCE.play( Assets.Sounds.DRINK );
 				CellEmitter.get(hero.pos).start(Speck.factory(Speck.LIGHT), 0.2f, 3);
 				hero.sprite.operate( hero.pos );
 			}
@@ -100,8 +98,12 @@ public class Ankh extends Item {
 			return super.desc();
 	}
 
-	public Boolean isBlessed(){
+	public boolean isBlessed(){
 		return blessed;
+	}
+
+	public void bless(){
+		blessed = true;
 	}
 
 	private static final Glowing WHITE = new Glowing( 0xFFFFCC );
@@ -126,7 +128,7 @@ public class Ankh extends Item {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		return 50 * quantity;
 	}
 }

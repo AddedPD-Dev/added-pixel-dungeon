@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,12 +24,10 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.WoundedDwarf;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Ripple;
 import com.shatteredpixel.shatteredpixeldungeon.items.DewVial;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.Painter;
 import com.shatteredpixel.shatteredpixeldungeon.levels.painters.SewerPainter;
-import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.AlarmTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ChillingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.ConfusionTrap;
@@ -50,8 +48,6 @@ import com.watabou.noosa.particles.PixelParticle;
 import com.watabou.utils.ColorMath;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
-
-import java.util.ArrayList;
 
 public class SewerLevel extends RegularLevel {
 
@@ -82,19 +78,20 @@ public class SewerLevel extends RegularLevel {
 	
 	@Override
 	public String tilesTex() {
-		return Assets.TILES_SEWERS;
+		return Assets.Environment.TILES_SEWERS;
 	}
 	
 	@Override
 	public String waterTex() {
-		return Assets.WATER_SEWERS;
+		return Assets.Environment.WATER_SEWERS;
 	}
 	
 	@Override
 	protected Class<?>[] trapClasses() {
 		return Dungeon.depth == 1 ?
 				new Class<?>[]{ WornDartTrap.class } :
-				new Class<?>[]{ ChillingTrap.class, ShockingTrap.class, ToxicTrap.class, WornDartTrap.class,
+				new Class<?>[]{
+						ChillingTrap.class, ShockingTrap.class, ToxicTrap.class, WornDartTrap.class,
 						AlarmTrap.class, OozeTrap.class,
 						ConfusionTrap.class, FlockTrap.class, SummoningTrap.class, TeleportationTrap.class };
 }
@@ -103,9 +100,10 @@ public class SewerLevel extends RegularLevel {
 	protected float[] trapChances() {
 		return Dungeon.depth == 1 ?
 				new float[]{1} :
-				new float[]{8, 8, 8, 8,
-						4, 4,
-						2, 2, 2, 2};
+				new float[]{
+						4, 4, 4, 4,
+						2, 2,
+						1, 1, 1, 1};
 	}
 	
 	@Override
@@ -188,7 +186,7 @@ public class SewerLevel extends RegularLevel {
 				
 				super.update();
 				
-				if ((rippleDelay -= Game.elapsed) <= 0) {
+				if (!isFrozen() && (rippleDelay -= Game.elapsed) <= 0) {
 					Ripple ripple = GameScene.ripple( pos + Dungeon.level.width() );
 					if (ripple != null) {
 						ripple.y -= DungeonTilemap.SIZE / 2;

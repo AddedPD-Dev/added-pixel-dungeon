@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
-import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
@@ -103,6 +102,7 @@ public class AlchemyScene extends PixelScene {
 				Blending.enable();
 			}
 		};
+		water.autoAdjust = true;
 		add(water);
 		
 		Image im = new Image(TextureCache.createGradient(0x66000000, 0x88000000, 0xAA000000, 0xCC000000, 0xFF000000));
@@ -152,6 +152,15 @@ public class AlchemyScene extends PixelScene {
 							updateState();
 						}
 						AlchemyScene.this.addToFront(WndBag.lastBag( itemSelector, WndBag.Mode.ALCHEMY, Messages.get(AlchemyScene.class, "select")));
+					}
+
+					@Override
+					protected boolean onLongClick() {
+						if (item != null){
+							Game.scene().addToFront(new WndInfoItem(item));
+							return true;
+						}
+						return false;
 					}
 				};
 				inputs[i].setRect(left + 10, pos, BTN_SIZE, BTN_SIZE);
@@ -258,7 +267,7 @@ public class AlchemyScene extends PixelScene {
 					{
 						WndJournal.AlchemyTab t = new WndJournal.AlchemyTab();
 						int w, h;
-						if (SPDSettings.landscape()) {
+						if (landscape()) {
 							w = WndJournal.WIDTH_L; h = WndJournal.HEIGHT_L;
 						} else {
 							w = WndJournal.WIDTH_P; h = WndJournal.HEIGHT_P;
@@ -397,7 +406,7 @@ public class AlchemyScene extends PixelScene {
 		if (result != null){
 			bubbleEmitter.start(Speck.factory( Speck.BUBBLE ), 0.01f, 100 );
 			smokeEmitter.burst(Speck.factory( Speck.WOOL ), 10 );
-			Sample.INSTANCE.play( Assets.SND_PUFF );
+			Sample.INSTANCE.play( Assets.Sounds.PUFF );
 			
 			output.item(result);
 			if (!(result instanceof AlchemistsToolkit)) {
@@ -508,7 +517,7 @@ public class AlchemyScene extends PixelScene {
 				@Override
 				protected void onPointerDown() {
 					bg.brightness( 1.2f );
-					Sample.INSTANCE.play( Assets.SND_CLICK );
+					Sample.INSTANCE.play( Assets.Sounds.CLICK );
 				}
 				@Override
 				protected void onPointerUp() {
@@ -518,12 +527,20 @@ public class AlchemyScene extends PixelScene {
 				protected void onClick() {
 					ItemButton.this.onClick();
 				}
+
+				@Override
+				protected boolean onLongClick() {
+					return ItemButton.this.onLongClick();
+				}
 			};
 			slot.enable(true);
 			add( slot );
 		}
 		
 		protected void onClick() {}
+		protected boolean onLongClick() {
+			return false;
+		}
 		
 		@Override
 		protected void layout() {

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,8 +68,6 @@ public class Speck extends Image {
 	public static final int STORM       = 117;
 	public static final int INFERNO     = 118;
 	public static final int BLIZZARD    = 119;
-	// AddedPD
-	public static final int SH_GEN		= 120;
 	
 	private static final int SIZE = 7;
 	
@@ -84,12 +82,28 @@ public class Speck extends Image {
 	public Speck() {
 		super();
 		
-		texture( Assets.SPECKS );
+		texture( Assets.Effects.SPECKS );
 		if (film == null) {
 			film = new TextureFilm( texture, SIZE, SIZE );
 		}
 		
 		origin.set( SIZE / 2f );
+	}
+
+	public Speck image( int type ){
+		reset(0, 0, 0, type);
+
+		left = lifespan = Float.POSITIVE_INFINITY;
+		this.type = -1;
+
+		resetColor();
+		scale.set( 1 );
+		speed.set( 0 );
+		acc.set( 0 );
+		angle = 0;
+		angularSpeed = 0;
+
+		return this;
 	}
 	
 	public void reset( int index, float x, float y, int type ) {
@@ -125,9 +139,6 @@ public class Speck extends Image {
 			break;
 		case CALM:
 			frame( film.get( SCREAM ) );
-			break;
-		case SH_GEN:
-			frame( film.get( HEALING ) );
 			break;
 		default:
 			frame( film.get( type ) );
@@ -248,7 +259,7 @@ public class Speck extends Image {
 			scale.set( Random.Float( 1, 2 ) );
 			speed.set( 0, 64 );
 			lifespan = 0.2f;
-			y -= speed.y * lifespan;
+			this.y -= speed.y * lifespan;
 			break;
 			
 		case NOTE:
@@ -365,12 +376,6 @@ public class Speck extends Image {
 			acc.y = 256;
 			lifespan = -speed.y / acc.y * 2;
 			break;
-
-		case SH_GEN:
-			tint(0xffffff);
-			speed.set( 0, -20 );
-			lifespan = 1f;
-			break;
 		}
 		
 		left = lifespan;
@@ -405,7 +410,6 @@ public class Speck extends Image {
 			case EVOKE:
 				
 			case HEALING:
-			case SH_GEN:
 				am = p < 0.5f ? 1 : 2 - p * 2;
 				break;
 

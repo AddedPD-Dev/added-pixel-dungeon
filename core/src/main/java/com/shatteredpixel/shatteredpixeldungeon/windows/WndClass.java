@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,22 +142,16 @@ public class WndClass extends WndTabbed {
 			String message = null;
 			switch (cl) {
 				case WARRIOR:
-					message = HeroSubClass.GLADIATOR.desc() + "\n\n" + HeroSubClass.BERSERKER.desc() + "\n\n" + HeroSubClass.SEALKNIGHT.desc();
+					message = HeroSubClass.GLADIATOR.desc() + "\n\n" + HeroSubClass.BERSERKER.desc();
 					break;
 				case MAGE:
-					message = HeroSubClass.BATTLEMAGE.desc() + "\n\n" + HeroSubClass.WARLOCK.desc() + "\n\n" + HeroSubClass.TRANSMUTER.desc();
+					message = HeroSubClass.BATTLEMAGE.desc() + "\n\n" + HeroSubClass.WARLOCK.desc();
 					break;
 				case ROGUE:
-					message = HeroSubClass.FREERUNNER.desc() + "\n\n" + HeroSubClass.ASSASSIN.desc() + "\n\n" + HeroSubClass.BURGLAR.desc();
+					message = HeroSubClass.FREERUNNER.desc() + "\n\n" + HeroSubClass.ASSASSIN.desc();
 					break;
 				case HUNTRESS:
-					message = HeroSubClass.SNIPER.desc() + "\n\n" + HeroSubClass.WARDEN.desc() + "\n\n" + HeroSubClass.SPIRITWALKER.desc();
-					break;
-				case CLERIC:
-					message = HeroSubClass.CRUSADER.desc() + "\n\n" + HeroSubClass.SCHOLAR.desc() + "\n\n" + HeroSubClass.REDEEMER.desc();
-					break;
-				case DWARF:
-					message = HeroSubClass.THUNDERBRINGER.desc() + "\n\n" + HeroSubClass.MONK.desc() + "\n\n" + HeroSubClass.NECROSMITH.desc();
+					message = HeroSubClass.SNIPER.desc() + "\n\n" + HeroSubClass.WARDEN.desc();
 					break;
 			}
 

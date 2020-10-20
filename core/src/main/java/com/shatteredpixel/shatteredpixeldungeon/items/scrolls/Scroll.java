@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,9 +22,13 @@
 package com.shatteredpixel.shatteredpixeldungeon.items.scrolls;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invisibility;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.ItemStatusHandler;
 import com.shatteredpixel.shatteredpixeldungeon.items.Recipe;
@@ -61,8 +65,6 @@ public abstract class Scroll extends Item {
 	public static final String AC_READ	= "READ";
 	
 	protected static final float TIME_TO_READ	= 1f;
-
-	protected Integer initials;
 
 	private static final Class<?>[] scrolls = {
 		ScrollOfIdentify.class,
@@ -191,11 +193,9 @@ public abstract class Scroll extends Item {
 	}
 	
 	public abstract void doRead();
-	
-	//currently unused. Used to be used for unstable spellbook prior to 0.7.0
-	public void empoweredRead(){}
 
 	protected void readAnimation() {
+		Invisibility.dispel();
 		curUser.spend( TIME_TO_READ );
 		curUser.busy();
 		((HeroSprite)curUser.sprite).read();
@@ -220,13 +220,22 @@ public abstract class Scroll extends Item {
 	
 	@Override
 	public Item identify() {
-		setKnown();
+
+		if (!isKnown()) {
+			setKnown();
+			//6/9 HP barrier
+			Hero hero = Dungeon.hero;
+			if (hero.isAlive() && hero.hasTalent(Talent.TESTED_HYPOTHESIS)) {
+				Buff.affect(hero, Barrier.class).setShield(3 + (3 * hero.pointsInTalent(Talent.TESTED_HYPOTHESIS)), 1);
+				ScrollOfRecharging.charge(hero);
+			}
+		}
 		return super.identify();
 	}
 	
 	@Override
 	public String name() {
-		return isKnown() ? name : Messages.get(this, rune);
+		return isKnown() ? super.name() : Messages.get(this, rune);
 	}
 	
 	@Override
@@ -234,10 +243,6 @@ public abstract class Scroll extends Item {
 		return isKnown() ?
 			desc() :
 			Messages.get(this, "unknown_desc");
-	}
-
-	public Integer initials(){
-		return isKnown() ? initials : null;
 	}
 	
 	@Override
@@ -263,7 +268,7 @@ public abstract class Scroll extends Item {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		return 30 * quantity;
 	}
 	
@@ -333,7 +338,6 @@ public abstract class Scroll extends Item {
 		@Override
 		public boolean testIngredients(ArrayList<Item> ingredients) {
 			if (ingredients.size() != 1
-					|| !ingredients.get(0).isIdentified()
 					|| !(ingredients.get(0) instanceof Scroll)
 					|| !stones.containsKey(ingredients.get(0).getClass())){
 				return false;
@@ -354,6 +358,7 @@ public abstract class Scroll extends Item {
 			Scroll s = (Scroll) ingredients.get(0);
 			
 			s.quantity(s.quantity() - 1);
+			s.setKnown();
 			
 			return Reflection.newInstance(stones.get(s.getClass())).quantity(amnts.get(s.getClass()));
 		}
@@ -363,7 +368,12 @@ public abstract class Scroll extends Item {
 			if (!testIngredients(ingredients)) return null;
 			
 			Scroll s = (Scroll) ingredients.get(0);
-			return Reflection.newInstance(stones.get(s.getClass())).quantity(amnts.get(s.getClass()));
+
+			if (!s.isKnown()){
+				return new Runestone.PlaceHolder();
+			} else {
+				return Reflection.newInstance(stones.get(s.getClass())).quantity(amnts.get(s.getClass()));
+			}
 		}
 	}
 }

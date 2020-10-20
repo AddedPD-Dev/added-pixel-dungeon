@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
-import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Ghost;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -73,7 +72,7 @@ public class WndSadGhost extends Window {
 		message.setPos(0, titlebar.bottom() + GAP);
 		add( message );
 		
-		RedButton btnWeapon = new RedButton( Messages.get(this, "weapon") ) {
+		RedButton btnWeapon = new RedButton( Ghost.Quest.weapon.trueName() + "  :" + Ghost.Quest.weapon.STRReq(0) ) {
 			@Override
 			protected void onClick() {
 				selectReward( ghost, Ghost.Quest.weapon );
@@ -82,20 +81,16 @@ public class WndSadGhost extends Window {
 		btnWeapon.setRect( 0, message.top() + message.height() + GAP, WIDTH, BTN_HEIGHT );
 		add( btnWeapon );
 
-		if (!Dungeon.isChallenged( Challenges.NO_ARMOR )) {
-			RedButton btnArmor = new RedButton( Messages.get(this, "armor") ) {
-				@Override
-				protected void onClick() {
-					selectReward(ghost, Ghost.Quest.armor);
-				}
-			};
-			btnArmor.setRect(0, btnWeapon.bottom() + GAP, WIDTH, BTN_HEIGHT);
-			add(btnArmor);
+		RedButton btnArmor = new RedButton( Ghost.Quest.armor.trueName() + "  :" + Ghost.Quest.armor.STRReq(0) ) {
+			@Override
+			protected void onClick() {
+				selectReward(ghost, Ghost.Quest.armor);
+			}
+		};
+		btnArmor.setRect(0, btnWeapon.bottom() + GAP, WIDTH, BTN_HEIGHT);
+		add(btnArmor);
 
-			resize(WIDTH, (int) btnArmor.bottom());
-		} else {
-			resize(WIDTH, (int) btnWeapon.bottom());
-		}
+		resize(WIDTH, (int) btnArmor.bottom());
 	}
 	
 	private void selectReward( Ghost ghost, Item reward ) {

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +25,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
@@ -46,32 +42,27 @@ public class Shocking extends Weapon.Enchantment {
 
 	@Override
 	public int proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		// lvl 0 - 33%
-		// lvl 1 - 50%
-		// lvl 2 - 60%
-		int level = Math.max( 0, weapon.level() );
+		// lvl 0 - 25%
+		// lvl 1 - 40%
+		// lvl 2 - 50%
+		int level = Math.max( 0, weapon.buffedLvl() );
 		
-		if (Random.Int( level + 3 ) >= 2) {
+		if (Random.Int( level + 4 ) >= 3) {
 			
 			affected.clear();
-
 			arcs.clear();
-			arc(attacker, defender, 2);
+			
+			arc(attacker, defender, 2, affected, arcs);
 			
 			affected.remove(defender); //defender isn't hurt by lightning
 			for (Char ch : affected) {
-				ch.damage(Math.round(damage*0.4f), this);
-
-				// AddedPD : The Dwarf Survivor's perk(but still receive damage)
-				if ( ch == Dungeon.hero && Dungeon.hero.heroClass == HeroClass.DWARF) {
-					// overcharge his cybernetic body!
-					Buff.prolong(ch, Haste.class, 4f);
-					ScrollOfRecharging.charge(Dungeon.hero);
+				if (ch.alignment != attacker.alignment) {
+					ch.damage(Math.round(damage * 0.4f), this);
 				}
 			}
 
 			attacker.sprite.parent.addToFront( new Lightning( arcs, null ) );
-			Sample.INSTANCE.play( Assets.SND_LIGHTNING );
+			Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 			
 		}
 
@@ -88,7 +79,7 @@ public class Shocking extends Weapon.Enchantment {
 
 	private ArrayList<Lightning.Arc> arcs = new ArrayList<>();
 	
-	private void arc( Char attacker, Char defender, int dist ) {
+	public static void arc( Char attacker, Char defender, int dist, ArrayList<Char> affected, ArrayList<Lightning.Arc> arcs ) {
 		
 		affected.add(defender);
 		
@@ -101,7 +92,7 @@ public class Shocking extends Weapon.Enchantment {
 				Char n = Actor.findChar(i);
 				if (n != null && n != attacker && !affected.contains(n)) {
 					arcs.add(new Lightning.Arc(defender.sprite.center(), n.sprite.center()));
-					arc(attacker, n, (Dungeon.level.water[n.pos] && !n.flying) ? 2 : 1);
+					arc(attacker, n, (Dungeon.level.water[n.pos] && !n.flying) ? 2 : 1, affected, arcs);
 				}
 			}
 		}

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,8 +33,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SoulMark;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.MagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.Bag;
@@ -72,7 +72,7 @@ public abstract class Wand extends Item {
 	public boolean curseInfusionBonus = false;
 	
 	private static final int USES_TO_ID = 10;
-	private int usesLeftToID = USES_TO_ID;
+	private float usesLeftToID = USES_TO_ID;
 	private float availableUsesToID = USES_TO_ID/2f;
 
 	protected int collisionProperties = Ballistica.MAGIC_BOLT;
@@ -115,9 +115,6 @@ public abstract class Wand extends Item {
 
 		if (owner.buff(MagicImmune.class) != null){
 			GLog.w( Messages.get(this, "no_magic") );
-			return false;
-		} if (owner.heroClass == HeroClass.CLERIC) {
-			GLog.w(Messages.get(Wand.class, "cleric_no_magic"));
 			return false;
 		}
 
@@ -164,7 +161,7 @@ public abstract class Wand extends Item {
 	}
 
 	protected void processSoulMark(Char target, int chargesUsed){
-		processSoulMark(target, level(), chargesUsed);
+		processSoulMark(target, buffedLvl(), chargesUsed);
 	}
 
 	protected static void processSoulMark(Char target, int wandLevel, int chargesUsed){
@@ -205,6 +202,7 @@ public abstract class Wand extends Item {
 	}
 	
 	public void onHeroGainExp( float levelPercent, Hero hero ){
+		levelPercent *= Talent.itemIDSpeedFactor(hero, this);
 		if (!isIdentified() && availableUsesToID <= USES_TO_ID/2f) {
 			//gains enough uses to ID over 1 level
 			availableUsesToID = Math.min(USES_TO_ID/2f, availableUsesToID + levelPercent * USES_TO_ID/2f);
@@ -278,7 +276,19 @@ public abstract class Wand extends Item {
 		
 		return this;
 	}
-	
+
+	@Override
+	public int buffedLvl() {
+		int lvl = super.buffedLvl();
+		if (curUser != null) {
+			WandOfMagicMissile.MagicCharge buff = curUser.buff(WandOfMagicMissile.MagicCharge.class);
+			if (buff != null && buff.level() > lvl){
+				return buff.level();
+			}
+		}
+		return lvl;
+	}
+
 	public void updateLevel() {
 		maxCharges = Math.min( initialCharges() + level(), 10 );
 		curCharges = Math.min( curCharges, maxCharges );
@@ -298,7 +308,7 @@ public abstract class Wand extends Item {
 				curUser.sprite,
 				bolt.collisionPos,
 				callback);
-		Sample.INSTANCE.play( Assets.SND_ZAP );
+		Sample.INSTANCE.play( Assets.Sounds.ZAP );
 	}
 
 	public void staffFx( MagesStaff.StaffParticle particle ){
@@ -310,10 +320,11 @@ public abstract class Wand extends Item {
 	}
 
 	protected void wandUsed() {
-		if (!isIdentified() && availableUsesToID >= 1) {
-			availableUsesToID--;
-			usesLeftToID--;
-			if (usesLeftToID <= 0) {
+		if (!isIdentified()) {
+			float uses = Math.min( availableUsesToID, Talent.itemIDSpeedFactor(Dungeon.hero, this) );
+			availableUsesToID -= uses;
+			usesLeftToID -= uses;
+			if (usesLeftToID <= 0 || Dungeon.hero.pointsInTalent(Talent.SCHOLARS_INTUITION) == 2) {
 				identify();
 				GLog.p( Messages.get(Wand.class, "identify") );
 				Badges.validateItemLevelAquired( this );
@@ -321,8 +332,13 @@ public abstract class Wand extends Item {
 		}
 		
 		curCharges -= cursed ? 1 : chargesPerCast();
-		
-		if (curUser.heroClass == HeroClass.MAGE) levelKnown = true;
+
+		WandOfMagicMissile.MagicCharge buff = curUser.buff(WandOfMagicMissile.MagicCharge.class);
+		if (buff != null && buff.level() > super.buffedLvl()){
+			buff.detach();
+		}
+
+		Invisibility.dispel();
 		updateQuickslot();
 
 		curUser.spendAndNext( TIME_TO_ZAP );
@@ -341,6 +357,7 @@ public abstract class Wand extends Item {
 			}
 		}
 		level(n);
+		curCharges += n;
 		
 		//30% chance to be cursed
 		if (Random.Float() < 0.3f) {
@@ -351,7 +368,7 @@ public abstract class Wand extends Item {
 	}
 	
 	@Override
-	public int price() {
+	public int value() {
 		int price = 75;
 		if (cursed && cursedKnown) {
 			price /= 2;
@@ -393,11 +410,6 @@ public abstract class Wand extends Item {
 		usesLeftToID = bundle.getInt( USES_LEFT_TO_ID );
 		availableUsesToID = bundle.getInt( AVAILABLE_USES );
 		
-		//pre-0.7.2 saves
-		if (bundle.contains( "unfamiliarity" )){
-			usesLeftToID = Math.min(10, bundle.getInt( "unfamiliarity" ));
-			availableUsesToID = USES_TO_ID/2f;
-		}
 		curCharges = bundle.getInt( CUR_CHARGES );
 		curChargeKnown = bundle.getBoolean( CUR_CHARGE_KNOWN );
 		partialCharge = bundle.getFloat( PARTIALCHARGE );
@@ -409,6 +421,10 @@ public abstract class Wand extends Item {
 		super.reset();
 		usesLeftToID = USES_TO_ID;
 		availableUsesToID = USES_TO_ID/2f;
+	}
+
+	protected int collisionProperties( int target ){
+		return collisionProperties;
 	}
 	
 	protected static CellSelector.Listener zapper = new  CellSelector.Listener() {
@@ -427,7 +443,7 @@ public abstract class Wand extends Item {
 					return;
 				}
 
-				final Ballistica shot = new Ballistica( curUser.pos, target, curWand.collisionProperties);
+				final Ballistica shot = new Ballistica( curUser.pos, target, curWand.collisionProperties(target));
 				int cell = shot.collisionPos;
 				
 				if (target == curUser.pos || cell == curUser.pos) {
@@ -446,7 +462,6 @@ public abstract class Wand extends Item {
 				if (curWand.tryToZap(curUser, target)) {
 					
 					curUser.busy();
-					Invisibility.dispel();
 					
 					if (curWand.cursed){
 						if (!curWand.cursedKnown){
@@ -542,13 +557,15 @@ public abstract class Wand extends Item {
 		}
 
 		public void gainCharge(float charge){
-			partialCharge += charge;
-			while (partialCharge >= 1f){
-				curCharges++;
-				partialCharge--;
+			if (curCharges < maxCharges) {
+				partialCharge += charge;
+				while (partialCharge >= 1f) {
+					curCharges++;
+					partialCharge--;
+				}
+				curCharges = Math.min(curCharges, maxCharges);
+				updateQuickslot();
 			}
-			curCharges = Math.min(curCharges, maxCharges);
-			updateQuickslot();
 		}
 
 		private void setScaleFactor(float value){

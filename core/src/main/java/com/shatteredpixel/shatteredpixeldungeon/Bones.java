@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,6 @@
 package com.shatteredpixel.shatteredpixeldungeon;
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
-import com.shatteredpixel.shatteredpixeldungeon.items.Ankh;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Gold;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -73,7 +72,7 @@ public class Bones {
 	private static Item pickItem(Hero hero){
 		Item item = null;
 		if (Random.Int(3) != 0) {
-			switch (Random.Int(6)) {
+			switch (Random.Int(7)) {
 				case 0:
 					item = hero.belongings.weapon;
 					break;
@@ -81,12 +80,15 @@ public class Bones {
 					item = hero.belongings.armor;
 					break;
 				case 2:
-					item = hero.belongings.misc1;
+					item = hero.belongings.artifact;
 					break;
 				case 3:
-					item = hero.belongings.misc2;
+					item = hero.belongings.misc;
 					break;
-				case 4: case 5:
+				case 4:
+					item = hero.belongings.ring;
+					break;
+				case 5: case 6:
 					item = Dungeon.quickslot.randomNonePlaceholder();
 					break;
 			}
@@ -152,7 +154,7 @@ public class Bones {
 						Artifact artifact = Reflection.newInstance(((Artifact)item).getClass());
 						
 						if (artifact == null){
-							return new Gold(item.price());
+							return new Gold(item.value());
 						}
 
 						artifact.cursed = true;
@@ -161,7 +163,7 @@ public class Bones {
 						return artifact;
 						
 					} else {
-						return new Gold(item.price());
+						return new Gold(item.value());
 					}
 				}
 				
@@ -178,9 +180,6 @@ public class Bones {
 					//thrown weapons are always IDed, otherwise set unknown
 					item.levelKnown = item instanceof MissileWeapon;
 				}
-
-				// AddedPD : only cleric can use enlightened item
-				if (item.enlightened) { return new Gold(item.price()); }
 				
 				item.reset();
 				

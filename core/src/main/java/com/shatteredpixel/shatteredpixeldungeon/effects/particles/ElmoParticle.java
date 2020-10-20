@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,14 +26,7 @@ import com.watabou.noosa.particles.Emitter.Factory;
 import com.watabou.noosa.particles.PixelParticle;
 
 public class ElmoParticle extends PixelParticle.Shrinking {
-
-	public static final Emitter.Factory MISSILE = new Factory() {
-		@Override
-		public void emit( Emitter emitter, int index, float x, float y ) {
-			((ElmoParticle)emitter.recycle( ElmoParticle.class )).reset( x, y );
-		}
-	};
-
+	
 	public static final Emitter.Factory FACTORY = new Factory() {
 		@Override
 		public void emit( Emitter emitter, int index, float x, float y ) {

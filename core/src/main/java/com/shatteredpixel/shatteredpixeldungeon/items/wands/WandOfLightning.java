@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,13 +25,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
-import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Shocking;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -75,19 +71,19 @@ public class WandOfLightning extends DamageWand {
 		if (Dungeon.level.water[bolt.collisionPos]) multipler = 1f;
 
 		for (Char ch : affected){
-			processSoulMark(ch, chargesPerCast());
-			ch.damage(Math.round(damageRoll() * multipler), this);
-
-			if (ch == Dungeon.hero) {
-				Camera.main.shake( 2, 0.3f );
-				// AddedPD : overcharge our mechanized dwarf!
-				if (Dungeon.hero.heroClass == HeroClass.DWARF) {
-					Buff.prolong( ch, Haste.class, 4f);
-					ScrollOfRecharging.charge(Dungeon.hero);
-				}
-			}
+			if (ch == Dungeon.hero) Camera.main.shake( 2, 0.3f );
 			ch.sprite.centerEmitter().burst( SparkParticle.FACTORY, 3 );
 			ch.sprite.flash();
+
+			if (ch != curUser && ch.alignment == curUser.alignment && ch.pos != bolt.collisionPos){
+				continue;
+			}
+			processSoulMark(ch, chargesPerCast());
+			if (ch == curUser) {
+				ch.damage(Math.round(damageRoll() * multipler * 0.5f), this);
+			} else {
+				ch.damage(Math.round(damageRoll() * multipler), this);
+			}
 		}
 
 		if (!curUser.isAlive()) {
@@ -147,7 +143,7 @@ public class WandOfLightning extends DamageWand {
 
 		//don't want to wait for the effect before processing damage.
 		curUser.sprite.parent.addToFront( new Lightning( arcs, null ) );
-		Sample.INSTANCE.play( Assets.SND_LIGHTNING );
+		Sample.INSTANCE.play( Assets.Sounds.LIGHTNING );
 		callback.call();
 	}
 

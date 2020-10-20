@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.LockedFloor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Preparation;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -86,7 +89,7 @@ public class CloakOfShadows extends Artifact {
 					stealthed = true;
 					hero.spend( 1f );
 					hero.busy();
-					Sample.INSTANCE.play(Assets.SND_MELD);
+					Sample.INSTANCE.play(Assets.Sounds.MELD);
 					activeBuff = activeBuff();
 					activeBuff.attachTo(hero);
 					if (hero.sprite.parent != null) {
@@ -168,7 +171,7 @@ public class CloakOfShadows extends Artifact {
 	}
 
 	@Override
-	public int price() {
+	public int value() {
 		return 0;
 	}
 
@@ -181,6 +184,7 @@ public class CloakOfShadows extends Artifact {
 					float missing = (chargeCap - charge);
 					if (level() > 7) missing += 5*(level() - 7)/3f;
 					float turnsToCharge = (45 - missing);
+					turnsToCharge /= RingOfEnergy.artifactChargeMultiplier(target);
 					partialCharge += (1f / turnsToCharge);
 				}
 
@@ -221,6 +225,11 @@ public class CloakOfShadows extends Artifact {
 		}
 
 		@Override
+		public float iconFadePercent() {
+			return (5f - turnsToCost) / 5f;
+		}
+
+		@Override
 		public boolean attachTo( Char target ) {
 			if (super.attachTo( target )) {
 				target.invisible++;
@@ -233,9 +242,21 @@ public class CloakOfShadows extends Artifact {
 			}
 		}
 
+		float healInc = 0;
+
 		@Override
 		public boolean act(){
 			turnsToCost--;
+
+			if (((Hero)target).hasTalent(Talent.MENDING_SHADOWS)){
+				healInc++;
+				// 5/3 turns to heal
+				if (healInc >= 7 - 2*((Hero) target).pointsInTalent(Talent.MENDING_SHADOWS)){
+					healInc = 0;
+					target.HP = Math.min(target.HT, target.HP+1);
+					target.sprite.emitter().burst( Speck.factory( Speck.HEALING ), 1 );
+				}
+			}
 			
 			if (turnsToCost <= 0){
 				charge--;
@@ -305,12 +326,14 @@ public class CloakOfShadows extends Artifact {
 		}
 		
 		private static final String TURNSTOCOST = "turnsToCost";
+		private static final String HEAL_INC = "heal_inc";
 		
 		@Override
 		public void storeInBundle(Bundle bundle) {
 			super.storeInBundle(bundle);
 			
 			bundle.put( TURNSTOCOST , turnsToCost);
+			bundle.put( HEAL_INC, healInc);
 		}
 		
 		@Override
@@ -318,6 +341,7 @@ public class CloakOfShadows extends Artifact {
 			super.restoreFromBundle(bundle);
 			
 			turnsToCost = bundle.getInt( TURNSTOCOST );
+			healInc = bundle.getFloat( HEAL_INC );
 		}
 	}
 }

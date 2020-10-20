@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels;
 
 import com.shatteredpixel.shatteredpixeldungeon.Bones;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.levels.builders.Builder;
@@ -102,7 +103,7 @@ public class SewerBossLevel extends SewerLevel {
 	protected void createMobs() {
 	}
 	
-	public Actor respawner() {
+	public Actor addRespawner() {
 		return null;
 	}
 	
@@ -114,16 +115,19 @@ public class SewerBossLevel extends SewerLevel {
 			do {
 				pos = pointToCell(roomEntrance.random());
 			} while (pos == entrance || solid[pos]);
-			drop( item, pos ).setHauntedIfCursed(1f).type = Heap.Type.REMAINS;
+			drop( item, pos ).setHauntedIfCursed().type = Heap.Type.REMAINS;
 		}
 	}
 
 	@Override
-	public int randomRespawnCell() {
+	public int randomRespawnCell( Char ch ) {
 		int pos;
 		do {
 			pos = pointToCell(roomEntrance.random());
-		} while (pos == entrance || !passable[pos] || Actor.findChar(pos) != null);
+		} while (pos == entrance
+				|| !passable[pos]
+				|| (Char.hasProp(ch, Char.Property.LARGE) && !openSpace[pos])
+				|| Actor.findChar(pos) != null);
 		return pos;
 	}
 

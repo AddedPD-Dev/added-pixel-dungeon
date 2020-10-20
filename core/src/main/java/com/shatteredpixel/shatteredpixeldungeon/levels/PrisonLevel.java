@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,26 +84,28 @@ public class PrisonLevel extends RegularLevel {
 	
 	@Override
 	public String tilesTex() {
-		return Assets.TILES_PRISON;
+		return Assets.Environment.TILES_PRISON;
 	}
 	
 	@Override
 	public String waterTex() {
-		return Assets.WATER_PRISON;
+		return Assets.Environment.WATER_PRISON;
 	}
 	
 	@Override
 	protected Class<?>[] trapClasses() {
-		return new Class[]{ ChillingTrap.class, ShockingTrap.class, ToxicTrap.class, BurningTrap.class, PoisonDartTrap.class,
+		return new Class[]{
+				ChillingTrap.class, ShockingTrap.class, ToxicTrap.class, BurningTrap.class, PoisonDartTrap.class,
 				AlarmTrap.class, OozeTrap.class, GrippingTrap.class,
 				ConfusionTrap.class, FlockTrap.class, SummoningTrap.class, TeleportationTrap.class, };
 	}
 
 	@Override
 	protected float[] trapChances() {
-		return new float[]{ 8, 8, 8, 8, 8,
-				4, 4, 4,
-				2, 2, 2, 2 };
+		return new float[]{
+				4, 4, 4, 4, 4,
+				2, 2, 2,
+				1, 1, 1, 1 };
 	}
 
 	@Override

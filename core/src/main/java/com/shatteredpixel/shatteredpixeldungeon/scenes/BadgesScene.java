@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
-import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BadgeBanner;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -40,6 +39,7 @@ import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.ui.Button;
 import com.watabou.utils.Random;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BadgesScene extends PixelScene {
@@ -49,7 +49,7 @@ public class BadgesScene extends PixelScene {
 
 		super.create();
 
-		Music.INSTANCE.play( Assets.THEME, true );
+		Music.INSTANCE.play( Assets.Music.THEME, true );
 
 		uiCamera.visible = false;
 
@@ -74,28 +74,34 @@ public class BadgesScene extends PixelScene {
 
 		Badges.loadGlobal();
 
-		List<Badges.Badge> badges = Badges.filtered( true );
+		ArrayList<Badges.Badge> lockedBadges = new ArrayList<>();
+		for (Badges.Badge badge : Badges.Badge.values()){
+			if (badge.image != -1 && !Badges.isUnlocked(badge)){
+				lockedBadges.add(badge);
+			}
+		}
+		Badges.filterHigherIncrementalBadges(lockedBadges);
 
-		int blankBadges = 36;
-		blankBadges -= badges.size();
-		if (badges.contains(Badges.Badge.ALL_ITEMS_IDENTIFIED))	blankBadges -= 6;
-		if (badges.contains(Badges.Badge.YASD)) 				blankBadges -= 5;
-		blankBadges = Math.max(0, blankBadges);
+		List<Badges.Badge> badges = Badges.filterReplacedBadges( true );
 
-		//guarantees a max of 5 rows in landscape, and 8 in portrait, assuming a max of 40 buttons
-		int nCols = SPDSettings.landscape() ? 7 : 4;
-		if (badges.size() + blankBadges > 32 && !SPDSettings.landscape())	nCols++;
+		int totalBadges = lockedBadges.size() + badges.size();
 
-		int nRows = 1 + (blankBadges + badges.size())/nCols;
+		//4-5 columns in portrait, 6-8 in landscape
+		int nCols = landscape() ? 6 : 4;
+		if (!landscape() && totalBadges > 32)   nCols++;
+		if (landscape() && totalBadges > 24)    nCols++;
+		if (landscape() && totalBadges > 35)    nCols++;
+
+		int nRows = (int) Math.ceil(totalBadges/(float)nCols);
 
 		float badgeWidth = (w - 2*left)/nCols;
-		float badgeHeight = (h - 2*top)/nRows;
+		float badgeHeight = (h - top - left)/nRows;
 
-		for (int i = 0; i < badges.size() + blankBadges; i++){
+		for (int i = 0; i < totalBadges; i++){
 			int row = i / nCols;
 			int col = i % nCols;
-			Badges.Badge b = i < badges.size() ? badges.get( i ) : null;
-			BadgeButton button = new BadgeButton( b );
+			Badges.Badge b = i < badges.size() ? badges.get( i ) : lockedBadges.get( i - badges.size() );
+			BadgeButton button = new BadgeButton( b, i < badges.size() );
 			button.setPos(
 					left + col * badgeWidth + (badgeWidth - button.width()) / 2,
 					top + row * badgeHeight + (badgeHeight - button.height()) / 2);
@@ -126,16 +132,20 @@ public class BadgesScene extends PixelScene {
 	private static class BadgeButton extends Button {
 
 		private Badges.Badge badge;
+		private boolean unlocked;
 
 		private Image icon;
 
-		public BadgeButton( Badges.Badge badge ) {
+		public BadgeButton( Badges.Badge badge, boolean unlocked ) {
 			super();
 
 			this.badge = badge;
-			active = (badge != null);
+			this.unlocked = unlocked;
 
-			icon = active ? BadgeBanner.image(badge.image) : new Image( Assets.LOCKED );
+			icon = BadgeBanner.image(badge.image);
+			if (!unlocked) {
+				icon.brightness(0.4f);
+			}
 			add(icon);
 
 			setSize( icon.width(), icon.height() );
@@ -153,15 +163,15 @@ public class BadgesScene extends PixelScene {
 		public void update() {
 			super.update();
 
-			if (Random.Float() < Game.elapsed * 0.1) {
+			if (unlocked && Random.Float() < Game.elapsed * 0.1) {
 				BadgeBanner.highlight( icon, badge.image );
 			}
 		}
 
 		@Override
 		protected void onClick() {
-			Sample.INSTANCE.play( Assets.SND_CLICK, 0.7f, 0.7f, 1.2f );
-			Game.scene().add( new WndBadge( badge ) );
+			Sample.INSTANCE.play( Assets.Sounds.CLICK, 0.7f, 0.7f, 1.2f );
+			Game.scene().add( new WndBadge( badge, unlocked ) );
 		}
 	}
 }

@@ -3,7 +3,7 @@
  * Copyright (C) 2012-2015 Oleg Dolya
  *
  * Shattered Pixel Dungeon
- * Copyright (C) 2014-2019 Evan Debenham
+ * Copyright (C) 2014-2021 Evan Debenham
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ public class WndChooseWay extends Window {
 	private static final int BTN_HEIGHT	= 18;
 	private static final float GAP		= 2;
 	
-	public WndChooseWay( final TomeOfMastery tome, final HeroSubClass way1, final HeroSubClass way2, final HeroSubClass way3 ) {
+	public WndChooseWay( final TomeOfMastery tome, final HeroSubClass way1, final HeroSubClass way2 ) {
 		
 		super();
 
@@ -47,7 +47,7 @@ public class WndChooseWay extends Window {
 		add( titlebar );
 
 		RenderedTextBlock hl = PixelScene.renderTextBlock( 6 );
-		hl.text( way1.desc() + "\n\n" + way2.desc() + "\n\n" + way3.desc() + "\n\n" + Messages.get(this, "message"), WIDTH );
+		hl.text( way1.desc() + "\n\n" + way2.desc() + "\n\n" + Messages.get(this, "message"), WIDTH );
 		hl.setPos( titlebar.left(), titlebar.bottom() + GAP );
 		add( hl );
 		
@@ -70,16 +70,6 @@ public class WndChooseWay extends Window {
 		};
 		btnWay2.setRect( btnWay1.right() + GAP, btnWay1.top(), btnWay1.width(), BTN_HEIGHT );
 		add( btnWay2 );
-
-		RedButton btnWay3 = new RedButton( way3.title().toUpperCase() ) {
-			@Override
-			protected void onClick() {
-				hide();
-				tome.choose( way3 );
-			}
-		};
-		btnWay3.setRect( 0, btnWay2.bottom() + GAP, btnWay1.width(), BTN_HEIGHT );
-		add( btnWay3 );
 		
 		RedButton btnCancel = new RedButton( Messages.get(this, "cancel") ) {
 			@Override
@@ -87,7 +77,7 @@ public class WndChooseWay extends Window {
 				hide();
 			}
 		};
-		btnCancel.setRect( btnWay3.right() + GAP, btnWay2.bottom() + GAP, btnWay1.width(), BTN_HEIGHT );
+		btnCancel.setRect( 0, btnWay2.bottom() + GAP, WIDTH, BTN_HEIGHT );
 		add( btnCancel );
 		
 		resize( WIDTH, (int)btnCancel.bottom() );
