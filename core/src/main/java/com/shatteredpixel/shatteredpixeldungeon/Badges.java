@@ -147,7 +147,11 @@ public class Badges {
 		//diamond
 		GAMES_PLAYED_4              ( 112, true ),
 		CHAMPION_2                  ( 113, true ),
-		CHAMPION_3                  ( 114, true );
+		CHAMPION_3                  ( 114, true ),
+
+		//added-pd only
+		UNLOCK_CLERIC                ( 115 ),
+		UNLOCK_DWARF_HERO            ( 116 );
 
 		public boolean meta;
 

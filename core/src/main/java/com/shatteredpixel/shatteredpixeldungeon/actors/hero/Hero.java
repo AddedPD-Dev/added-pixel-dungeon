@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Combo;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Drowsy;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Foresight;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Fury;
@@ -1093,7 +1094,7 @@ public class Hero extends Char {
 		}
 		
 		if (belongings.armor != null) {
-			damage = belongings.armor.proc( enemy, this, damage );
+			damage = belongings.armor.proc(enemy, this, damage);
 		}
 		
 		Earthroot.Armor armor = buff( Earthroot.Armor.class );
@@ -1136,6 +1137,8 @@ public class Hero extends Char {
 				&& AntiMagic.RESISTS.contains(src.getClass())){
 			dmg -= AntiMagic.drRoll(belongings.armor.buffedLvl());
 		}
+
+		//dmg = Talent.damage( this, src, dmg );
 
 		int preHP = HP + shielding();
 		super.damage( dmg, src );
@@ -1410,7 +1413,10 @@ public class Hero extends Char {
 		
 		Berserk berserk = buff(Berserk.class);
 		if (berserk != null) berserk.recover(percent);
-		
+
+		Devotion devotion = buff(Devotion.class);
+		if (devotion != null) devotion.onHeroGainExp();
+
 		if (source != PotionOfExperience.class) {
 			for (Item i : belongings) {
 				i.onHeroGainExp(percent, this);
@@ -1439,6 +1445,10 @@ public class Hero extends Char {
 				GLog.newLine();
 				GLog.p( Messages.get(this, "level_cap"));
 				Sample.INSTANCE.play( Assets.Sounds.LEVELUP );
+			}
+
+			if (devotion != null) {
+				devotion.onLevelUp();
 			}
 			
 		}

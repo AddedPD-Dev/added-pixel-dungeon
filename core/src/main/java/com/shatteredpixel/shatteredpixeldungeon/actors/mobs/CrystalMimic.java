@@ -55,6 +55,7 @@ public class CrystalMimic extends Mimic {
 		spriteClass = MimicSprite.Crystal.class;
 
 		FLEEING = new Fleeing();
+		properties.add(Property.SPELLCASTER);
 	}
 
 	@Override

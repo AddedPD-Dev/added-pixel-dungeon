@@ -24,14 +24,17 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Hunger;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Recharging;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.Ring;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand;
@@ -67,7 +70,12 @@ public enum Talent {
 	INVIGORATING_MEAL(12),
 	SURVIVALISTS_INTUITION(13),
 	FOLLOWUP_STRIKE(14),
-	NATURES_AID(15);
+	NATURES_AID(15),
+
+	GRACE_BEFORE_MEAL(16),
+	ACOLYTES_INTUITION(17),
+	LIGHTBRINGER(18),
+	SEER(19);
 
 	int icon;
 
@@ -112,6 +120,13 @@ public enum Talent {
 			if (hero.belongings.ring instanceof Ring) hero.belongings.ring.setKnown();
 			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
 		}
+		if (talent == ACOLYTES_INTUITION && hero.pointsInTalent(ACOLYTES_INTUITION) == 2){
+			for (Item item : Dungeon.hero.belongings.backpack){
+				if (item.cursed && !item.cursedKnown){
+					item.identify();
+				}
+			}
+		}
 	}
 
 	public static void onFoodEaten( Hero hero, float foodVal ){
@@ -135,6 +150,14 @@ public enum Talent {
 			hero.spend(-2);
 			//effectively 1/2 turns of haste
 			Buff.affect( hero, Haste.class, 0.67f+hero.pointsInTalent(INVIGORATING_MEAL));
+		}
+		if (hero.hasTalent(GRACE_BEFORE_MEAL)){
+			//5 turns of blessing/+curing
+			Buff.prolong( hero, Bless.class, 5f);
+			if (hero.pointsInTalent(GRACE_BEFORE_MEAL) == 2) {
+				PotionOfHealing.cure(hero);
+				hero.sprite.emitter().burst( Speck.factory( Speck.DISCOVER ), 2 );
+			}
 		}
 	}
 
@@ -174,6 +197,10 @@ public enum Talent {
 		if (hero.pointsInTalent(THIEFS_INTUITION) == 2){
 			if (item instanceof Ring) ((Ring) item).setKnown();
 		}
+		if (hero.hasTalent(ACOLYTES_INTUITION)){
+			if (item.cursed && !item.cursedKnown) item.cursedKnown = true;
+			if (hero.pointsInTalent(ACOLYTES_INTUITION) == 2) item.identify();
+		}
 	}
 
 	public static int onAttackProc( Hero hero, Char enemy, int dmg ){
@@ -196,11 +223,29 @@ public enum Talent {
 			}
 		}
 
+		if (hero.hasTalent(Talent.LIGHTBRINGER)
+				&& enemy.buff(LightbringerTracker.class) == null){
+			if (hero.pointsInTalent(LIGHTBRINGER) == 2)
+				dmg += Random.IntRange(1, 2);
+			Buff.affect(enemy, LightbringerTracker.class);
+			Buff.prolong(hero, Light.class, 2 + 3*(hero.pointsInTalent(Talent.LIGHTBRINGER)));
+		}
+
 		return dmg;
 	}
 
 	public static class SuckerPunchTracker extends Buff{};
 	public static class FollowupStrikeTracker extends Buff{};
+	public static class LightbringerTracker extends Buff{};
+
+	//public static int damage( Hero hero, Object src, int dmg ){
+	//	if (hero.hasTalent(Talent.ANTIMAGIC)){
+	//		if (AntiMagic.RESISTS.contains(src.getClass())){
+	//			dmg -= Random.IntRange(1, hero.pointsInTalent(Talent.ANTIMAGIC));
+	//		}
+	//	}
+	//	return dmg;
+	//}
 
 	public static final int MAX_TALENT_TIERS = 1;
 
@@ -228,6 +273,9 @@ public enum Talent {
 				break;
 			case HUNTRESS:
 				Collections.addAll(tierTalents, INVIGORATING_MEAL, SURVIVALISTS_INTUITION, FOLLOWUP_STRIKE, NATURES_AID);
+				break;
+			case CLERIC:
+				Collections.addAll(tierTalents, GRACE_BEFORE_MEAL, ACOLYTES_INTUITION, LIGHTBRINGER, SEER);
 				break;
 		}
 		for (Talent talent : tierTalents){

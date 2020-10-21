@@ -74,6 +74,7 @@ public class DwarfKing extends Mob {
 
 		properties.add(Property.BOSS);
 		properties.add(Property.UNDEAD);
+		properties.add(Property.SPELLCASTER);
 	}
 
 	@Override

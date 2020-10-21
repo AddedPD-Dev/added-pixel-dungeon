@@ -94,7 +94,7 @@ public class CermateFire extends Blob {
 				if (ch.HP <= 4) {
 					ch.damage(ch.HP, this);
 				} else { ch.damage(ch.HT / 4, this); }
-                ch.sprite.emitter().burst( ElmoParticle.FACTORY, 10 );
+				ch.sprite.emitter().burst( ElmoParticle.FACTORY, 10 );
 			}
 		}
 	}

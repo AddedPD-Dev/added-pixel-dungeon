@@ -25,18 +25,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.BlessedWater;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CermateFire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Bee;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotHeart;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotLasher;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.PrismaticImage;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Enchanting;
@@ -44,7 +38,6 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.CermateFireParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
@@ -119,7 +112,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		BuffIndicator.refreshHero();
 	}
 
-	public void onLevelUp(){ // 1 level up = 5 rank
+	public void onLevelUp(){
 		rank += 5;
 		ActionIndicator.setAction( this );
 		ActionIndicator.updateIcon();
@@ -143,12 +136,15 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 	public void invocation(){
 		((HeroSprite) hero.sprite).read();
 		Invisibility.dispel();
-		Sample.INSTANCE.play( Assets.SND_LEVELUP );
+		Sample.INSTANCE.play( Assets.Sounds.LEVELUP );
 		new Flare( 6, 32 ).show( hero.sprite, 4f );
 		SpellSprite.show(Dungeon.hero, SpellSprite.MASTERY);
 		ActionIndicator.setAction( this );
 		ActionIndicator.updateIcon();
 		BuffIndicator.refreshHero();
+
+		if (hero.hasTalent(Talent.SEER))
+			Buff.prolong(hero, Foresight.class, 2 + 3*(hero.pointsInTalent(Talent.SEER)));
 	}
 
 	public int getrank() {
@@ -177,9 +173,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			String scholar = Messages.get(this, "scholar");
 			return desc + miracles + scholar;
 
-		} if (hero.subClass == HeroSubClass.REDEEMER) {
-			String redeemer = Messages.get(this, "redeemer");
-			return desc + miracles + redeemer;
 		}
 		return desc + miracles;
 	}
@@ -188,16 +181,17 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 	public Image getIcon() {
 		Image icon;
 
-		if (rank >= 45) {
-			if (hero.subClass == HeroSubClass.REDEEMER && rank >= 60) {
-				icon = Icons.get_miracle(Icons.BAPTIZE);
-			} else icon = Icons.get_miracle(Icons.ENLIGHTEN);
-		} else if (rank >= 30) { icon = Icons.get_miracle(Icons.ZEALOT);
+		if (rank >= 30) {
+			icon = Icons.get_miracle(Icons.ZEALOT);
 		} else if (rank >= 15) {
 			if (hero.subClass == HeroSubClass.SCHOLAR) {
-				if (rank >= 25) { icon = Icons.get_miracle(Icons.CREMATE);
-				} else if (rank >= 20) { icon = Icons.get_miracle(Icons.HOLY_WATER);
-				} else { icon = Icons.get_miracle(Icons.SMITE_AOE); }
+				if (rank >= 25) {
+					icon = Icons.get_miracle(Icons.CREMATE);
+				} else if (rank >= 20) {
+					icon = Icons.get_miracle(Icons.HOLY_WATER);
+				} else {
+					icon = Icons.get_miracle(Icons.SMITE_AOE);
+				}
 			} else icon = Icons.get_miracle(Icons.SMITE);
 		} else icon = Icons.get(HeroClass.CLERIC);
 
@@ -289,22 +283,8 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				GLog.w(Messages.get(this, "need_more_rank"));
 			}
 		}
-		else { //(state == State.REDEEMER)
-			if (rank >= 60) { // rank 60+ : smite, zealot, enlighten, baptize
-				GameScene.show(
-						new WndOptions(Messages.get(this, "name"), Messages.get(this, "prompt", rank),
-								Messages.get(this, "choose_smite"), Messages.get(this, "choose_zealot"),
-								Messages.get(this, "choose_enlighten"), Messages.get(this, "choose_baptize"),
-								Messages.get(this, "cancel")) {
-							@Override
-							protected void onSelect(int index) {
-								if (index == 0) { GameScene.selectCell(smite); }
-								if (index == 1) { doZealot(); }
-								if (index == 2) { doEnlighten(); }
-								if (index == 3) { GameScene.selectCell(baptize); }
-								if (index == 4) { }}});
-
-			} else if (rank >= 45) { // rank 45-59 : smite, zealot, enlighten
+		else {
+			if (rank >= 45) { // rank 45-59 : smite, zealot, enlighten
 				GameScene.show(
 						new WndOptions(Messages.get(this, "name"), Messages.get(this, "prompt", rank),
 								Messages.get(this, "choose_smite"), Messages.get(this, "choose_zealot"),
@@ -368,9 +348,9 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 			if (enemy.properties().contains(Char.Property.BOSS)) {
 				// prvents "SMITE! HA HA I WON" situation, by NEVER one-kill bosses
-				if (dmg >= enemy.HP/4) {
-					dmg = enemy.HP/4;
-					GLog.w( Messages.capitalize(Messages.get(Devotion.class, "smite_boss", enemy.name)) );
+				if (dmg >= enemy.HT/4) {
+					dmg = enemy.HT/4;
+					GLog.w( Messages.capitalize(Messages.get(Devotion.class, "smite_boss", enemy.name())) );
 				}
 			}
 
@@ -380,7 +360,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 					Camera.main.shake( GameMath.gate( 1, 10, 5), 0.3f );
 					break;
 				case CRUSADER:
-					if (enemy.properties().contains(Char.Property.MAGICAL)) {
+					if (enemy.properties().contains(Char.Property.SPELLCASTER)) {
 						Blindness blindness = enemy.buff(Blindness.class);
 						if (blindness == null) {
 							Buff.prolong(enemy, Blindness.class, 10f);
@@ -392,42 +372,31 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				case SCHOLAR:
 					for (int i : PathFinder.NEIGHBOURS8) {
 						enemy.damage( dmg, this );
+						CellEmitter.get(i).burst(RainbowParticle.BURST, 10+dmg);
+						CellEmitter.get(i).start( ShaftParticle.FACTORY, 0.25f, 8 );
 						Char ch = Actor.findChar(enemy.pos + i);
 						if (ch != null) {
 							// only harm enemy(no self damage, no friendly fire)
 							if (ch.alignment != Char.Alignment.ALLY || ch != Dungeon.hero) {
 								ch.damage( dmg, this );
-								CellEmitter.get(ch.pos).burst(RainbowParticle.BURST, 10+dmg);
-								CellEmitter.get(ch.pos).start( ShaftParticle.FACTORY, 0.25f, 8 );
 							}
 						}
 					}
 					Camera.main.shake( GameMath.gate( 1, 10, 5), 0.3f );
 					break;
-				case REDEEMER:
-					if (enemy.alignment == Char.Alignment.ALLY && !enemy.isCharmedBy(hero)) {
-						Buff.affect( enemy, Healing.class ).setHeal((int)(0.8f*(2*dmg) + 14), 0.25f, 0);
-						for (Buff b : enemy.buffs()){
-							if (b.type == Buff.buffType.NEGATIVE && !(b instanceof Corruption)){
-								b.detach();
-							}
-						}
-					} else { enemy.damage( dmg, this );
-						Camera.main.shake( GameMath.gate( 1, 10, 5), 0.3f ); }
-					break;
 			}
 
-			Sample.INSTANCE.play(Assets.SND_BLAST);
+			Sample.INSTANCE.play(Assets.Sounds.BLAST);
 			enemy.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+dmg);
 			CellEmitter.get(enemy.pos).start( ShaftParticle.FACTORY, 0.025f, 8 );
 			rank -= 15;
 
 			if (!enemy.isAlive()){
-				GLog.i( Messages.capitalize(Messages.get(Char.class, "defeat", enemy.name)) );
+				GLog.i( Messages.capitalize(Messages.get(Char.class, "defeat", enemy.name())) );
 			}
 
 			Invisibility.dispel();
-			Sample.INSTANCE.play( Assets.SND_LEVELUP );
+			Sample.INSTANCE.play( Assets.Sounds.LEVELUP );
 			new Flare( 6, 32 ).show( hero.sprite, 4f );
 
 			Devotion devotion = Dungeon.hero.buff(Devotion.class);
@@ -445,7 +414,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				default: return Messages.get(Devotion.class, "smite_prompt", dmg, Math.round(dmg*1.333f));
 				case CRUSADER: return Messages.get(Devotion.class, "smite_prompt_crusader", dmg, Math.round(dmg*1.333f));
 				case SCHOLAR: return Messages.get(Devotion.class, "smite_prompt_scholar", dmg, Math.round(dmg*1.333f));
-				case REDEEMER: return Messages.get(Devotion.class, "smite_prompt_redeemer", dmg, Math.round(dmg*1.333f), (int)(0.8f*(2*dmg) + 14));
 			}
 		}
 	};
@@ -522,8 +490,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				if (Dungeon.level.heroFOV[mob.pos]) {
 					if (mob.alignment == Char.Alignment.ALLY && !mob.isCharmedBy(hero)
 							&& mob.buff(Frost.class) == null && mob.buff(Paralysis.class) == null
-							&& mob.buff(Amok.class) == null && mob.HP >= mob.HT/2
-							&& !mob.isBaptized()) { // Redeemer's baptized ally boon
+							&& mob.buff(Amok.class) == null && mob.HP >= mob.HT/2) {
 						allies++;
 					} else {
 						if (mob.state != mob.SLEEPING) {
@@ -541,7 +508,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 							}
 
 							if (mob.properties().contains(Char.Property.MINIBOSS)) {
-								if (mob instanceof RotLasher || mob instanceof RotHeart || mob instanceof Piranha) {
+								if (mob instanceof RotLasher || mob instanceof RotHeart) {
 									if (mob.distance(target) == 1) {
 										enemies++;
 									}
@@ -689,8 +656,8 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				int bless = Dungeon.level.map[i];
 				if (bless == Terrain.WATER) {
 					CellEmitter.get(i).burst(Speck.factory( Speck.BUBBLE ), 2);
-					GameScene.add(Blob.seed(i, amount, BlessedWater.class));
-					Sample.INSTANCE.play( Assets.SND_DRINK );
+					//GameScene.add(Blob.seed(i, amount, BlessedWater.class));
+					Sample.INSTANCE.play( Assets.Sounds.DRINK );
 				}
 			}
 		}
@@ -707,11 +674,11 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		PathFinder.buildDistanceMap( hero.pos, BArray.not( Dungeon.level.solid, null ), 2 );
 		for (int i = 0; i < PathFinder.distance.length; i++) {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE) {
-				if (Dungeon.level.pit[i])
-					GameScene.add(Blob.seed(i, 2, CermateFire.class));
-				else
-					GameScene.add(Blob.seed(i, amount+1, CermateFire.class));
-				CellEmitter.get(i).burst(CermateFireParticle.FACTORY, 5);
+				//if (Dungeon.level.pit[i])
+				//	GameScene.add(Blob.seed(i, 2, CermateFire.class));
+				//else
+				//	GameScene.add(Blob.seed(i, amount+1, CermateFire.class));
+				//CellEmitter.get(i).burst(CermateFireParticle.FACTORY, 5);
 
 				Char ch = Actor.findChar( i );
 				if (ch != null && ch.alignment != hero.alignment
@@ -719,100 +686,16 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 					if (ch.isAlive()) {
 						if (ch.HP <= 4) {
 							ch.damage(ch.HP, this);
-						} else { ch.damage(ch.HT / 4, CermateFire.class); }
+						} //else { ch.damage(ch.HT / 4, CermateFire.class); }
 						ch.sprite.emitter().burst( ElmoParticle.FACTORY, 10 );
 					}
 				}
 			}
 		}
-		Sample.INSTANCE.play(Assets.SND_BURNING);
+		Sample.INSTANCE.play(Assets.Sounds.BURNING);
 
 		rank -= 25;
 		invocation();
 		hero.spendAndNext(Actor.TICK);
-	}
-
-	CellSelector.Listener baptize = new CellSelector.Listener() {
-		@Override
-		public void onSelect(Integer cell) {
-			Devotion devotion = Dungeon.hero.buff(Devotion.class);
-			if (devotion.baptizeUsed != 0) {
-				GLog.w(Messages.get(Devotion.class, "baptize_used"));
-				return;
-			}
-			if (cell == null) return;
-			final Char enemy = Actor.findChar(cell);
-			if (enemy == null || !Dungeon.level.heroFOV[cell] || enemy == hero || enemy.isBaptized()) {
-				GLog.w(Messages.get(Devotion.class, "baptize_bad_target"));
-				return;
-			} else if (enemy.properties().contains(Char.Property.BOSS)
-					|| enemy.properties().contains(Char.Property.MINIBOSS)
-					|| enemy instanceof Wraith
-					|| enemy instanceof Statue) {
-				GLog.w(Messages.get(Devotion.class, "baptize_cannot_boss"));
-				return;
-			} else if (enemy instanceof Bee) {
-				GLog.w(Messages.get(Devotion.class, "baptize_bad_target_bee"));
-				return;
-			} else {
-				if (cell != null) {
-					hero.sprite.attack(cell, new Callback() {
-						@Override
-						public void call() {
-							doBaptize(enemy);
-						}
-					});
-				} else return;
-			}
-		}
-
-		private void doBaptize(final Char enemy) {
-		    enemy.HT += 12;
-			enemy.HP = enemy.HT;
-			for (Buff buff : enemy.buffs()) {
-				if (buff.type == Buff.buffType.NEGATIVE) {
-					buff.detach();
-				} else if (buff instanceof PinCushion){
-					buff.detach();
-				}
-			}
-
-			Mob bMob = (Mob) enemy;
-			Buff.affect(bMob, Baptized.class);
-
-			((HeroSprite) hero.sprite).read();
-			Invisibility.dispel();
-			Sample.INSTANCE.play( Assets.SND_LEVELUP );
-			new Flare( 6, 32 ).show( hero.sprite, 4f );
-			SpellSprite.show(Dungeon.hero, SpellSprite.MASTERY);
-
-			GLog.p( Messages.get(Devotion.class, "baptize_on", enemy.name) );
-
-			baptizeUsed = 1;
-			rank -= 60;
-            Devotion devotion = Dungeon.hero.buff(Devotion.class);
-            ActionIndicator.setAction(devotion);
-			ActionIndicator.updateIcon();
-			BuffIndicator.refreshHero();
-
-            BaptizedOrder order = new BaptizedOrder();
-            order.attachTo(hero);
-
-			hero.spendAndNext(Actor.TICK);
-		}
-
-		@Override
-		public String prompt () {
-			return Messages.get(Devotion.class, "baptize_prompt");
-		}
-	};
-
-	public static int Baptized_Level(Mob mob) {
-		Baptized b = mob.buff(Baptized.class);
-		return b.level;
-	}
-
-	public void Baptized_canUse() {
-		baptizeUsed = 0;
 	}
 }

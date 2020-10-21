@@ -30,7 +30,7 @@ public class Cudgel extends MeleeWeapon {
 
 		tier = 1;
 		ACC = 1.36f; //36% boost to accuracy
-		
+
 		bones = false;
 	}
 

@@ -25,16 +25,12 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Cripple;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.OnBlessedWater;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Slow;
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Weakness;
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
-import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.noosa.Image;
 import com.watabou.utils.PathFinder;
 
@@ -59,7 +55,7 @@ public class BlessedWater extends Blob {
 			}
 		}
 
-		//..then cripple evil beings!
+		//..then slow + weaken evil beings!
 		for (int i = area.left-1; i <= area.right; i++) {
 			for (int j = area.top-1; j <= area.bottom; j++) {
 				cell = i + j*Dungeon.level.width();
@@ -67,9 +63,10 @@ public class BlessedWater extends Blob {
 					Char ch = Actor.findChar( cell );
 					if (ch != null && ch.alignment != Dungeon.hero.alignment
 							&& (ch.properties().contains(Char.Property.DEMONIC)
-								||ch.properties().contains(Char.Property.UNDEAD))
+							||ch.properties().contains(Char.Property.UNDEAD))
 							&& !ch.flying) {
-						Buff.affect( ch, OnBlessedWater.class, 1f);
+						Buff.prolong( ch, Slow.class, 1f);
+						Buff.prolong( ch, Weakness.class, 1f);
 						ch.sprite.centerEmitter().burst( Speck.factory(Speck.LIGHT), 4);
 					}
 

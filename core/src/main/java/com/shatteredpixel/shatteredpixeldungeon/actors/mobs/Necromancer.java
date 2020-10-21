@@ -60,6 +60,7 @@ public class Necromancer extends Mob {
 		lootChance = 0.2f; //see createloot
 		
 		properties.add(Property.UNDEAD);
+		properties.add(Property.SPELLCASTER);
 		
 		HUNTING = new Hunting();
 	}
