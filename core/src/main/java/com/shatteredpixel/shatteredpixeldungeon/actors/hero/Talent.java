@@ -121,7 +121,7 @@ public enum Talent {
 			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
 		}
 		if (talent == ACOLYTES_INTUITION && hero.pointsInTalent(ACOLYTES_INTUITION) == 2){
-			for (Item item : Dungeon.hero.belongings.backpack){
+			for (Item item : Dungeon.hero.belongings){
 				if (item.cursed && !item.cursedKnown){
 					item.identify();
 				}

@@ -21,12 +21,16 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee;
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets;
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 
 public class Cudgel extends MeleeWeapon {
 
 	{
 		image = ItemSpriteSheet.CUDGEL;
+		hitSound = Assets.Sounds.HIT_CRUSH;
+		hitSoundPitch = 1f;
 
 		tier = 1;
 		ACC = 1.36f; //36% boost to accuracy
@@ -40,4 +44,8 @@ public class Cudgel extends MeleeWeapon {
 				lvl*(tier+1);   //scaling unchanged
 	}
 
+	@Override
+	public int defenseFactor( Char owner ) {
+		return 1;	//1 extra defence
+	}
 }

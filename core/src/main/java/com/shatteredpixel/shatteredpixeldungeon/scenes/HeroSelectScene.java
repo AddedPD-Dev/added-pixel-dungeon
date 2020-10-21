@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.DM300Sprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
@@ -57,6 +58,8 @@ import com.watabou.utils.GameMath;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+
+import static com.shatteredpixel.shatteredpixeldungeon.ui.Icons.CLERIC;
 
 public class HeroSelectScene extends PixelScene {
 
@@ -378,6 +381,12 @@ public class HeroSelectScene extends PixelScene {
 					tabIcons = new Image[]{
 							new ItemSprite(ItemSpriteSheet.SPIRIT_BOW, null),
 							new ItemSprite(ItemSpriteSheet.GLOVES, null)
+					};
+					break;
+				case CLERIC:
+					tabIcons = new Image[]{
+							Icons.get(CLERIC),
+							new ItemSprite(ItemSpriteSheet.CUDGEL, null)
 					};
 					break;
 			}

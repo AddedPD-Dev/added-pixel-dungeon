@@ -200,7 +200,7 @@ public enum Icons {
 				icon.frame( icon.texture.uvRect( 64, 48, 80, 64 ) );
 				break;
 			case CLERIC:
-				icon.frame( icon.texture.uvRect( 50, 80, 67, 96 ) );
+				icon.frame( icon.texture.uvRect( 50, 79, 67, 96 ) );
 				break;
 			case DWARF_HERO:
 				icon.frame( icon.texture.uvRect( 68, 80, 85, 96 ) );
