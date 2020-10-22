@@ -25,12 +25,15 @@ import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Piranha;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Wraith;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfFuror;
@@ -57,7 +60,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Unstab
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.enchantments.Vampiric;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
+import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Random;
@@ -121,8 +126,14 @@ abstract public class Weapon extends KindOfWeapon {
 			}
 		}
 
-		if (enlightened && Random.IntRange(1, 10) == 10) {
-			Buff.prolong(attacker, Bless.class, 10f);
+		if (enlightened) {
+			if (Random.IntRange(1, 10) == 10) {
+				Buff.prolong(attacker, Bless.class, 10f);
+				if (attacker == Dungeon.hero && Dungeon.hero.subClass == HeroSubClass.CRUSADER) {
+					if (defender.properties().contains(Char.Property.SPELLCASTER))
+						Buff.prolong(defender, Blindness.class, 2f);
+				}
+			}
 		}
 		return damage;
 	}
@@ -254,6 +265,16 @@ abstract public class Weapon extends KindOfWeapon {
 	@Override
 	public String name() {
 		return enchantment != null && (cursedKnown || !enchantment.curse()) ? enchantment.name( super.name() ) : super.name();
+	}
+
+	@Override
+	public Emitter emitter() {
+		if (!enlightened) return super.emitter();
+		Emitter emitter = new Emitter();
+		emitter.pos(ItemSpriteSheet.film.width(image)/2f + 2f, ItemSpriteSheet.film.height(image)/3f);
+		emitter.fillTarget = false;
+		emitter.pour(Speck.factory( Speck.LIGHT ), 0.6f);
+		return emitter;
 	}
 	
 	@Override
