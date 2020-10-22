@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
+import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
@@ -58,6 +59,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.DeviceCompat;
+import com.watabou.utils.Random;
 
 public enum HeroClass {
 
@@ -208,6 +210,26 @@ public enum HeroClass {
 		devotion.attachTo(hero);
 		devotion.onOther(5);
 		ActionIndicator.setAction(devotion);
+
+		switch (Random.IntRange(1,4)) {
+			case 1:
+			default:
+				new PotionBandolier().collect();
+				Dungeon.LimitedDrops.POTION_BANDOLIER.drop();
+				break;
+			case 2:
+				new VelvetPouch().collect();
+				Dungeon.LimitedDrops.VELVET_POUCH.drop();
+				break;
+			case 3:
+				new ScrollHolder().collect();
+				Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
+				break;
+			case 4:
+				new MagicalHolster().collect();
+				Dungeon.LimitedDrops.MAGICAL_HOLSTER.drop();
+				break;
+		}
 
 		new PotionOfExperience().identify();
 		new ScrollOfRemoveCurse().identify();

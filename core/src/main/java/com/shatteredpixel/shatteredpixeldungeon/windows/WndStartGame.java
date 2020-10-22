@@ -332,6 +332,11 @@ public class WndStartGame extends Window {
 							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.GLOVES, null));
 							heroMisc.icon(new Image(Assets.Environment.TILES_SEWERS, 112, 96, 16, 16 ));
 							break;
+						case CLERIC:
+							heroItem.icon(new Image(Icons.SMITE));
+							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.CUDGEL, null));
+							heroMisc.icon(new Image(Icons.CLERIC));
+							break;
 					}
 					
 					layout();

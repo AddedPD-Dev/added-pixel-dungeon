@@ -120,11 +120,12 @@ public enum Talent {
 			if (hero.belongings.ring instanceof Ring) hero.belongings.ring.setKnown();
 			if (hero.belongings.misc instanceof Ring) ((Ring) hero.belongings.misc).setKnown();
 		}
+		if (talent == ACOLYTES_INTUITION && hero.pointsInTalent(ACOLYTES_INTUITION) == 1){
+			for (Item item : Dungeon.hero.belongings) item.cursedKnown = true;
+		}
 		if (talent == ACOLYTES_INTUITION && hero.pointsInTalent(ACOLYTES_INTUITION) == 2){
 			for (Item item : Dungeon.hero.belongings){
-				if (item.cursed && !item.cursedKnown){
-					item.identify();
-				}
+				if (item.cursed) item.identify();
 			}
 		}
 	}
@@ -153,7 +154,7 @@ public enum Talent {
 		}
 		if (hero.hasTalent(GRACE_BEFORE_MEAL)){
 			//5 turns of blessing/+curing
-			Buff.prolong( hero, Bless.class, 5f);
+			Buff.prolong( hero, Bless.class, 7f);
 			if (hero.pointsInTalent(GRACE_BEFORE_MEAL) == 2) {
 				PotionOfHealing.cure(hero);
 				hero.sprite.emitter().burst( Speck.factory( Speck.DISCOVER ), 2 );
@@ -198,8 +199,8 @@ public enum Talent {
 			if (item instanceof Ring) ((Ring) item).setKnown();
 		}
 		if (hero.hasTalent(ACOLYTES_INTUITION)){
-			if (item.cursed && !item.cursedKnown) item.cursedKnown = true;
-			if (hero.pointsInTalent(ACOLYTES_INTUITION) == 2) item.identify();
+			if (!item.cursedKnown) item.cursedKnown = true;
+			if (hero.pointsInTalent(ACOLYTES_INTUITION) == 2 && item.cursed) item.identify();
 		}
 	}
 

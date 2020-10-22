@@ -25,6 +25,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.BlessedWater;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CermateFire;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -33,17 +36,18 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotHeart;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.RotLasher;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.PrismaticImage;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
-import com.shatteredpixel.shatteredpixeldungeon.effects.Enchanting;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.CermateFireParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClericArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
@@ -144,7 +148,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		BuffIndicator.refreshHero();
 
 		if (hero.hasTalent(Talent.SEER))
-			Buff.prolong(hero, Foresight.class, 2 + 3*(hero.pointsInTalent(Talent.SEER)));
+			Buff.prolong(hero, Foresight.class, 3 + 7*(1-hero.pointsInTalent(Talent.SEER)));
 	}
 
 	public int getrank() {
@@ -181,7 +185,11 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 	public Image getIcon() {
 		Image icon;
 
-		if (rank >= 30) {
+		if (hero.buff(ClericArmor.ClericArmorBuff.class) != null) {
+			icon = Icons.get_miracle(Icons.ENLIGHTEN);
+		} else if (rank >= 45) {
+			icon = Icons.get_miracle(Icons.ENLIGHTEN);
+		} else if (rank >= 30) {
 			icon = Icons.get_miracle(Icons.ZEALOT);
 		} else if (rank >= 15) {
 			if (hero.subClass == HeroSubClass.SCHOLAR) {
@@ -199,9 +207,18 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 	}
 
 	@Override
+	public void tintIcon(Image icon) {
+		if (hero.buff(ClericArmor.ClericArmorBuff.class) != null) {
+			icon.hardlight(0f, 1f, 0f);
+			icon.resetColor();
+		}
+	}
+
+	@Override
 	public void doAction() {
 		if (hero.subClass == HeroSubClass.NONE || hero.subClass == HeroSubClass.CRUSADER) {
-			if (rank >= 45) { // rank 45+ : smite, zealot, enlighten
+			if (rank >= 45 || hero.buff(ClericArmor.ClericArmorBuff.class) != null) {
+				// rank 45+ : smite, zealot, enlighten
 				GameScene.show(
 						new WndOptions(Messages.get(this, "name"), Messages.get(this, "prompt", rank),
 								Messages.get(this, "choose_smite"), Messages.get(this, "choose_zealot"),
@@ -231,7 +248,8 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			}
 		}
 		else if (hero.subClass == HeroSubClass.SCHOLAR) {
-			if (rank >= 45) { // rank 45+ : smite, holy_water, cremate, zealot, enlighten
+			if (rank >= 45 || hero.buff(ClericArmor.ClericArmorBuff.class) != null) {
+				// rank 45+ : smite, holy_water, cremate, zealot, enlighten
 				GameScene.show(
 						new WndOptions(Messages.get(this, "name"), Messages.get(this, "prompt", rank),
 								Messages.get(this, "choose_smite"), Messages.get(this, "choose_holy_water"),
@@ -348,10 +366,11 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 
 			if (enemy.properties().contains(Char.Property.BOSS)) {
 				// prvents "SMITE! HA HA I WON" situation, by NEVER one-kill bosses
-				if (dmg >= enemy.HT/4) {
-					dmg = enemy.HT/4;
-					GLog.w( Messages.capitalize(Messages.get(Devotion.class, "smite_boss", enemy.name())) );
-				}
+				if (dmg >= enemy.HT/10)
+    				dmg = enemy.HT/10;
+
+				GLog.w( Messages.capitalize(Messages.get(Devotion.class, "smite_boss", enemy.name())) );
+
 			}
 
 			switch (hero.subClass) {
@@ -389,7 +408,10 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			Sample.INSTANCE.play(Assets.Sounds.BLAST);
 			enemy.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+dmg);
 			CellEmitter.get(enemy.pos).start( ShaftParticle.FACTORY, 0.025f, 8 );
-			rank -= 15;
+
+			if (hero.buff(ClericArmor.ClericArmorBuff.class) != null){
+				hero.buff(ClericArmor.ClericArmorBuff.class).detach();
+			} else rank -= 15;
 
 			if (!enemy.isAlive()){
 				GLog.i( Messages.capitalize(Messages.get(Char.class, "defeat", enemy.name())) );
@@ -398,6 +420,9 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			Invisibility.dispel();
 			Sample.INSTANCE.play( Assets.Sounds.LEVELUP );
 			new Flare( 6, 32 ).show( hero.sprite, 4f );
+
+			if (hero.hasTalent(Talent.SEER))
+				Buff.prolong(hero, Foresight.class, 3 + 7*(1-hero.pointsInTalent(Talent.SEER)));
 
 			Devotion devotion = Dungeon.hero.buff(Devotion.class);
 			ActionIndicator.setAction(devotion);
@@ -593,7 +618,9 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		ZealotBuff zealotBuff = Buff.affect( hero, ZealotBuff.class );
 		zealotBuff.prolong( amount );
 
-		rank -= 30;
+		if (hero.buff(ClericArmor.ClericArmorBuff.class) != null){
+			hero.buff(ClericArmor.ClericArmorBuff.class).detach();
+		} else rank -= 30;
 		invocation();
 		hero.spendAndNext(Actor.TICK);
 	}
@@ -609,21 +636,21 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				if (item.cursed) {
 					item.cursedKnown = true;
 					item.cursed = false;
+
+					if (((Weapon) item).hasCurseEnchant())
+						((Weapon) item).enchant(null);
+					if (((Armor) item).hasCurseGlyph())
+						((Armor) item).inscribe(null);
+
 					hero.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10);
 				}
-				if (item instanceof Weapon) {
-					if (((Weapon) item).enchantment != null) {
-						((Weapon) item).enchant(null);
-					}
-				} else if (item instanceof Armor) {
-					if (((Armor) item).glyph != null) {
-						((Armor) item).inscribe(null);
-					}
-				}
+
 				item.enlightened = true;
 				GLog.p( Messages.get(Devotion.class, "enlighten"));
-				Enchanting.show(hero, item);
-				rank -= 45;
+
+				if (hero.buff(ClericArmor.ClericArmorBuff.class) != null){
+					hero.buff(ClericArmor.ClericArmorBuff.class).detach();
+				} else rank -= 45;
 				invocation();
 				hero.spendAndNext(Actor.TICK);
 			}
@@ -656,13 +683,15 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				int bless = Dungeon.level.map[i];
 				if (bless == Terrain.WATER) {
 					CellEmitter.get(i).burst(Speck.factory( Speck.BUBBLE ), 2);
-					//GameScene.add(Blob.seed(i, amount, BlessedWater.class));
+					GameScene.add(Blob.seed(i, amount, BlessedWater.class));
 					Sample.INSTANCE.play( Assets.Sounds.DRINK );
 				}
 			}
 		}
 
-		rank -= 20;
+		if (hero.buff(ClericArmor.ClericArmorBuff.class) != null){
+			hero.buff(ClericArmor.ClericArmorBuff.class).detach();
+		} else rank -= 20;
 		invocation();
 		hero.spendAndNext(Actor.TICK);
 	}
@@ -674,11 +703,11 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		PathFinder.buildDistanceMap( hero.pos, BArray.not( Dungeon.level.solid, null ), 2 );
 		for (int i = 0; i < PathFinder.distance.length; i++) {
 			if (PathFinder.distance[i] < Integer.MAX_VALUE) {
-				//if (Dungeon.level.pit[i])
-				//	GameScene.add(Blob.seed(i, 2, CermateFire.class));
-				//else
-				//	GameScene.add(Blob.seed(i, amount+1, CermateFire.class));
-				//CellEmitter.get(i).burst(CermateFireParticle.FACTORY, 5);
+				if (Dungeon.level.pit[i])
+					GameScene.add(Blob.seed(i, 2, CermateFire.class));
+				else
+					GameScene.add(Blob.seed(i, amount+1, CermateFire.class));
+				CellEmitter.get(i).burst(CermateFireParticle.FACTORY, 5);
 
 				Char ch = Actor.findChar( i );
 				if (ch != null && ch.alignment != hero.alignment
@@ -686,7 +715,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 					if (ch.isAlive()) {
 						if (ch.HP <= 4) {
 							ch.damage(ch.HP, this);
-						} //else { ch.damage(ch.HT / 4, CermateFire.class); }
+						} else { ch.damage(ch.HT / 4, CermateFire.class); }
 						ch.sprite.emitter().burst( ElmoParticle.FACTORY, 10 );
 					}
 				}
@@ -694,7 +723,10 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		}
 		Sample.INSTANCE.play(Assets.Sounds.BURNING);
 
-		rank -= 25;
+		if (hero.buff(ClericArmor.ClericArmorBuff.class) != null){
+			hero.buff(ClericArmor.ClericArmorBuff.class).detach();
+		} else rank -= 25;
+
 		invocation();
 		hero.spendAndNext(Actor.TICK);
 	}

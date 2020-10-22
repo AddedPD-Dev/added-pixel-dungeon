@@ -24,8 +24,11 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.exotic.PotionOfHolyFuror;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CeremonialCandle;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.Embers;
@@ -153,6 +156,9 @@ public class Wandmaker extends NPC {
 				case HUNTRESS:
 					msg1 += Messages.get(this, "intro_huntress");
 					break;
+				case CLERIC:
+					msg1 += Messages.get(this, "intro_cleric");
+					break;
 			}
 
 			msg1 += Messages.get(this, "intro_1");
@@ -169,7 +175,11 @@ public class Wandmaker extends NPC {
 					break;
 			}
 
-			msg2 += Messages.get(this, "intro_2");
+			if (Dungeon.hero.heroClass == HeroClass.CLERIC)
+			    msg2 += Messages.get(this, "intro_2_cleric");
+			else
+				msg2 += Messages.get(this, "intro_2");
+
 			final String msg1Final = msg1;
 			final String msg2Final = msg2;
 			
@@ -205,7 +215,9 @@ public class Wandmaker extends NPC {
 		
 		public static Wand wand1;
 		public static Wand wand2;
-		
+		public static PotionOfExperience potion1;
+		public static PotionOfHolyFuror potion2;
+
 		public static void reset() {
 			spawned = false;
 			type = 0;
@@ -221,6 +233,8 @@ public class Wandmaker extends NPC {
 		private static final String GIVEN		= "given";
 		private static final String WAND1		= "wand1";
 		private static final String WAND2		= "wand2";
+		private static final String POTION1		= "potion1";
+		private static final String POTION2		= "potion2";
 
 		private static final String RITUALPOS	= "ritualpos";
 		
@@ -238,6 +252,9 @@ public class Wandmaker extends NPC {
 				
 				node.put( WAND1, wand1 );
 				node.put( WAND2, wand2 );
+
+				node.put( POTION1, potion1 );
+				node.put( POTION2, potion2 );
 
 				if (type == 2){
 					node.put( RITUALPOS, CeremonialCandle.ritualPos );
@@ -260,6 +277,9 @@ public class Wandmaker extends NPC {
 				
 				wand1 = (Wand)node.get( WAND1 );
 				wand2 = (Wand)node.get( WAND2 );
+
+				potion1 = (PotionOfExperience) node.get( POTION1 );
+				potion2 = (PotionOfHolyFuror) node.get( POTION2 );
 
 				if (type == 2){
 					CeremonialCandle.ritualPos = node.getInt( RITUALPOS );
@@ -309,7 +329,10 @@ public class Wandmaker extends NPC {
 				} while (wand2.getClass().equals(wand1.getClass()));
 				wand2.cursed = false;
 				wand2.upgrade();
-				
+
+				potion1 = new PotionOfExperience();
+				potion2 = new PotionOfHolyFuror();
+
 			}
 		}
 		
@@ -341,6 +364,8 @@ public class Wandmaker extends NPC {
 		public static void complete() {
 			wand1 = null;
 			wand2 = null;
+			potion1 = null;
+			potion2 = null;
 			
 			Notes.remove( Notes.Landmark.WANDMAKER );
 		}

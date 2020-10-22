@@ -23,13 +23,19 @@ package com.shatteredpixel.shatteredpixeldungeon.items.armor;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
 
 import java.util.ArrayList;
+
+import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.hero;
 
 abstract public class ClassArmor extends Armor {
 
@@ -71,6 +77,24 @@ abstract public class ClassArmor extends Armor {
 			break;
 		case HUNTRESS:
 			classArmor = new HuntressArmor();
+			break;
+		case CLERIC:
+			classArmor = new ClericArmor();
+			if (!classArmor.enlightened) {
+				if (armor.cursed) {
+					armor.cursedKnown = true;
+					armor.cursed = false;
+
+					if (armor.hasCurseGlyph())
+						armor.inscribe(null);
+
+					hero.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10);
+				}
+
+				classArmor.enlightened = true;
+				GLog.p( Messages.get(Devotion.class, "enlighten"));
+				new Flare( 6, 32 ).show( hero.sprite, 4f );
+			}
 			break;
 		}
 		

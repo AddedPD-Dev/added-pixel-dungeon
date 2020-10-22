@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.Wandmaker;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.quest.CorpseDust;
@@ -53,41 +54,74 @@ public class WndWandmaker extends Window {
 		add( titlebar );
 
 		String msg = "";
-		if (item instanceof CorpseDust){
-			msg = Messages.get(this, "dust");
-		} else if (item instanceof Embers){
-			msg = Messages.get(this, "ember");
-		} else if (item instanceof Rotberry.Seed){
-			msg = Messages.get(this, "berry");
+		if (Dungeon.hero.heroClass == HeroClass.CLERIC){
+			if (item instanceof CorpseDust){
+				msg = Messages.get(this, "dust");
+			} else if (item instanceof Embers){
+				msg = Messages.get(this, "ember");
+			} else if (item instanceof Rotberry.Seed){
+				msg = Messages.get(this, "berry");
+			}
+		} else {
+			if (item instanceof CorpseDust) {
+				msg = Messages.get(this, "dust_cleric");
+			} else if (item instanceof Embers) {
+				msg = Messages.get(this, "ember_cleric");
+			} else if (item instanceof Rotberry.Seed) {
+				msg = Messages.get(this, "berry_cleric");
+			}
 		}
 
 		RenderedTextBlock message = PixelScene.renderTextBlock( msg, 6 );
 		message.maxWidth(WIDTH);
 		message.setPos(0, titlebar.bottom() + GAP);
 		add( message );
-		
-		RedButton btnWand1 = new RedButton( Messages.titleCase(Wandmaker.Quest.wand1.name()) ) {
-			@Override
-			protected void onClick() {
-				selectReward( wandmaker, item, Wandmaker.Quest.wand1 );
-			}
-		};
-		btnWand1.setRect(0, message.top() + message.height() + GAP, WIDTH, BTN_HEIGHT);
-		add( btnWand1 );
-		
-		RedButton btnWand2 = new RedButton( Messages.titleCase(Wandmaker.Quest.wand2.name()) ) {
-			@Override
-			protected void onClick() {
-				selectReward( wandmaker, item, Wandmaker.Quest.wand2 );
-			}
-		};
-		btnWand2.setRect(0, btnWand1.bottom() + GAP, WIDTH, BTN_HEIGHT);
-		add( btnWand2 );
-		
-		resize(WIDTH, (int) btnWand2.bottom());
+
+		if (Dungeon.hero.heroClass == HeroClass.CLERIC) {
+			RedButton btnWand1 = new RedButton(Messages.titleCase(Wandmaker.Quest.potion1.name())) {
+				@Override
+				protected void onClick() {
+					selectReward(wandmaker, item, Wandmaker.Quest.potion1);
+				}
+			};
+			btnWand1.setRect(0, message.top() + message.height() + GAP, WIDTH, BTN_HEIGHT);
+			add(btnWand1);
+
+			RedButton btnWand2 = new RedButton(Messages.titleCase(Wandmaker.Quest.potion2.name())) {
+				@Override
+				protected void onClick() {
+					selectReward(wandmaker, item, Wandmaker.Quest.potion2);
+				}
+			};
+			btnWand2.setRect(0, btnWand1.bottom() + GAP, WIDTH, BTN_HEIGHT);
+			add(btnWand2);
+
+			resize(WIDTH, (int) btnWand2.bottom());
+		} else {
+			RedButton btnWand1 = new RedButton( Messages.titleCase(Wandmaker.Quest.wand1.name()) ) {
+				@Override
+				protected void onClick() {
+					selectReward( wandmaker, item, Wandmaker.Quest.wand1 );
+				}
+			};
+			btnWand1.setRect(0, message.top() + message.height() + GAP, WIDTH, BTN_HEIGHT);
+			add( btnWand1 );
+
+			RedButton btnWand2 = new RedButton( Messages.titleCase(Wandmaker.Quest.wand2.name()) ) {
+				@Override
+				protected void onClick() {
+					selectReward( wandmaker, item, Wandmaker.Quest.wand2 );
+				}
+			};
+			btnWand2.setRect(0, btnWand1.bottom() + GAP, WIDTH, BTN_HEIGHT);
+			add( btnWand2 );
+
+			resize(WIDTH, (int) btnWand2.bottom());
+		}
+
 	}
 	
-	private void selectReward( Wandmaker wandmaker, Item item, Wand reward ) {
+	private void selectReward( Wandmaker wandmaker, Item item, Item reward ) {
 
 		if (reward == null){
 			return;

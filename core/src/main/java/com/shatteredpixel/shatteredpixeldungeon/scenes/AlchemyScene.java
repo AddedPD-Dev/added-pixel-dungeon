@@ -31,6 +31,8 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Recipe;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.AlchemistsToolkit;
+import com.shatteredpixel.shatteredpixeldungeon.items.spells.ArcaneCatalyst;
+import com.shatteredpixel.shatteredpixeldungeon.items.spells.Spell;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.darts.Dart;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -357,26 +359,35 @@ public class AlchemyScene extends PixelScene {
 		
 		if (recipe != null){
 			int cost = recipe.cost(ingredients);
-			
+
 			output.item(recipe.sampleOutput(ingredients));
 			output.visible = true;
-			
+
 			energyCost.text( Messages.get(AlchemyScene.class, "cost", cost) );
 			energyCost.setPos(
 					btnCombine.left() + (btnCombine.width() - energyCost.width())/2,
 					btnCombine.top() - energyCost.height()
 			);
-			
+
 			energyCost.visible = (cost > 0);
-			
+
 			if (cost <= availableEnergy()) {
 				btnCombine.enable(true);
 				energyCost.resetColor();
+			} else if (recipe.sampleOutput(ingredients) instanceof Spell
+						|| recipe.sampleOutput(ingredients) instanceof ArcaneCatalyst) {
+				btnCombine.enable(false);
+				energyCost.setPos(
+						btnCombine.left() + (btnCombine.width() - energyCost.width())/4,
+						btnCombine.top() - energyCost.height()
+				);
+				energyCost.text( Messages.get(AlchemyScene.class, "no_magic", cost) );
+				energyCost.hardlight(0xFF0000);
 			} else {
 				btnCombine.enable(false);
 				energyCost.hardlight(0xFF0000);
 			}
-			
+
 		} else {
 			btnCombine.enable(false);
 			output.visible = false;
