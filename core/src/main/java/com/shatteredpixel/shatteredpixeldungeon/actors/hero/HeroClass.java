@@ -208,7 +208,7 @@ public enum HeroClass {
 
 		Devotion devotion = new Devotion();
 		devotion.attachTo(hero);
-		devotion.onOther(45);
+		//devotion.onOther(45);
 		ActionIndicator.setAction(devotion);
 
 		new MagicalHolster().collect();
