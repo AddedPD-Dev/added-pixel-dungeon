@@ -27,6 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Belongings;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Recipe;
@@ -371,11 +372,9 @@ public class AlchemyScene extends PixelScene {
 
 			energyCost.visible = (cost > 0);
 
-			if (cost <= availableEnergy()) {
-				btnCombine.enable(true);
-				energyCost.resetColor();
-			} else if (recipe.sampleOutput(ingredients) instanceof Spell
-						|| recipe.sampleOutput(ingredients) instanceof ArcaneCatalyst) {
+			if (Dungeon.hero.heroClass == HeroClass.CLERIC
+					&& (recipe.sampleOutput(ingredients) instanceof Spell
+					|| recipe.sampleOutput(ingredients) instanceof ArcaneCatalyst)) {
 				btnCombine.enable(false);
 				energyCost.setPos(
 						btnCombine.left() + (btnCombine.width() - energyCost.width())/4,
@@ -383,6 +382,9 @@ public class AlchemyScene extends PixelScene {
 				);
 				energyCost.text( Messages.get(AlchemyScene.class, "no_magic", cost) );
 				energyCost.hardlight(0xFF0000);
+			} else if (cost <= availableEnergy()) {
+				btnCombine.enable(true);
+				energyCost.resetColor();
 			} else {
 				btnCombine.enable(false);
 				energyCost.hardlight(0xFF0000);

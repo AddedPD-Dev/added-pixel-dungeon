@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.BlessedWater;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.CermateFire;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
@@ -38,11 +39,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.PrismaticImage;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Flare;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
-import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.CermateFireParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ElmoParticle;
-import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShaftParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
@@ -64,14 +63,17 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.BArray;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
+import com.watabou.glwrap.Blending;
 import com.watabou.noosa.Camera;
+import com.watabou.noosa.Game;
+import com.watabou.noosa.Halo;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.PathFinder;
-
+import com.watabou.utils.PointF;
 
 import static com.shatteredpixel.shatteredpixeldungeon.Dungeon.hero;
 
@@ -142,7 +144,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		Invisibility.dispel();
 		Sample.INSTANCE.play( Assets.Sounds.LEVELUP );
 		new Flare( 6, 32 ).show( hero.sprite, 4f );
-		SpellSprite.show(Dungeon.hero, SpellSprite.MASTERY);
 		ActionIndicator.setAction( this );
 		ActionIndicator.updateIcon();
 		BuffIndicator.refreshHero();
@@ -169,6 +170,7 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 	public String desc() {
 		String desc = Messages.get(this, "desc", rank);
 		String miracles = Messages.get(this, "miracles");
+
 		if (hero.subClass == HeroSubClass.CRUSADER) {
 			String crusader = Messages.get(this, "crusader");
 			return desc + miracles + crusader;
@@ -204,14 +206,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 		} else icon = Icons.get(HeroClass.CLERIC);
 
 		return icon;
-	}
-
-	@Override
-	public void tintIcon(Image icon) {
-		if (hero.buff(ClericArmor.ClericArmorBuff.class) != null) {
-			icon.hardlight(0f, 1f, 0f);
-			icon.resetColor();
-		}
 	}
 
 	@Override
@@ -370,7 +364,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
     				dmg = enemy.HT/10;
 
 				GLog.w( Messages.capitalize(Messages.get(Devotion.class, "smite_boss", enemy.name())) );
-
 			}
 
 			switch (hero.subClass) {
@@ -391,7 +384,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 				case SCHOLAR:
 					for (int i : PathFinder.NEIGHBOURS8) {
 						enemy.damage( dmg, this );
-						CellEmitter.get(i).burst(RainbowParticle.BURST, 10+dmg);
 						CellEmitter.get(i).start( ShaftParticle.FACTORY, 0.25f, 8 );
 						Char ch = Actor.findChar(enemy.pos + i);
 						if (ch != null) {
@@ -406,7 +398,6 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 			}
 
 			Sample.INSTANCE.play(Assets.Sounds.BLAST);
-			enemy.sprite.centerEmitter().burst( RainbowParticle.BURST, 10+dmg);
 			CellEmitter.get(enemy.pos).start( ShaftParticle.FACTORY, 0.025f, 8 );
 
 			if (hero.buff(ClericArmor.ClericArmorBuff.class) != null){
@@ -637,9 +628,9 @@ public class Devotion extends Buff implements ActionIndicator.Action {
 					item.cursedKnown = true;
 					item.cursed = false;
 
-					if (((Weapon) item).hasCurseEnchant())
+					if (item instanceof Weapon && ((Weapon) item).hasCurseEnchant())
 						((Weapon) item).enchant(null);
-					if (((Armor) item).hasCurseGlyph())
+					if (item instanceof Armor && ((Armor) item).hasCurseGlyph())
 						((Armor) item).inscribe(null);
 
 					hero.sprite.emitter().start(ShadowParticle.UP, 0.05f, 10);

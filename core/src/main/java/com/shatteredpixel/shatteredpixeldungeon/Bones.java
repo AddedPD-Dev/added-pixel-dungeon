@@ -180,6 +180,9 @@ public class Bones {
 					//thrown weapons are always IDed, otherwise set unknown
 					item.levelKnown = item instanceof MissileWeapon;
 				}
+
+				if (item.enlightened)
+					item.enlightened = false;
 				
 				item.reset();
 				

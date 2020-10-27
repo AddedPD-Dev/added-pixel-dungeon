@@ -208,28 +208,11 @@ public enum HeroClass {
 
 		Devotion devotion = new Devotion();
 		devotion.attachTo(hero);
-		devotion.onOther(5);
+		devotion.onOther(45);
 		ActionIndicator.setAction(devotion);
 
-		switch (Random.IntRange(1,4)) {
-			case 1:
-			default:
-				new PotionBandolier().collect();
-				Dungeon.LimitedDrops.POTION_BANDOLIER.drop();
-				break;
-			case 2:
-				new VelvetPouch().collect();
-				Dungeon.LimitedDrops.VELVET_POUCH.drop();
-				break;
-			case 3:
-				new ScrollHolder().collect();
-				Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
-				break;
-			case 4:
-				new MagicalHolster().collect();
-				Dungeon.LimitedDrops.MAGICAL_HOLSTER.drop();
-				break;
-		}
+		new MagicalHolster().collect();
+		Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
 
 		new PotionOfExperience().identify();
 		new ScrollOfRemoveCurse().identify();
@@ -348,6 +331,10 @@ public enum HeroClass {
 				return Messages.get(HeroClass.class, "rogue_unlock");
 			case HUNTRESS:
 				return Messages.get(HeroClass.class, "huntress_unlock");
+			case CLERIC:
+				return Messages.get(HeroClass.class, "cleric_unlock");
+			case DWARF_HERO:
+				return Messages.get(HeroClass.class, "dwarf_hero_unlock");
 		}
 	}
 

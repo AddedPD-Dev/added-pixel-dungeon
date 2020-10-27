@@ -23,8 +23,10 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.traps;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.ShadowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.EquipableItem;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
@@ -58,7 +60,7 @@ public class CursingTrap extends Trap {
 		Heap heap = Dungeon.level.heaps.get( pos );
 		if (heap != null){
 			for (Item item : heap.items){
-				if (item.isUpgradable() && !(item instanceof MissileWeapon))
+				if (item.isUpgradable() && !item.enlightened && !(item instanceof MissileWeapon))
 					curse(item);
 			}
 		}
@@ -73,10 +75,14 @@ public class CursingTrap extends Trap {
 		ArrayList<Item> priorityCurse = new ArrayList<>();
 		//items the trap can curse if nothing else is available.
 		ArrayList<Item> canCurse = new ArrayList<>();
+		//items the trap wants to curse, but enlightened item resist it!
+		ArrayList<Item> resistCurse = new ArrayList<>();
 
 		KindOfWeapon weapon = hero.belongings.weapon;
 		if (weapon instanceof Weapon && !(weapon instanceof MagesStaff)){
-			if (((Weapon) weapon).enchantment == null)
+			if (weapon.enlightened)
+				resistCurse.add(weapon);
+			else if (((Weapon) weapon).enchantment == null)
 				priorityCurse.add(weapon);
 			else
 				canCurse.add(weapon);
@@ -84,7 +90,9 @@ public class CursingTrap extends Trap {
 
 		Armor armor = hero.belongings.armor;
 		if (armor != null){
-			if (armor.glyph == null)
+			if (armor.enlightened)
+				resistCurse.add(armor);
+			else if (armor.glyph == null)
 				priorityCurse.add(armor);
 			else
 				canCurse.add(armor);
@@ -93,14 +101,22 @@ public class CursingTrap extends Trap {
 		Collections.shuffle(priorityCurse);
 		Collections.shuffle(canCurse);
 
-		if (!priorityCurse.isEmpty()){
-			curse(priorityCurse.remove(0));
-		} else if (!canCurse.isEmpty()){
-			curse(canCurse.remove(0));
-		}
+		if (!resistCurse.isEmpty()){
+			resistCurse.remove(0);
+			GLog.p( Messages.get(Devotion.class, "resist_curse") );
+			CellEmitter.get(hero.pos).start(Speck.factory(Speck.LIGHT), 0.2f, 6);
 
-		EquipableItem.equipCursed(hero);
-		GLog.n( Messages.get(CursingTrap.class, "curse") );
+		} else {
+
+			if (!priorityCurse.isEmpty()) {
+				curse(priorityCurse.remove(0));
+			} else if (!canCurse.isEmpty()) {
+				curse(canCurse.remove(0));
+			}
+
+			EquipableItem.equipCursed(hero);
+			GLog.n( Messages.get(CursingTrap.class, "curse") );
+		}
 	}
 
 	private static void curse(Item item){
