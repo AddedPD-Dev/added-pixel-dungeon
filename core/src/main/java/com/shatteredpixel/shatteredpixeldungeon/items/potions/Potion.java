@@ -379,6 +379,10 @@ public class Potion extends Item {
 				Emitter e = hero.sprite.emitter();
 				if (e != null) e.burst(Speck.factory(Speck.HEALING), hero.pointsInTalent(Talent.TEST_SUBJECT));
 			}
+			//7/15 exp
+			if (hero.isAlive() && hero.hasTalent(Talent.MACHINE_LEARNING)) {
+				hero.earnExp((hero.pointsInTalent(Talent.MACHINE_LEARNING) == 2 ? 4 : 7), getClass());
+			}
 		}
 		return super.identify();
 	}

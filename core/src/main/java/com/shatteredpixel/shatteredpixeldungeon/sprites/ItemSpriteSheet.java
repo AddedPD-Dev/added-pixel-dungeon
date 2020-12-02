@@ -195,7 +195,7 @@ public class ItemSpriteSheet {
 
 	private static final int WEP_TIER1      =                               xy(1, 7);   //8 slots
 	public static final int WORN_SHORTSWORD = WEP_TIER1+0;
-	public static final int DWRFARM          = WEP_TIER1+1;
+	//public static final int DWRFARM          = WEP_TIER1+1;
 	public static final int GLOVES          = WEP_TIER1+2;
 	public static final int CUDGEL          = WEP_TIER1+3;
 	public static final int DAGGER          = WEP_TIER1+4;
@@ -348,7 +348,8 @@ public class ItemSpriteSheet {
 	public static final int ARMOR_ROGUE     = ARMOR+7;
 	public static final int ARMOR_HUNTRESS  = ARMOR+8;
 	public static final int ARMOR_CLERIC  = ARMOR+9;
-	public static final int ARMOR_DWARF  = ARMOR+10;
+	public static final int ARMOR_DM_BASIC  = ARMOR+10;
+	public static final int ARMOR_DM_ADV  = ARMOR+11;
 	static{
 		assignItemRect(ARMOR_CLOTH,     15, 12);
 		assignItemRect(ARMOR_LEATHER,   14, 13);
@@ -360,7 +361,8 @@ public class ItemSpriteSheet {
 		assignItemRect(ARMOR_ROGUE,     14, 12);
 		assignItemRect(ARMOR_HUNTRESS,  13, 15);
 		assignItemRect(ARMOR_CLERIC,     13, 12);
-		assignItemRect(ARMOR_DWARF,  14, 15);
+		assignItemRect(ARMOR_DM_BASIC,  14, 14);
+		assignItemRect(ARMOR_DM_ADV,  14, 14);
 	}
 
 	                                                                                    //16 free slots

@@ -337,6 +337,11 @@ public class WndStartGame extends Window {
 							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.CUDGEL, null));
 							heroMisc.icon(new Image(Icons.CLERIC));
 							break;
+						case DM_HERO:
+							heroItem.icon(new Image(Icons.DATA));
+							heroLoadout.icon(new ItemSprite(ItemSpriteSheet.ARMOR_DM_BASIC, null));
+							heroMisc.icon(new ItemSprite(ItemSpriteSheet.STONE_SHOCK, null));
+							break;
 					}
 					
 					layout();

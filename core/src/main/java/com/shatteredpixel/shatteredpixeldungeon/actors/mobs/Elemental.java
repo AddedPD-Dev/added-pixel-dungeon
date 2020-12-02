@@ -29,7 +29,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Blindness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Chill;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Splash;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfFrost;
@@ -282,6 +284,10 @@ public abstract class Elemental extends Mob {
 			
 			for (Char ch : affected) {
 				ch.damage( Math.round( damage * 0.4f ), this );
+				if (ch.isAlive() && ch == Dungeon.hero
+						&& Dungeon.hero.heroClass == HeroClass.DM_HERO) {
+					Buff.prolong(ch, Haste.class, 2f);
+				}
 			}
 			
 			sprite.parent.addToFront( new Lightning( arcs, null ) );
@@ -293,6 +299,11 @@ public abstract class Elemental extends Mob {
 			Buff.affect( enemy, Blindness.class, Blindness.DURATION/2f );
 			if (enemy == Dungeon.hero) {
 				GameScene.flash(0xFFFFFF);
+
+				if (enemy.isAlive() && enemy == Dungeon.hero
+						&& Dungeon.hero.heroClass == HeroClass.DM_HERO) {
+					Buff.prolong(enemy, Haste.class, 2f);
+				}
 			}
 		}
 	}

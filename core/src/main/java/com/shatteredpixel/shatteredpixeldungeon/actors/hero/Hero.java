@@ -35,7 +35,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AdrenalineSurge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Amok;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barrier;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Berserk;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
@@ -65,6 +64,8 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap.Type;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.KindOfWeapon;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClassArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.DMArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.AntiMagic;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Brimstone;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
@@ -366,7 +367,17 @@ public class Hero extends Char {
 	}
 	
 	public int tier() {
-		return belongings.armor == null ? 0 : belongings.armor.tier;
+		if (heroClass == HeroClass.DM_HERO) {
+			switch (subClass){
+				case NONE: default:
+					return 0;
+				case BREACHER:
+					return 2;
+				case TRACER:
+					return 3;
+			}
+		} else
+			return belongings.armor == null ? 0 : belongings.armor.tier;
 	}
 	
 	public boolean shoot( Char enemy, MissileWeapon wep ) {
@@ -470,6 +481,16 @@ public class Hero extends Char {
 			if (!(wep instanceof MissileWeapon)) dmg += RingOfForce.armedDamageBonus(this);
 		} else {
 			dmg = RingOfForce.damageRoll(this);
+			if (heroClass == HeroClass.DM_HERO) {
+
+				dmg += Random.NormalIntRange(1, 3);
+
+				if (hasTalent(Talent.REINFORCING_MEAL)){
+					dmg += Random.NormalIntRange(pointsInTalent(Talent.REINFORCING_MEAL),
+							2 * pointsInTalent(Talent.REINFORCING_MEAL));
+				}
+
+			}
 		}
 		if (dmg < 0) dmg = 0;
 		

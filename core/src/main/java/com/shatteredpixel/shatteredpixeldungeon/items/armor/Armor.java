@@ -34,7 +34,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Light;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicImmune;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Momentum;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.RainbowParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
@@ -61,8 +63,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Stone;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Swiftness;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Thorns;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.glyphs.Viscosity;
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
@@ -164,6 +168,16 @@ public class Armor extends EquipableItem {
 	public ArrayList<String> actions(Hero hero) {
 		ArrayList<String> actions = super.actions(hero);
 		if (seal != null) actions.add(AC_DETACH);
+
+        if (hero.heroClass == HeroClass.DM_HERO) {
+            if (this instanceof DMArmor) {
+                actions.remove( AC_DROP );
+                actions.remove( AC_THROW );
+				actions.remove( AC_UNEQUIP );
+            }
+            else actions.remove( AC_EQUIP );
+        }
+
 		return actions;
 	}
 
@@ -190,30 +204,30 @@ public class Armor extends EquipableItem {
 
 	@Override
 	public boolean doEquip( Hero hero ) {
-		
+
 		detach(hero.belongings.backpack);
 
 		if (hero.belongings.armor == null || hero.belongings.armor.doUnequip( hero, true, false )) {
-			
+
 			hero.belongings.armor = this;
-			
+
 			cursedKnown = true;
 			if (cursed) {
 				equipCursed( hero );
 				GLog.n( Messages.get(Armor.class, "equip_cursed") );
 			}
-			
+
 			((HeroSprite)hero.sprite).updateArmor();
 			activate(hero);
 			Talent.onItemEquipped(hero, this);
 			hero.spendAndNext( time2equip( hero ) );
 			return true;
-			
+
 		} else {
-			
+
 			collect( hero.belongings.backpack );
 			return false;
-			
+
 		}
 	}
 
@@ -345,6 +359,29 @@ public class Armor extends EquipableItem {
 				(Dungeon.level.map[owner.pos] == Terrain.DOOR
 						|| Dungeon.level.map[owner.pos] == Terrain.OPEN_DOOR )) {
 			speed /= 3f;
+		}
+
+		if (Dungeon.hero.heroClass == HeroClass.DM_HERO
+				&& (Dungeon.level.map[owner.pos] == Terrain.DOOR
+				|| Dungeon.level.map[owner.pos] == Terrain.OPEN_DOOR )) {
+			speed /= 3f;
+
+
+			Level.set( owner.pos, Terrain.EMPTY );
+			Sample.INSTANCE.play( Assets.Sounds.ROCKS );
+			GameScene.updateMap( owner.pos );
+
+			if (Dungeon.level.heroFOV[owner.pos]) {
+				Dungeon.observe();
+			}
+
+			for (Mob mob : Dungeon.level.mobs) {
+				if (mob.paralysed <= 0 && mob.alignment == Char.Alignment.ENEMY
+						&& Dungeon.level.distance(owner.pos, mob.pos) <= 3
+						&& mob.state != mob.HUNTING) {
+					mob.beckon(owner.pos);
+				}
+			}
 		}
 		
 		return speed;

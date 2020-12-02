@@ -109,30 +109,31 @@ public class Item implements Bundlable {
 	}
 	
 	public boolean doPickUp( Hero hero ) {
-
-		if (hero.heroClass == HeroClass.CLERIC && (this instanceof Wand || this instanceof Spell)) {
-			GLog.p( Messages.get(Devotion.class, "no_magic", this.name()) );
-			Devotion devotion = new Devotion();
-			int preservedRank = devotion.getrank();
-			ActionIndicator.setAction(devotion);
-			devotion.onReset();
-			devotion.onOther(preservedRank + 15);
-
-			Sample.INSTANCE.play(Assets.Sounds.BURNING);
-
-			Emitter emitter = hero.sprite.centerEmitter();
-			CellEmitter.get(hero.pos).start(Speck.factory(Speck.LIGHT), 0.2f, 6);
-			hero.spendAndNext( TIME_TO_PICK_UP );
-			return true;
-		}
-
 		if (collect( hero.belongings.backpack )) {
-			
-			GameScene.pickUp( this, hero.pos );
-			Sample.INSTANCE.play( Assets.Sounds.ITEM );
-			Talent.onItemCollected( hero, this );
-			hero.spendAndNext( TIME_TO_PICK_UP );
-			return true;
+
+			if (hero.heroClass == HeroClass.CLERIC && (this instanceof Wand || this instanceof Spell)) {
+				GLog.p( Messages.get(Devotion.class, "no_magic", this.name()) );
+				Devotion devotion = new Devotion();
+				int preservedRank = devotion.getrank();
+				ActionIndicator.setAction(devotion);
+				devotion.onReset();
+				devotion.onOther(preservedRank + 15);
+
+				Sample.INSTANCE.play(Assets.Sounds.BURNING);
+
+				Emitter emitter = hero.sprite.centerEmitter();
+				CellEmitter.get(hero.pos).start(Speck.factory(Speck.LIGHT), 0.2f, 6);
+				hero.spendAndNext( TIME_TO_PICK_UP );
+				return true;
+
+			} else {
+
+				GameScene.pickUp(this, hero.pos);
+				Sample.INSTANCE.play(Assets.Sounds.ITEM);
+				Talent.onItemCollected(hero, this);
+				hero.spendAndNext(TIME_TO_PICK_UP);
+				return true;
+			}
 			
 		} else {
 			return false;

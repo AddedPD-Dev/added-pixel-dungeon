@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.hero;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Barkskin;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bless;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
@@ -75,7 +76,12 @@ public enum Talent {
 	GRACE_BEFORE_MEAL(16),
 	ACOLYTES_INTUITION(17),
 	LIGHTBRINGER(18),
-	SEER(19);
+	SEER(19),
+
+	REINFORCING_MEAL(20),
+	ARTIFICIALS_INTUITION(21),
+	MACHINE_LEARNING(22),
+	UPGRADE_ACTUATOR(23);
 
 	int icon;
 
@@ -160,6 +166,10 @@ public enum Talent {
 				hero.sprite.emitter().burst( Speck.factory( Speck.DISCOVER ), 2 );
 			}
 		}
+		if (hero.hasTalent(REINFORCING_MEAL)){
+            // 5/8 turns based on talent points spent
+			Buff.affect(Dungeon.hero, Barkskin.class).set(2, 2 + 3*(hero.pointsInTalent(REINFORCING_MEAL)));
+		}
 	}
 
 	public static float itemIDSpeedFactor( Hero hero, Item item ){
@@ -177,6 +187,10 @@ public enum Talent {
 		// 2x/instant for rogue (see onItemEqupped), also id's type on equip/on pickup
 		if (item instanceof Ring){
 			factor *= 1f + hero.pointsInTalent(THIEFS_INTUITION);
+		}
+		// 3x/5x speed with DM-301 while hasten
+		if (hero.buff(Haste.class) != null){
+			factor *= 1f + hero.pointsInTalent(ARTIFICIALS_INTUITION)*2f;
 		}
 		return factor;
 	}
@@ -239,15 +253,6 @@ public enum Talent {
 	public static class FollowupStrikeTracker extends Buff{};
 	public static class LightbringerTracker extends Buff{};
 
-	//public static int damage( Hero hero, Object src, int dmg ){
-	//	if (hero.hasTalent(Talent.ANTIMAGIC)){
-	//		if (AntiMagic.RESISTS.contains(src.getClass())){
-	//			dmg -= Random.IntRange(1, hero.pointsInTalent(Talent.ANTIMAGIC));
-	//		}
-	//	}
-	//	return dmg;
-	//}
-
 	public static final int MAX_TALENT_TIERS = 1;
 
 	public static void initClassTalents( Hero hero ){
@@ -277,6 +282,9 @@ public enum Talent {
 				break;
 			case CLERIC:
 				Collections.addAll(tierTalents, GRACE_BEFORE_MEAL, ACOLYTES_INTUITION, LIGHTBRINGER, SEER);
+				break;
+			case DM_HERO:
+				Collections.addAll(tierTalents, REINFORCING_MEAL, ARTIFICIALS_INTUITION, MACHINE_LEARNING, UPGRADE_ACTUATOR);
 				break;
 		}
 		for (Talent talent : tierTalents){

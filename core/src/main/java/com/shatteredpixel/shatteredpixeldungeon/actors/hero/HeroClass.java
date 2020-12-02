@@ -28,14 +28,16 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Devotion;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
+import com.shatteredpixel.shatteredpixeldungeon.items.TomeOfMastery;
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.ClothArmor;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.DMArmor;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
-import com.shatteredpixel.shatteredpixeldungeon.items.bags.MagicalHolster;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.PotionBandolier;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.ScrollHolder;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHaste;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
@@ -45,7 +47,9 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfLullaby;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfTeleportation;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.stones.StoneOfShock;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Cudgel;
@@ -59,7 +63,6 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.DeviceCompat;
-import com.watabou.utils.Random;
 
 public enum HeroClass {
 
@@ -68,7 +71,7 @@ public enum HeroClass {
 	ROGUE( "rogue", HeroSubClass.ASSASSIN, HeroSubClass.FREERUNNER ),
 	HUNTRESS( "huntress", HeroSubClass.SNIPER, HeroSubClass.WARDEN ),
 	CLERIC("cleric", HeroSubClass.CRUSADER, HeroSubClass.SCHOLAR),
-	DWARF_HERO("dwarf_hero", HeroSubClass.THUNDERER, HeroSubClass.MONK);
+	DM_HERO("dm_hero", HeroSubClass.BREACHER, HeroSubClass.TRACER);
 
 	private String title;
 	private HeroSubClass[] subClasses;
@@ -105,6 +108,10 @@ public enum HeroClass {
 			case CLERIC:
 				initCleric( hero );
 				break;
+
+			case DM_HERO:
+				initDM( hero );
+				break;
 		}
 
 	}
@@ -112,6 +119,10 @@ public enum HeroClass {
 	private static void initCommon( Hero hero ) {
 		Item i = new ClothArmor().identify();
 		if (!Challenges.isItemBlocked(i)) hero.belongings.armor = (ClothArmor)i;
+
+        if (hero.heroClass == DM_HERO) {
+			(hero.belongings.armor = new DMArmor()).identify();
+		}
 
 		i = new Food();
 		if (!Challenges.isItemBlocked(i)) i.collect();
@@ -211,11 +222,28 @@ public enum HeroClass {
 		//devotion.onOther(45);
 		ActionIndicator.setAction(devotion);
 
-		new MagicalHolster().collect();
+		new ScrollHolder().collect();
 		Dungeon.LimitedDrops.SCROLL_HOLDER.drop();
 
 		new PotionOfExperience().identify();
 		new ScrollOfRemoveCurse().identify();
+	}
+
+	private static void initDM( Hero hero ) {
+
+		DMArmor.DM_Immunities immune = new DMArmor.DM_Immunities();
+		immune.attachTo(hero);
+
+		new TomeOfMastery().collect();
+
+		StoneOfShock shocks = new StoneOfShock();
+		shocks.quantity(5).collect();
+
+		new VelvetPouch().collect();
+		Dungeon.LimitedDrops.VELVET_POUCH.drop();
+
+		new PotionOfHaste().identify();
+		new ScrollOfTeleportation().identify();
 	}
 
 	public String title() {
@@ -238,8 +266,8 @@ public enum HeroClass {
 				return Assets.Sprites.HUNTRESS;
 			case CLERIC:
 				return Assets.Sprites.CLERIC;
-			case DWARF_HERO:
-				return Assets.Sprites.DWARF_HERO;
+			case DM_HERO:
+				return Assets.Sprites.DM_HERO;
 		}
 	}
 
@@ -255,8 +283,8 @@ public enum HeroClass {
 				return Assets.Splashes.HUNTRESS;
 			case CLERIC:
 				return Assets.Splashes.CLERIC;
-			case DWARF_HERO:
-				return Assets.Splashes.DWARF_HERO;
+			case DM_HERO:
+				return Assets.Splashes.DM_HERO;
 		}
 	}
 	
@@ -302,6 +330,14 @@ public enum HeroClass {
 						Messages.get(HeroClass.class, "cleric_perk4"),
 						Messages.get(HeroClass.class, "cleric_perk5"),
 				};
+			case DM_HERO:
+				return new String[]{
+						Messages.get(HeroClass.class, "dm_hero_perk1"),
+						Messages.get(HeroClass.class, "dm_hero_perk2"),
+						Messages.get(HeroClass.class, "dm_hero_perk3"),
+						Messages.get(HeroClass.class, "dm_hero_perk4"),
+						Messages.get(HeroClass.class, "dm_hero_perk5"),
+				};
 		}
 	}
 	
@@ -333,8 +369,8 @@ public enum HeroClass {
 				return Messages.get(HeroClass.class, "huntress_unlock");
 			case CLERIC:
 				return Messages.get(HeroClass.class, "cleric_unlock");
-			case DWARF_HERO:
-				return Messages.get(HeroClass.class, "dwarf_hero_unlock");
+			case DM_HERO:
+				return Messages.get(HeroClass.class, "dm_hero_unlock");
 		}
 	}
 

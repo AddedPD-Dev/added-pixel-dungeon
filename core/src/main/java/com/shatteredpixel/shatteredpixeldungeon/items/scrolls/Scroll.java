@@ -229,6 +229,10 @@ public abstract class Scroll extends Item {
 				Buff.affect(hero, Barrier.class).setShield(3 + (3 * hero.pointsInTalent(Talent.TESTED_HYPOTHESIS)), 1);
 				ScrollOfRecharging.charge(hero);
 			}
+			//7/15 exp
+			if (hero.isAlive() && hero.hasTalent(Talent.MACHINE_LEARNING)) {
+				hero.earnExp((hero.pointsInTalent(Talent.MACHINE_LEARNING) == 2 ? 4 : 7), getClass());
+			}
 		}
 		return super.identify();
 	}

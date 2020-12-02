@@ -43,8 +43,8 @@ public enum HeroSubClass {
 	CRUSADER("crusader"),
 	SCHOLAR("scholar"),
 
-	THUNDERER("thunderer"),
-	MONK("monk");
+	BREACHER("breacher"),
+	TRACER("tracer");
 	
 	private String title;
 	

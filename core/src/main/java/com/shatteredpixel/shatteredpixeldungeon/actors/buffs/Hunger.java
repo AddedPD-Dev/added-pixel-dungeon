@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.Artifact;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HornOfPlenty;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -84,7 +85,12 @@ public class Hunger extends Buff implements Hero.Doom {
 				float newLevel = level + STEP;
 				if (newLevel >= STARVING) {
 
-					GLog.n( Messages.get(this, "onstarving") );
+					if (hero.heroClass == HeroClass.DM_HERO) {
+						GLog.n(Messages.get(this, "dm_onstarving"));
+					} else {
+						GLog.n(Messages.get(this, "onstarving"));
+					}
+
 					hero.resting = false;
 					hero.damage( 1, this );
 
@@ -92,7 +98,11 @@ public class Hunger extends Buff implements Hero.Doom {
 
 				} else if (newLevel >= HUNGRY && level < HUNGRY) {
 
-					GLog.w( Messages.get(this, "onhungry") );
+					if (hero.heroClass == HeroClass.DM_HERO) {
+						GLog.n(Messages.get(this, "dm_onhungry"));
+					} else {
+						GLog.n(Messages.get(this, "onhungry"));
+					}
 
 				}
 				level = newLevel;
@@ -115,7 +125,13 @@ public class Hunger extends Buff implements Hero.Doom {
 		Artifact.ArtifactBuff buff = target.buff( HornOfPlenty.hornRecharge.class );
 		if (buff != null && buff.isCursed()){
 			energy *= 0.67f;
-			GLog.n( Messages.get(this, "cursedhorn") );
+
+			if (Dungeon.hero.heroClass == HeroClass.DM_HERO) {
+				GLog.n(Messages.get(this, "dm_cursedhorn"));
+			} else {
+				GLog.n(Messages.get(this, "cursedhorn"));
+			}
+
 		}
 
 		affectHunger( energy, false );
@@ -160,23 +176,43 @@ public class Hunger extends Buff implements Hero.Doom {
 
 	@Override
 	public String toString() {
-		if (level < STARVING) {
-			return Messages.get(this, "hungry");
+
+		if (Dungeon.hero.heroClass == HeroClass.DM_HERO) {
+			if (level < STARVING) {
+				return Messages.get(this, "dm_hungry");
+			} else {
+				return Messages.get(this, "dm_starving");
+			}
 		} else {
-			return Messages.get(this, "starving");
+			if (level < STARVING) {
+				return Messages.get(this, "hungry");
+			} else {
+				return Messages.get(this, "starving");
+			}
 		}
 	}
 
 	@Override
 	public String desc() {
 		String result;
-		if (level < STARVING) {
-			result = Messages.get(this, "desc_intro_hungry");
-		} else {
-			result = Messages.get(this, "desc_intro_starving");
-		}
+		if (Dungeon.hero.heroClass == HeroClass.DM_HERO) {
+			if (level < STARVING) {
+				result = Messages.get(this, "dm_desc_intro_hungry");
+			} else {
+				result = Messages.get(this, "dm_desc_intro_starving");
+			}
 
-		result += Messages.get(this, "desc");
+			result += Messages.get(this, "dm_desc");
+
+		} else {
+			if (level < STARVING) {
+				result = Messages.get(this, "desc_intro_hungry");
+			} else {
+				result = Messages.get(this, "desc_intro_starving");
+			}
+
+			result += Messages.get(this, "desc");
+		}
 
 		return result;
 	}
@@ -187,6 +223,8 @@ public class Hunger extends Buff implements Hero.Doom {
 		Badges.validateDeathFromHunger();
 
 		Dungeon.fail( getClass() );
-		GLog.n( Messages.get(this, "ondeath") );
+		if (Dungeon.hero.heroClass == HeroClass.DM_HERO) {
+			GLog.n(Messages.get(this, "dm_ondeath"));
+		} else GLog.n(Messages.get(this, "ondeath"));
 	}
 }

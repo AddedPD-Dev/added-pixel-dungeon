@@ -23,6 +23,9 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica;
@@ -102,6 +105,11 @@ public class DM100 extends Mob implements Callback {
 				if (enemy == Dungeon.hero) {
 					
 					Camera.main.shake( 2, 0.3f );
+
+					if (Dungeon.hero.heroClass == HeroClass.DM_HERO
+					     && enemy.isAlive()) {
+						Buff.prolong(enemy, Haste.class, 2f);
+					}
 					
 					if (!enemy.isAlive()) {
 						Dungeon.fail( getClass() );

@@ -29,8 +29,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Talent;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck;
 import com.shatteredpixel.shatteredpixeldungeon.effects.SpellSprite;
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.DMArmor;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -91,9 +93,9 @@ public class TomeOfMastery extends Item {
 				way1 = HeroSubClass.CRUSADER;
 				way2 = HeroSubClass.SCHOLAR;
 				break;
-			case DWARF_HERO:
-				way1 = HeroSubClass.THUNDERER;
-				way2 = HeroSubClass.MONK;
+			case DM_HERO:
+				way1 = HeroSubClass.BREACHER;
+				way2 = HeroSubClass.TRACER;
 				break;
 			}
 			GameScene.show( new WndChooseWay( this, way1, way2 ) );
@@ -135,7 +137,14 @@ public class TomeOfMastery extends Item {
 			devotion.onReset();
 			devotion.onOther(preservedRank);
 		}
-		
+
+		if (way == HeroSubClass.TRACER) {
+			DMArmor.DM_Teleport teleport = new DMArmor.DM_Teleport();
+			teleport.attachTo(curUser);
+			ActionIndicator.setAction(teleport);
+			((HeroSprite)curUser.sprite).updateArmor();
+		}
+
 		curUser.sprite.operate( curUser.pos );
 		Sample.INSTANCE.play( Assets.Sounds.MASTERY );
 		

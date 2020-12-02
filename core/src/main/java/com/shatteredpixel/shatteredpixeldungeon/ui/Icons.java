@@ -65,7 +65,7 @@ public enum Icons {
 	ROGUE,
 	HUNTRESS,
 	CLERIC,
-	DWARF_HERO,
+	DM_HERO,
 
 	// AddedPD : icons for cleric, +cleric_miracle.png
 	SMITE,
@@ -202,7 +202,7 @@ public enum Icons {
 			case CLERIC:
 				icon.frame( icon.texture.uvRect( 50, 79, 67, 96 ) );
 				break;
-			case DWARF_HERO:
+			case DM_HERO:
 				icon.frame( icon.texture.uvRect( 68, 80, 85, 96 ) );
 				break;
 
@@ -307,8 +307,8 @@ public enum Icons {
 				return get( HUNTRESS );
 			case CLERIC:
 				return get( CLERIC );
-			case DWARF_HERO:
-				return get(DWARF_HERO);
+			case DM_HERO:
+				return get(DM_HERO);
 			default:
 				return null;
 		}

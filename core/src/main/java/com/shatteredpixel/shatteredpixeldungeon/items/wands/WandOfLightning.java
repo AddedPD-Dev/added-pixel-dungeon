@@ -25,6 +25,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Haste;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter;
 import com.shatteredpixel.shatteredpixeldungeon.effects.Lightning;
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SparkParticle;
@@ -83,6 +86,11 @@ public class WandOfLightning extends DamageWand {
 				ch.damage(Math.round(damageRoll() * multipler * 0.5f), this);
 			} else {
 				ch.damage(Math.round(damageRoll() * multipler), this);
+			}
+
+			if (ch.isAlive() && ch == Dungeon.hero
+					&& Dungeon.hero.heroClass == HeroClass.DM_HERO) {
+				Buff.prolong(ch, Haste.class, 2f);
 			}
 		}
 

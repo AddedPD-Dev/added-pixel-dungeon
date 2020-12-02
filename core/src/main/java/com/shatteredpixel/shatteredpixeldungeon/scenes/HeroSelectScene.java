@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import static com.shatteredpixel.shatteredpixeldungeon.ui.Icons.CLERIC;
+import static com.shatteredpixel.shatteredpixeldungeon.ui.Icons.DM_HERO;
 
 public class HeroSelectScene extends PixelScene {
 
@@ -387,6 +388,12 @@ public class HeroSelectScene extends PixelScene {
 					tabIcons = new Image[]{
 							Icons.get(CLERIC),
 							new ItemSprite(ItemSpriteSheet.CUDGEL, null)
+					};
+					break;
+				case DM_HERO:
+					tabIcons = new Image[]{
+							new ItemSprite(ItemSpriteSheet.ARMOR_DM_BASIC, null),
+							new ItemSprite(ItemSpriteSheet.STONE_SHOCK, null)
 					};
 					break;
 			}

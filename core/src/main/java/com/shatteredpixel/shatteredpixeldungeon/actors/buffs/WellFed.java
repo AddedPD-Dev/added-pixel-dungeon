@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.buffs;
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.watabou.utils.Bundle;
@@ -72,12 +73,18 @@ public class WellFed extends Buff {
 	
 	@Override
 	public String toString() {
-		return Messages.get(this, "name");
+		if (Dungeon.hero.heroClass == HeroClass.DM_HERO)
+			return Messages.get(this, "dm_name");
+		else
+			return Messages.get(this, "name");
 	}
 	
 	@Override
 	public String desc() {
-		return Messages.get(this, "desc", left + 1);
+		if (Dungeon.hero.heroClass == HeroClass.DM_HERO)
+			return Messages.get(this, "dm_desc", left + 1);
+		else
+			return Messages.get(this, "desc", left + 1);
 	}
 	
 	private static final String LEFT = "left";

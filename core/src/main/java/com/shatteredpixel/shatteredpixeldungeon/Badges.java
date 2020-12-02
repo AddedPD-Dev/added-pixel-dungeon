@@ -157,12 +157,12 @@ public class Badges {
 		BOSS_SLAIN_3_SCHOLAR,
 		VICTORY_CLERIC,
 
-		UNLOCK_DWARF_HERO            ( 116 ),
-		MASTERY_DWARF_HERO,
-		BOSS_SLAIN_1_DWARF_HERO,
-		BOSS_SLAIN_3_THUNDERER,
-		BOSS_SLAIN_3_MONK,
-		VICTORY_DWARF_HERO;
+		UNLOCK_DM_HERO            ( 116 ),
+		MASTERY_DM_HERO,
+		BOSS_SLAIN_1_DM_HERO,
+		BOSS_SLAIN_3_TANK,
+		BOSS_SLAIN_3_GOLEM,
+		VICTORY_DM_HERO;
 
 		public boolean meta;
 
@@ -615,8 +615,8 @@ public class Badges {
 				case CLERIC:
 					badge = Badge.BOSS_SLAIN_1_CLERIC;
 					break;
-				case DWARF_HERO:
-					badge = Badge.BOSS_SLAIN_1_DWARF_HERO;
+				case DM_HERO:
+					badge = Badge.BOSS_SLAIN_1_DM_HERO;
 					break;
 				}
 				local.add( badge );
@@ -630,7 +630,7 @@ public class Badges {
 					global.contains( Badge.BOSS_SLAIN_1_ROGUE ) &&
 					global.contains( Badge.BOSS_SLAIN_1_HUNTRESS) &&
 				    global.contains( Badge.BOSS_SLAIN_1_CLERIC) &&
-				    global.contains( Badge.BOSS_SLAIN_1_DWARF_HERO)) {
+				    global.contains( Badge.BOSS_SLAIN_1_DM_HERO)) {
 					
 					badge = Badge.BOSS_SLAIN_1_ALL_CLASSES;
 					if (!global.contains( badge )) {
@@ -672,11 +672,11 @@ public class Badges {
 				case SCHOLAR:
 					badge = Badge.BOSS_SLAIN_3_SCHOLAR;
 					break;
-				case THUNDERER:
-					badge = Badge.BOSS_SLAIN_3_THUNDERER;
+				case BREACHER:
+					badge = Badge.BOSS_SLAIN_3_TANK;
 					break;
-				case MONK:
-					badge = Badge.BOSS_SLAIN_3_MONK;
+				case TRACER:
+					badge = Badge.BOSS_SLAIN_3_GOLEM;
 					break;
 				default:
 					return;
@@ -697,8 +697,8 @@ public class Badges {
 					global.contains( Badge.BOSS_SLAIN_3_WARDEN ) &&
 					global.contains( Badge.BOSS_SLAIN_3_CRUSADER ) &&
 					global.contains( Badge.BOSS_SLAIN_3_SCHOLAR ) &&
-					global.contains( Badge.BOSS_SLAIN_3_THUNDERER ) &&
-					global.contains( Badge.BOSS_SLAIN_3_MONK )) {
+					global.contains( Badge.BOSS_SLAIN_3_TANK ) &&
+					global.contains( Badge.BOSS_SLAIN_3_GOLEM )) {
 					
 					badge = Badge.BOSS_SLAIN_3_ALL_SUBCLASSES;
 					if (!global.contains( badge )) {
@@ -730,8 +730,8 @@ public class Badges {
 		case CLERIC:
 			badge = Badge.MASTERY_CLERIC;
 			break;
-		case DWARF_HERO:
-			badge = Badge.MASTERY_DWARF_HERO;
+		case DM_HERO:
+			badge = Badge.MASTERY_DM_HERO;
 			break;
 		}
 		
@@ -788,8 +788,8 @@ public class Badges {
 		case CLERIC:
 			badge = Badge.VICTORY_CLERIC;
 			break;
-		case DWARF_HERO:
-			badge = Badge.VICTORY_DWARF_HERO;
+		case DM_HERO:
+			badge = Badge.VICTORY_DM_HERO;
 			break;
 		}
 		local.add( badge );
@@ -803,7 +803,7 @@ public class Badges {
 			global.contains( Badge.VICTORY_ROGUE ) &&
 			global.contains( Badge.VICTORY_HUNTRESS ) &&
 			global.contains( Badge.VICTORY_CLERIC ) &&
-			global.contains( Badge.VICTORY_DWARF_HERO )) {
+			global.contains( Badge.VICTORY_DM_HERO)) {
 			
 			badge = Badge.VICTORY_ALL_CLASSES;
 			displayBadge( badge );
